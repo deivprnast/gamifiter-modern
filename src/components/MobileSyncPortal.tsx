@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Watch, Smartphone, CheckCircle, RefreshCw, Send, ShieldCheck, ArrowLeft, Cpu } from 'lucide-react';
+import { Watch, Smartphone, CheckCircle, RefreshCw, Send, ShieldCheck, ArrowLeft, Cpu, Download } from 'lucide-react';
 import { NativeHealthService } from '../services/nativeHealthService';
 import '../MobileSyncPortal.css';
 
@@ -102,6 +102,51 @@ export const MobileSyncPortal: React.FC<MobileSyncPortalProps> = ({ onBackToApp 
           {isNative ? `Nativní ${platform.toUpperCase()}` : 'Mobilní portál'}
         </div>
       </div>
+
+      {/* Nativní Android APK banner pokud je otevřeno v prohlížeči */}
+      {!isNative && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.2))',
+          border: '1px solid rgba(56, 189, 248, 0.4)',
+          borderRadius: '16px',
+          padding: '16px',
+          marginBottom: '16px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '22px' }}>📱</span>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '13px', color: '#fff' }}>Nativní Android aplikace (v1.0.0)</div>
+              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Pro automatické čtení Garmin & Google Health</div>
+            </div>
+          </div>
+          <p style={{ fontSize: '11px', color: '#cbd5e1', lineHeight: '1.4', margin: '0 0 12px 0' }}>
+            V prohlížeči můžete zadávat kroky ručně. Pro <strong>automatické propojení na pozadí</strong> si stáhněte fakultní APK aplikaci:
+          </p>
+          <a
+            href="/Gamifiter-Debug.apk"
+            download="Gamifiter-v1.0.0.apk"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              width: '100%',
+              boxSizing: 'border-box',
+              background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '12px',
+              padding: '11px 14px',
+              borderRadius: '10px',
+              textDecoration: 'none',
+              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)'
+            }}
+          >
+            <Download size={16} />
+            <span>Stáhnout Gamifiter APK do mobilu (6.1 MB)</span>
+          </a>
+        </div>
+      )}
 
       {/* Profile Card */}
       <div className="mobile-portal-card">

@@ -13,6 +13,7 @@ interface SyncResearchPanelProps {
 export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncReceived, onOpenMobilePortal }) => {
   const [pryclQr, setPryclQr] = useState<string>('');
   const [vorlicekQr, setVorlicekQr] = useState<string>('');
+  const [apkQr, setApkQr] = useState<string>('');
   const [students, setStudents] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
     }
   }, []);
 
-  // Generate QR codes for David Prycl and Michal Vorlicek
+  // Generate QR codes for David Prycl, Michal Vorlicek, and APK download
   useEffect(() => {
     const baseUrl = `http://${networkHost}`;
     
@@ -42,6 +43,12 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
       margin: 1,
       color: { dark: '#0F172A', light: '#FFFFFF' }
     }).then(setVorlicekQr);
+
+    QRCode.toDataURL(`${baseUrl}/Gamifiter-Debug.apk`, {
+      width: 200,
+      margin: 1,
+      color: { dark: '#0F172A', light: '#FFFFFF' }
+    }).then(setApkQr);
   }, [networkHost]);
 
   // Fetch initial status
@@ -262,8 +269,53 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
 
       {/* TAB 1: Real-time Device Cards */}
       {activeTab === 'devices' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
-          {/* Card: David Prycl (Garmin Vívoactive 4) */}
+        <div className="flex flex-col gap-6 animate-fade-in">
+          {/* APK Direct Download Banner */}
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/40 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 text-white">
+            <div className="flex items-center gap-4">
+              {apkQr ? (
+                <img src={apkQr} alt="QR APK" className="w-24 h-24 rounded-xl shadow-md border-2 border-indigo-400 bg-white p-1 shrink-0" />
+              ) : (
+                <div className="w-24 h-24 bg-slate-800 rounded-xl animate-pulse" />
+              )}
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                    Nativní Android APK (v1.0.0)
+                  </span>
+                  <span className="text-xs text-indigo-200/80">Pro žáky & výzkumníky</span>
+                </div>
+                <h3 className="text-base font-bold text-white mt-1">
+                  Nativní aplikace do mobilu pro čtení senzorů v pozadí
+                </h3>
+                <p className="text-xs text-slate-300 max-w-xl mt-0.5 leading-relaxed">
+                  Naskenujte QR kód fotoaparátem mobilu pro přímé stažení APK balíčku. Podporuje Google Health Connect i přemostění z Garmin Connect (Vívoactive 4).
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 shrink-0 w-full md:w-auto">
+              <a
+                href="/Gamifiter-Debug.apk"
+                download="Gamifiter-v1.0.0.apk"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
+              >
+                <Download className="h-4 w-4" />
+                <span>Stáhnout Gamifiter.apk (6.1 MB)</span>
+              </a>
+              <a
+                href="https://github.com/deivprnast/gamifiter-modern/releases/tag/v1.0.0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                <span>GitHub Release</span>
+              </a>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Card: David Prycl (Garmin Vívoactive 4) */}
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col justify-between">
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
@@ -463,6 +515,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
             </div>
           </div>
         </div>
+      </div>
       )}
 
       {/* TAB 2: Audit Protocol */}
