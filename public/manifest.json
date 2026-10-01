@@ -1,0 +1,17 @@
+{
+  "name": "Gamifiter – Pohybový portál FTK UP",
+  "short_name": "Gamifiter",
+  "description": "Portál pohybové aktivity a výzev Fakulty tělesné kultury Univerzity Palackého",
+  "start_url": "/sync",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#007CA6",
+  "icons": [
+    {
+      "src": "/media__1782552769935.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "students": [
+    {
+      "id": "student-1",
+      "name": "David Prycl",
+      "groupId": "group-1",
+      "steps": 242585,
+      "device": "Garmin Vívoactive 4",
+      "pairedToken": "ftk-prycl-garmin",
+      "lastSync": "2026-10-01T18:57:58.227Z",
+      "status": "synced"
+    },
+    {
+      "id": "student-2",
+      "name": "Michal Vorlíček",
+      "groupId": "group-1",
+      "steps": 151100,
+      "device": "Google Health Connect (Android)",
+      "pairedToken": "ftk-vorlicek-google",
+      "lastSync": "2026-10-01T17:31:33.914Z",
+      "status": "synced"
+    },
+    {
+      "id": "student-3",
+      "name": "Josef Heidler",
+      "groupId": "group-1",
+      "steps": 95000,
+      "device": "Apple Health (iPhone)",
+      "pairedToken": "ftk-heidler-apple",
+      "lastSync": "2026-10-01T15:31:18.893Z",
+      "status": "waiting"
+    },
+    {
+      "id": "student-4",
+      "name": "Anna Nováková",
+      "groupId": "group-1",
+      "steps": 60000,
+      "device": "Xiaomi Smart Band (Health Sync)",
+      "pairedToken": "ftk-novakova-xiaomi",
+      "lastSync": "2026-10-01T13:31:18.893Z",
+      "status": "waiting"
+    }
+  ],
+  "logs": [
+    {
+      "id": "log-init-1",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T17:31:18.893Z",
+      "date": "2026-10-01",
+      "steps": 180000,
+      "stepDelta": 8450,
+      "device": "Garmin Vívoactive 4",
+      "source": "garmin_health_sync",
+      "integrityHash": "ftk-sha256-d41d8cd98f00b204e9800998ecf8427e",
+      "valid": true,
+      "metadata": {
+        "activity": "běh + chůze",
+        "battery": "82%"
+      }
+    },
+    {
+      "id": "log-1790875890612-811",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T17:31:30.612Z",
+      "date": "2026-10-01",
+      "steps": 185200,
+      "stepDelta": 5200,
+      "device": "Garmin Vívoactive 4",
+      "source": "garmin_connect_push",
+      "integrityHash": "ftk-sha256-9135f6fbc12eb3b4",
+      "valid": true,
+      "metadata": {}
+    },
+    {
+      "id": "log-1790875893915-264",
+      "studentId": "student-2",
+      "studentName": "Michal Vorlíček",
+      "timestamp": "2026-10-01T17:31:33.914Z",
+      "date": "2026-10-01",
+      "steps": 151100,
+      "stepDelta": 6100,
+      "device": "Google Health Connect (Android)",
+      "source": "health_connect_sync",
+      "integrityHash": "ftk-sha256-5643c36ed2e8a968",
+      "valid": true,
+      "metadata": {}
+    },
+    {
+      "id": "log-1790879779196-327",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:36:19.195Z",
+      "date": "2026-10-01",
+      "steps": 193050,
+      "stepDelta": 7850,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-c82e9a2a4887de52",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:36:18.406Z"
+      }
+    },
+    {
+      "id": "log-1790879781432-8",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:36:21.432Z",
+      "date": "2026-10-01",
+      "steps": 200900,
+      "stepDelta": 7850,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-26941230d4ac1270",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:36:20.680Z"
+      }
+    },
+    {
+      "id": "log-1790879796086-22",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:36:36.086Z",
+      "date": "2026-10-01",
+      "steps": 201685,
+      "stepDelta": 785,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-13e7b8dd5c25fc81",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:36:35.357Z"
+      }
+    },
+    {
+      "id": "log-1790880139510-66",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:42:19.510Z",
+      "date": "2026-10-01",
+      "steps": 209535,
+      "stepDelta": 7850,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-cbd0c4446b2cea46",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:42:18.818Z"
+      }
+    },
+    {
+      "id": "log-1790880141762-654",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:42:21.762Z",
+      "date": "2026-10-01",
+      "steps": 217385,
+      "stepDelta": 7850,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-67257b803b2e8e73",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:42:21.094Z"
+      }
+    },
+    {
+      "id": "log-1790880525879-791",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:48:45.879Z",
+      "date": "2026-10-01",
+      "steps": 226535,
+      "stepDelta": 9150,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-2cf2a3ca8c45f660",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:48:45.179Z"
+      }
+    },
+    {
+      "id": "log-1790880537336-638",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:48:57.336Z",
+      "date": "2026-10-01",
+      "steps": 234385,
+      "stepDelta": 7850,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-5711c007c2e7c522",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:48:56.640Z"
+      }
+    },
+    {
+      "id": "log-1790881078227-275",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T18:57:58.227Z",
+      "date": "2026-10-01",
+      "steps": 242585,
+      "stepDelta": 8200,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-e0f85ec441f58034",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Automatický odečet ze senzorů (web_portal_sync)",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T18:57:57.574Z"
+      }
+    }
+  ]
+}

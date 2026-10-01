@@ -1,0 +1,153 @@
+@import 'leaflet/dist/leaflet.css';
+
+:root {
+  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Original Replicated Color Palette (Light Theme + Deep Cyan) */
+  --bg-page: 220 14% 96%;        /* Light grey #F3F4F6 */
+  --bg-sidebar: 195 100% 33%;    /* Deep Cyan #007CA6 */
+  --bg-sidebar-hover: 195 100% 28%;
+  --bg-card: 0 0% 100%;          /* White #FFFFFF */
+  --border-color: 220 15% 90%;   /* Light border */
+  
+  --primary: 195 100% 35%;       /* Brand Cyan #0082b2 */
+  --success: 142 72% 29%;        /* Emerald #15803d */
+  --warning: 343 90% 60%;        /* Rose */
+  
+  --text-primary: 220 30% 10%;   /* Dark Slate */
+  --text-secondary: 220 15% 40%;  /* Muted Grey */
+  --text-muted: 220 10% 60%;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: hsl(var(--bg-page));
+  color: hsl(var(--text-primary));
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--bg-page));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--text-muted));
+  border-radius: 3px;
+}
+
+/* Original Branded Card Styles */
+.replicated-card {
+  background: hsl(var(--bg-card));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.replicated-card-header {
+  background-color: hsl(var(--primary));
+  color: white;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.replicated-card-body {
+  padding: 20px;
+}
+
+/* Grid layout rules */
+.replicated-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+
+/* Forms and Inputs */
+.replicated-input {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  color: hsl(var(--text-primary));
+  padding: 8px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  outline: none;
+  width: 100%;
+}
+
+.replicated-input:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsla(var(--primary), 0.2);
+}
+
+.replicated-button {
+  background-color: hsl(var(--primary));
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.replicated-button:hover {
+  background-color: hsl(var(--bg-sidebar-hover));
+}
+
+.replicated-button-outline {
+  background: white;
+  color: hsl(var(--text-secondary));
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.replicated-button-outline:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: hsl(var(--text-primary));
+}
+
+/* Leaflet Popup Light Override */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: #FFFFFF !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+  border-radius: 6px !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px !important;
+}
