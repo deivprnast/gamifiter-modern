@@ -39,32 +39,47 @@ jobs:
       - name: Sync Capacitor Android
         run: npx cap sync android
 
-      - name: Build Android APK with Gradle
+      - name: Generate FTK Release Keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore android/app/gamifiter-release.keystore \
+            -alias gamifiter \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass ftkupol2026 \
+            -keypass ftkupol2026 \
+            -dname "CN=Gamifiter Telemetry, OU=FTK, O=Univerzita Palackeho v Olomouci, L=Olomouc, C=CZ"
+
+      - name: Build Signed Android Release APK with Gradle
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleRelease --stacktrace
 
-      - name: Rename APK for Clarity
+      - name: Prepare APK Artifacts
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk Gamifiter-Debug.apk
+          cp android/app/build/outputs/apk/release/app-release.apk Gamifiter.apk
+          cp Gamifiter.apk Gamifiter-Release.apk
 
       - name: Upload APK as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Gamifiter-Debug-APK
-          path: Gamifiter-Debug.apk
+          name: Gamifiter-APK
+          path: Gamifiter.apk
           retention-days: 14
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: Gamifiter-Debug.apk
+          files: |
+            Gamifiter.apk
+            Gamifiter-Release.apk
           name: Gamifiter ${{ github.ref_name }}
           body: |
             ## 📱 Gamifiter Android APK (${{ github.ref_name }})
-            - Instalační balíček pro Android telefony.
+            - Podepsaný instalační balíček pro Android telefony (Release build).
             - Podpora Google Health Connect a senzorů.
             - Výzkumná telemetrie FTK UP.
           draft: false
