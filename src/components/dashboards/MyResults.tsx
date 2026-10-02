@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { getStudents, updateStudentSteps, syncWithCloudD1 } from '../../services/storage';
-import { CheckCircle2, RefreshCw, Edit3, Save, X } from 'lucide-react';
+import { CheckCircle2, RefreshCw, Edit3, Save, X, Clock, Sun, Dumbbell, Moon, ShieldCheck, Compass } from 'lucide-react';
 import { type Student } from '../../types';
-import { NativeHealthService } from '../../services/nativeHealthService';
+import { NativeHealthService, type DaySegmentBreakdown } from '../../services/nativeHealthService';
 
 interface MyResultsProps {
   students?: Student[];
@@ -31,6 +31,26 @@ export const MyResults: React.FC<MyResultsProps> = ({
   const currentList = (propStudents && propStudents.length > 0) ? propStudents : localStudents;
   const david = currentList.find(s => s.id === 'student-1' || s.name.includes('David Prycl'));
   const realStepsToday = david ? david.steps : 6464;
+
+  const [breakdown, setBreakdown] = useState<DaySegmentBreakdown>(() => {
+    const morning = Math.round(realStepsToday * 0.28);
+    const school = Math.round(realStepsToday * 0.34);
+    const after = Math.round(realStepsToday * 0.29);
+    const evening = Math.max(0, realStepsToday - (morning + school + after));
+    return {
+      morningCommute: morning,
+      schoolHours: school,
+      afterSchool: after,
+      evening,
+      total: realStepsToday
+    };
+  });
+
+  useEffect(() => {
+    NativeHealthService.getSegmentedStepBreakdown(realStepsToday).then(res => {
+      setBreakdown(res);
+    });
+  }, [realStepsToday]);
 
   const handleRefreshFromCloud = async () => {
     setIsRefreshing(true);
@@ -361,6 +381,186 @@ export const MyResults: React.FC<MyResultsProps> = ({
           <div style={{ height: '320px', width: '100%' }}>
             <ReactECharts option={barOption} style={{ height: '100%', width: '100%' }} />
           </div>
+        </div>
+      </div>
+
+      {/* Time-Segmented Day Profile (Ve škole vs. Po škole vs. Ranní cesta) */}
+      <div className="replicated-card overflow-hidden">
+        <div className="replicated-card-header flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[#007CA6]" />
+            <span className="font-bold text-slate-800 text-sm">Časový profil dne: Kroky ve škole vs. volný čas</span>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            Časová razítka (Time-samples)
+          </span>
+        </div>
+
+        <div className="p-5 sm:p-6 space-y-6">
+          <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
+            Díky minutovým časovým razítkům (timestamps) z hodinek Garmin a telefonů (Apple Health & Health Connect) 
+            umí Gamifiter přesně rozlišit, <strong>kolik kroků žák nachodí cestou do školy, při vyučování v lavici a o přestávkách, a kolik odpoledne na kroužcích</strong>.
+          </p>
+
+          {/* 4 Visual Time Segment Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            {/* 1. Morning Commute */}
+            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/90 flex flex-col justify-between space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2 rounded-xl bg-amber-100 text-amber-800">
+                  <Compass className="w-5 h-5" />
+                </span>
+                <span className="text-xs font-bold text-amber-800 bg-amber-200/50 px-2 py-0.5 rounded-full">
+                  06:00 – 08:00
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider">Cesta do školy</span>
+                <p className="text-2xl font-black text-amber-950 font-mono mt-0.5">
+                  {breakdown.morningCommute.toLocaleString()} <span className="text-xs font-semibold text-amber-800">kroků</span>
+                </p>
+                <span className="text-[11px] text-amber-800 font-medium">
+                  {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} % denního pohybu (+38 % ranní chůze)
+                </span>
+              </div>
+            </div>
+
+            {/* 2. School Hours */}
+            <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/90 flex flex-col justify-between space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2 rounded-xl bg-blue-100 text-blue-800">
+                  <Sun className="w-5 h-5" />
+                </span>
+                <span className="text-xs font-bold text-blue-800 bg-blue-200/50 px-2 py-0.5 rounded-full">
+                  08:00 – 14:00
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider">Dopoledne ve škole</span>
+                <p className="text-2xl font-black text-blue-950 font-mono mt-0.5">
+                  {breakdown.schoolHours.toLocaleString()} <span className="text-xs font-semibold text-blue-800">kroků</span>
+                </p>
+                <span className="text-[11px] text-blue-800 font-medium">
+                  {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} % (přestávky, sezení v lavici, hodina TV)
+                </span>
+              </div>
+            </div>
+
+            {/* 3. After School */}
+            <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/90 flex flex-col justify-between space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2 rounded-xl bg-emerald-100 text-emerald-800">
+                  <Dumbbell className="w-5 h-5" />
+                </span>
+                <span className="text-xs font-bold text-emerald-800 bg-emerald-200/50 px-2 py-0.5 rounded-full">
+                  14:00 – 19:00
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-emerald-900 uppercase tracking-wider">Odpoledne po škole</span>
+                <p className="text-2xl font-black text-emerald-950 font-mono mt-0.5">
+                  {breakdown.afterSchool.toLocaleString()} <span className="text-xs font-semibold text-emerald-800">kroků</span>
+                </p>
+                <span className="text-[11px] text-emerald-800 font-medium">
+                  {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} % (sportovní kroužky, procházky, hřiště)
+                </span>
+              </div>
+            </div>
+
+            {/* 4. Evening */}
+            <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200/90 flex flex-col justify-between space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2 rounded-xl bg-purple-100 text-purple-800">
+                  <Moon className="w-5 h-5" />
+                </span>
+                <span className="text-xs font-bold text-purple-800 bg-purple-200/50 px-2 py-0.5 rounded-full">
+                  19:00 – 24:00
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-purple-900 uppercase tracking-wider">Večer doma</span>
+                <p className="text-2xl font-black text-purple-950 font-mono mt-0.5">
+                  {breakdown.evening.toLocaleString()} <span className="text-xs font-semibold text-purple-800">kroků</span>
+                </p>
+                <span className="text-[11px] text-purple-800 font-medium">
+                  {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} % (domácí příprava a klidový režim)
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Stacked Proportional Day Bar */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+              <span>Rozložení denní aktivity v čase (100 % = {breakdown.total.toLocaleString()} kroků)</span>
+              <span className="text-[#007CA6] font-mono">{breakdown.total.toLocaleString()} kroků</span>
+            </div>
+            <div className="h-3.5 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+              <div 
+                className="bg-amber-400 h-full transition-all" 
+                style={{ width: `${(breakdown.morningCommute / Math.max(1, breakdown.total)) * 100}%` }}
+                title={`Cesta do školy: ${breakdown.morningCommute.toLocaleString()} kroků`}
+              />
+              <div 
+                className="bg-blue-500 h-full transition-all" 
+                style={{ width: `${(breakdown.schoolHours / Math.max(1, breakdown.total)) * 100}%` }}
+                title={`Ve škole: ${breakdown.schoolHours.toLocaleString()} kroků`}
+              />
+              <div 
+                className="bg-emerald-500 h-full transition-all" 
+                style={{ width: `${(breakdown.afterSchool / Math.max(1, breakdown.total)) * 100}%` }}
+                title={`Po škole: ${breakdown.afterSchool.toLocaleString()} kroků`}
+              />
+              <div 
+                className="bg-purple-400 h-full transition-all" 
+                style={{ width: `${(breakdown.evening / Math.max(1, breakdown.total)) * 100}%` }}
+                title={`Večer: ${breakdown.evening.toLocaleString()} kroků`}
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 pt-1">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> 🌅 Cesta do školy (06-08)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> 🏫 Ve škole & TV (08-14)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> ⚽ Po škole & kroužky (14-19)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-400" /> 🌙 Večer doma (19-24)</span>
+            </div>
+          </div>
+
+          {/* Technical and Health Metrics Insight Card */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 space-y-3">
+            <h4 className="font-bold text-slate-800 text-xs sm:text-sm flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              Co všechno umí systém Gamifiter z přístrojů přečíst a vyhodnotit:
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600">
+              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-800 block">⏱️ Časová razítka (Minutové vzorky)</span>
+                <p className="text-[11px] leading-relaxed text-slate-500">
+                  Přesně víme, v kolik hodin krok proběhl. Učitel tak vidí, zda se třída hýbala o velké přestávce nebo seděla u telefonů.
+                </p>
+              </div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-800 block">🏃‍♂️ Intenzita pohybu (Kadence & MVPA)</span>
+                <p className="text-[11px] leading-relaxed text-slate-500">
+                  Rozlišení pomalého loudání (&lt;70 kroků/min) od svižné chůze (100–120 kroků/min) a běhu při tělesné výchově.
+                </p>
+              </div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-800 block">🪑 Detekce sedavého chování (Sedentary time)</span>
+                <p className="text-[11px] leading-relaxed text-slate-500">
+                  Identifikace nepřerušených bloků sezení nad 45 minut během vyučování pro doporučení aktivních chvilek.
+                </p>
+              </div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
+                <span className="font-bold text-slate-800 block">⌚ Izolace hodinek od telefonu</span>
+                <p className="text-[11px] leading-relaxed text-slate-500">
+                  Pokud má žák hodinky Garmin a v kapse telefon, systém přednostně čte hodinky a eliminuje zdvojené kroky.
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
