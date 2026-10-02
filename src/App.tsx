@@ -977,78 +977,78 @@ function App() {
         </div>
       </div>
 
-      {/* Mobile Bottom Navigation Dock (Nativní spodní navigace pro mobil) */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-xl border-t border-gray-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-30 py-1.5 px-2 safe-area-pb">
+      {/* Mobile Bottom Navigation Dock (Nativní velká spodní navigace pro mobil) */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-[0_-6px_25px_rgba(0,0,0,0.08)] z-30 px-2 pt-1.5 pb-2 safe-area-pb">
         <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
           {/* 1: Výzva */}
           <button
             onClick={() => handleSidebarSelect('active-challenge')}
-            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center min-h-[54px] py-1 px-1 rounded-2xl transition-all cursor-pointer ${
               activeItem === 'active-challenge'
                 ? 'text-[#007CA6] font-black'
                 : 'text-gray-500 hover:text-gray-800 font-semibold'
             }`}
           >
-            <div className={`p-1 rounded-lg ${activeItem === 'active-challenge' ? 'bg-[#007CA6]/15' : ''}`}>
-              <PlayCircle className="w-5 h-5" />
+            <div className={`p-1.5 rounded-xl transition-all ${activeItem === 'active-challenge' ? 'bg-[#007CA6]/15 scale-110 shadow-2xs' : ''}`}>
+              <PlayCircle className="w-6 h-6 stroke-[2.2]" />
             </div>
-            <span className="text-[10px] tracking-tight">Výzva</span>
+            <span className="text-[11px] tracking-tight mt-0.5">Výzva</span>
           </button>
 
           {/* 2: Výsledky */}
           <button
             onClick={() => handleSidebarSelect('my-results')}
-            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center min-h-[54px] py-1 px-1 rounded-2xl transition-all cursor-pointer ${
               activeItem === 'my-results'
                 ? 'text-[#007CA6] font-black'
                 : 'text-gray-500 hover:text-gray-800 font-semibold'
             }`}
           >
-            <div className={`p-1 rounded-lg ${activeItem === 'my-results' ? 'bg-[#007CA6]/15' : ''}`}>
-              <Award className="w-5 h-5" />
+            <div className={`p-1.5 rounded-xl transition-all ${activeItem === 'my-results' ? 'bg-[#007CA6]/15 scale-110 shadow-2xs' : ''}`}>
+              <Award className="w-6 h-6 stroke-[2.2]" />
             </div>
-            <span className="text-[10px] tracking-tight">Výsledky</span>
+            <span className="text-[11px] tracking-tight mt-0.5">Výsledky</span>
           </button>
 
           {/* 3: Třída */}
           <button
             onClick={() => handleSidebarSelect('my-class')}
-            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center min-h-[54px] py-1 px-1 rounded-2xl transition-all cursor-pointer ${
               activeItem === 'my-class'
                 ? 'text-[#007CA6] font-black'
                 : 'text-gray-500 hover:text-gray-800 font-semibold'
             }`}
           >
-            <div className={`p-1 rounded-lg ${activeItem === 'my-class' ? 'bg-[#007CA6]/15' : ''}`}>
-              <Users className="w-5 h-5" />
+            <div className={`p-1.5 rounded-xl transition-all ${activeItem === 'my-class' ? 'bg-[#007CA6]/15 scale-110 shadow-2xs' : ''}`}>
+              <Users className="w-6 h-6 stroke-[2.2]" />
             </div>
-            <span className="text-[10px] tracking-tight">Třída</span>
+            <span className="text-[11px] tracking-tight mt-0.5">Třída</span>
           </button>
 
           {/* 4: Škola */}
           <button
             onClick={() => handleSidebarSelect('my-school')}
-            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center min-h-[54px] py-1 px-1 rounded-2xl transition-all cursor-pointer ${
               activeItem === 'my-school'
                 ? 'text-[#007CA6] font-black'
                 : 'text-gray-500 hover:text-gray-800 font-semibold'
             }`}
           >
-            <div className={`p-1 rounded-lg ${activeItem === 'my-school' ? 'bg-[#007CA6]/15' : ''}`}>
-              <Home className="w-5 h-5" />
+            <div className={`p-1.5 rounded-xl transition-all ${activeItem === 'my-school' ? 'bg-[#007CA6]/15 scale-110 shadow-2xs' : ''}`}>
+              <Home className="w-6 h-6 stroke-[2.2]" />
             </div>
-            <span className="text-[10px] tracking-tight">Škola</span>
+            <span className="text-[11px] tracking-tight mt-0.5">Škola</span>
           </button>
 
           {/* 5: Menu / Více */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-gray-500 hover:text-gray-800 font-semibold transition-all cursor-pointer"
+            className="flex flex-col items-center justify-center min-h-[54px] py-1 px-1 rounded-2xl text-gray-600 hover:text-gray-900 active:scale-95 font-semibold transition-all cursor-pointer"
           >
-            <div className="p-1 rounded-lg hover:bg-gray-100">
-              <Menu className="w-5 h-5" />
+            <div className="p-1.5 rounded-xl hover:bg-gray-100">
+              <Menu className="w-6 h-6 stroke-[2.2]" />
             </div>
-            <span className="text-[10px] tracking-tight">Menu</span>
+            <span className="text-[11px] tracking-tight mt-0.5">Menu</span>
           </button>
         </div>
       </nav>

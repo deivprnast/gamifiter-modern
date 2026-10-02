@@ -113,24 +113,56 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect, onOp
     }
   };
 
+  const getMobileTitle = () => {
+    switch (activeItem) {
+      case 'my-results': return 'Moje výsledky';
+      case 'my-class': return 'Moje třída';
+      case 'my-school': return 'Moje škola';
+      case 'active-challenge': return 'Aktivní výzva';
+      case 'finished-challenges': return 'Ukončené výzvy';
+      case 'sync-research': return 'Synchronizace';
+      case 'research-info': return 'Výzkum & Zpráva';
+      case 'admin-schools': return 'Správa škol';
+      case 'admin-school': return 'Správa tříd';
+      case 'admin-challenges': return 'Správa výzev';
+      case 'admin-new-challenge': return 'Nová výzva';
+      case 'admin-invitations': return 'Pozvánky';
+      case 'admin-reset': return 'Obnova dat';
+      case 'student-mobile': return 'Žákovská appka';
+      default: return 'Gamifiter';
+    }
+  };
+
   return (
     <>
-      <div className="top-header-container flex flex-wrap items-center justify-between px-6 py-2.5 bg-white border-b border-gray-200/80 shadow-xs gap-3">
-        {/* Left side: Navigation Breadcrumbs & Mobile Menu Button */}
-        <div className="top-header-left flex items-center gap-2 text-xs font-medium text-gray-500 shrink-0">
+      <header className="top-header-container bg-white border-b border-gray-200/80 shadow-xs px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4 sticky top-0 z-20">
+        {/* Left side: Mobile Hamburger + Mobile Title OR Desktop Breadcrumbs */}
+        <div className="flex items-center gap-2.5 min-w-0">
           {onOpenMobileMenu && (
             <button
               onClick={onOpenMobileMenu}
-              className="md:hidden p-1.5 -ml-1.5 rounded-xl text-gray-700 hover:text-[#007CA6] hover:bg-gray-100 transition-all cursor-pointer flex items-center justify-center border border-gray-200/80 shadow-2xs bg-gray-50"
+              className="md:hidden w-11 h-11 rounded-xl text-gray-700 hover:text-[#007CA6] active:bg-gray-200 transition-all cursor-pointer flex items-center justify-center border border-gray-200 shadow-xs bg-gray-50 shrink-0"
               title="Otevřít postranní menu"
+              aria-label="Otevřít menu"
             >
-              <Menu className="h-4 w-4" />
+              <Menu className="h-6 w-6 stroke-[2.2]" />
             </button>
           )}
-          {getBreadcrumbs()}
+
+          {/* Mobile Single-Row Title */}
+          <div className="md:hidden flex items-center gap-2 min-w-0">
+            <span className="font-extrabold text-base text-gray-900 tracking-tight truncate">
+              {getMobileTitle()}
+            </span>
+          </div>
+
+          {/* Desktop Breadcrumbs */}
+          <div className="hidden md:flex items-center gap-2 text-xs font-medium text-gray-500">
+            {getBreadcrumbs()}
+          </div>
         </div>
 
-        {/* Center: Segmented Navigation Capsule */}
+        {/* Center: Segmented Navigation Capsule (Desktop only) */}
         <div className="hidden lg:flex items-center gap-2">
           {onSelect && (
             <div className="flex items-center gap-1 bg-gray-100/90 p-1 rounded-full border border-gray-200/60 shadow-xs">
@@ -189,21 +221,21 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect, onOp
         </div>
 
         {/* Right side: Language, settings, profile */}
-        <div className="top-header-right flex items-center gap-2.5 shrink-0">
+        <div className="top-header-right flex items-center gap-2 sm:gap-2.5 shrink-0">
           {/* Student Mobile App Quick Switch */}
           {onSelect && (
             <button
               onClick={() => onSelect('student-mobile')}
-              className="px-3 py-1.5 rounded-full text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
-              title="Otevřít novou mobilní aplikaci pro žáky"
+              className="px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+              title="Otevřít mobilní aplikaci pro žáky"
             >
               <Smartphone className="h-3.5 w-3.5 text-emerald-600" />
               <span className="hidden sm:inline">Mobilní appka žáka</span>
-              <span className="sm:hidden">Appka</span>
+              <span className="sm:hidden text-[11px]">Žák</span>
             </button>
           )}
 
-          {/* Language Flag Widget */}
+          {/* Language Flag Widget (Desktop only) */}
           <div className="top-header-lang hidden sm:flex items-center gap-1.5 text-xs text-gray-500 font-semibold px-2 py-1 rounded bg-gray-50 border border-gray-200">
             <img 
               src="https://flagcdn.com/w20/cz.png" 
@@ -213,10 +245,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect, onOp
             <span>Čeština</span>
           </div>
 
-          {/* User Settings Gear */}
+          {/* User Settings Gear (Desktop only) */}
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="p-2 rounded-lg text-gray-500 hover:text-[#007CA6] hover:bg-gray-100 transition-all cursor-pointer"
+            className="hidden sm:flex p-2 rounded-lg text-gray-500 hover:text-[#007CA6] hover:bg-gray-100 transition-all cursor-pointer"
             title="Otevřít nastavení systému"
           >
             <Settings className="h-4 w-4" />
@@ -225,10 +257,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect, onOp
           {/* User Profile info */}
           <div 
             onClick={() => setIsSettingsOpen(true)}
-            className="top-header-user flex items-center gap-2.5 pl-3 border-l border-gray-200 cursor-pointer hover:opacity-85 transition-opacity"
+            className="top-header-user flex items-center gap-2 sm:gap-2.5 sm:pl-3 sm:border-l sm:border-gray-200 cursor-pointer hover:opacity-85 transition-opacity"
             title="Kliknutím upravíte profil správce"
           >
-            <div className="text-right">
+            <div className="text-right hidden sm:block">
               <div className="top-header-user-name text-xs font-bold text-gray-800 leading-tight">
                 {adminName}
               </div>
@@ -236,12 +268,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect, onOp
                 Superadmin
               </div>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#007CA6] text-white flex items-center justify-center font-black text-xs shadow-sm">
+            <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-[#007CA6] text-white flex items-center justify-center font-black text-xs sm:text-xs shadow-xs border-2 border-white">
               {initials}
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Settings Modal */}
       <SettingsModal 
