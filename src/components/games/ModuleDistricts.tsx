@@ -66,11 +66,12 @@ export const ModuleDistricts: React.FC<ModuleDistrictsProps> = ({ progress, file
   const districtStyle = (feature: any) => {
     const isShow = feature.properties.show;
     return {
-      color: isShow ? '#10B981' : '#F43F5E',
-      weight: 2,
-      opacity: 0.8,
+      color: isShow ? '#059669' : '#E11D48',
+      weight: isShow ? 2.5 : 2,
+      opacity: 0.9,
       fillColor: isShow ? '#10B981' : '#F43F5E',
-      fillOpacity: isShow ? 0.35 : 0.1,
+      fillOpacity: isShow ? 0.35 : 0.15,
+      dashArray: isShow ? undefined : '5, 5'
     };
   };
 
@@ -83,20 +84,28 @@ export const ModuleDistricts: React.FC<ModuleDistrictsProps> = ({ progress, file
 
     if (isShow) {
       popupContent = `
-        <div style="font-family: var(--font-sans); min-width: 180px;">
-          <h4 style="margin: 0 0 8px 0; color: #10B981; font-weight: 700;">🔓 ${props.name}</h4>
-          <p style="margin: 2px 0; font-size: 13px; color: #E2E8F0;"><strong>Sídlo kraje:</strong> ${props.city || '-'}</p>
-          <p style="margin: 2px 0; font-size: 13px; color: #E2E8F0;"><strong>Rozloha:</strong> ${props.area ? props.area.toLocaleString() : '-'} km²</p>
-          <p style="margin: 2px 0; font-size: 13px; color: #E2E8F0;"><strong>Počet obyvatel:</strong> ${props.urban ? props.urban.toLocaleString() : '-'}</p>
-          <p style="margin: 2px 0; font-size: 13px; color: #E2E8F0;"><strong>Hustota zalidnění:</strong> ${props.density_km ? props.density_km.toLocaleString() : '-'} ob./km²</p>
+        <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 190px; color: #0F172A; padding: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <h4 style="margin: 0; color: #059669; font-weight: 800; font-size: 14px;">${props.name}</h4>
+            <span style="font-size: 10px; font-weight: 700; background: #ECFDF5; color: #047857; padding: 2px 6px; border-radius: 9999px; border: 1px solid #A7F3D0;">🔓 Odemčeno</span>
+          </div>
+          <div style="font-size: 12px; line-height: 1.5; color: #334155;">
+            <div><strong>Sídlo kraje:</strong> ${props.city || '-'}</div>
+            <div><strong>Rozloha:</strong> ${props.area ? props.area.toLocaleString() : '-'} km²</div>
+            <div><strong>Počet obyvatel:</strong> ${props.urban ? props.urban.toLocaleString() : '-'}</div>
+            <div><strong>Hustota:</strong> ${props.density_km ? props.density_km.toLocaleString() : '-'} ob./km²</div>
+          </div>
         </div>
       `;
     } else {
       popupContent = `
-        <div style="font-family: var(--font-sans);">
-          <h4 style="margin: 0 0 6px 0; color: #F43F5E; font-weight: 700;">🔒 Kraj je zamčený</h4>
-          <p style="margin: 0; font-size: 13px; color: #94A3B8;">
-            Zbývá ujít ještě <strong style="color: #F43F5E;">${props.neededPercent} %</strong> z celkové výzvy pro odemčení tohoto území a jeho statistik.
+        <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 180px; color: #0F172A; padding: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <h4 style="margin: 0; color: #E11D48; font-weight: 800; font-size: 14px;">${props.name || 'Zamčený kraj'}</h4>
+            <span style="font-size: 10px; font-weight: 700; background: #FFF1F2; color: #BE123C; padding: 2px 6px; border-radius: 9999px; border: 1px solid #FECDD3;">🔒 Zamčeno</span>
+          </div>
+          <p style="margin: 0; font-size: 12px; color: #64748B; line-height: 1.4;">
+            Zbývá ujít ještě <strong style="color: #E11D48; font-weight: 800;">${props.neededPercent} %</strong> výzvy pro odemčení tohoto území.
           </p>
         </div>
       `;
@@ -109,15 +118,15 @@ export const ModuleDistricts: React.FC<ModuleDistrictsProps> = ({ progress, file
       mouseover: (e) => {
         const l = e.target;
         l.setStyle({
-          fillOpacity: isShow ? 0.6 : 0.25,
-          weight: 3,
+          fillOpacity: isShow ? 0.6 : 0.3,
+          weight: 3.5,
         });
       },
       mouseout: (e) => {
         const l = e.target;
         l.setStyle({
-          fillOpacity: isShow ? 0.35 : 0.1,
-          weight: 2,
+          fillOpacity: isShow ? 0.35 : 0.15,
+          weight: isShow ? 2.5 : 2,
         });
       },
     });
@@ -145,8 +154,8 @@ export const ModuleDistricts: React.FC<ModuleDistrictsProps> = ({ progress, file
         zoomControl={true}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         <GeoJSON
