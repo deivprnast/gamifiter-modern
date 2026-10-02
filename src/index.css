@@ -151,3 +151,52 @@ body {
 .leaflet-popup-content {
   margin: 12px 16px !important;
 }
+
+/* League Level Game Tabs & Controls */
+.game-tabs-container {
+  display: flex;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  width: fit-content;
+  flex-wrap: wrap;
+}
+
+.game-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.game-tab:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.game-tab.active {
+  background: white;
+  color: #007CA6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 800;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

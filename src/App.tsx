@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { 
   getChallenges, getGroups, getStudents, 
@@ -32,7 +32,7 @@ import { StudentMobileApp } from './components/StudentMobileApp';
 import { NativeHealthService } from './services/nativeHealthService';
 
 // Icons
-import { Map, MapPin, Grid, Sparkles, Network, Activity, Play, Pause, ChevronUp, ChevronDown } from 'lucide-react';
+import { Map, MapPin, Grid, Sparkles, Network, Activity } from 'lucide-react';
 
 function App() {
   const [challenges, setChallenges] = useState<Challenge[]>(() => {
@@ -46,9 +46,6 @@ function App() {
   const [activeGroupId, setActiveGroupIdState] = useState(() => getActiveGroupId());
   const [activeItem, setActiveItem] = useState('active-challenge'); // Default to main big screen challenge view
   const [gameTab, setGameTab] = useState<ModuleType>('map');
-  
-  // Collapsible Simulator Drawer state
-  const [isSimOpen, setIsSimOpen] = useState(true);
 
   // Mobile sync portal route check (auto-open on native mobile or small screens)
   const [showMobilePortal, setShowMobilePortal] = useState(
@@ -63,10 +60,6 @@ function App() {
     message: '',
     visible: false
   });
-
-  // Autoplay simulation timer
-  const [isAutoplay, setIsAutoplay] = useState(false);
-  const autoplayTimer = useRef<number | null>(null);
 
   // Initialize storage & state
   useEffect(() => {
@@ -132,34 +125,6 @@ function App() {
     setActiveGroupIdState(id);
   };
 
-  const handleSyncSimulate = () => {
-    if (NativeHealthService.isNative() || window.innerWidth <= 768) {
-      setShowMobilePortal(true);
-      return;
-    }
-
-    const activeGroupStudents = students.filter(s => s.groupId === activeGroupId);
-    if (activeGroupStudents.length === 0) {
-      setSyncToast({
-        message: 'Chyba: V této třídě nejsou žádní žáci pro synchronizaci.',
-        visible: true
-      });
-      return;
-    }
-
-    const randomStudent = activeGroupStudents[Math.floor(Math.random() * activeGroupStudents.length)];
-    const stepIncrement = Math.floor(Math.random() * 5000) + 1500;
-    const newSteps = randomStudent.steps + stepIncrement;
-    
-    updateStudentSteps(randomStudent.id, newSteps);
-    setStudents(getStudents());
-
-    setSyncToast({
-      message: `Načteno z náramku: ${randomStudent.name} +${stepIncrement.toLocaleString()} kroků!`,
-      visible: true
-    });
-  };
-
   // Autohide Toast
   useEffect(() => {
     if (syncToast.visible) {
@@ -175,57 +140,6 @@ function App() {
   const activeGroupStudents = students.filter(s => s.groupId === activeGroupId);
   const progressInfo = currentChallenge ? getGroupProgress(activeChallengeId, activeGroupId) : null;
   const currentProgressPercent = progressInfo ? progressInfo.progressPercent : 0;
-
-  // Adjust total steps based on simulation slider
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const sliderPercent = parseInt(e.target.value) / 100;
-    adjustProgressToPercent(sliderPercent);
-  };
-
-  const adjustProgressToPercent = React.useCallback((percent: number) => {
-    if (!currentChallenge) return;
-
-    const targetSteps = currentChallenge.targetSteps;
-    const neededTotalSteps = Math.floor(targetSteps * percent);
-    
-    if (activeGroupStudents.length === 0) return;
-
-    // Distribute steps equally
-    const baseSteps = Math.floor(neededTotalSteps / activeGroupStudents.length);
-    const remainder = neededTotalSteps % activeGroupStudents.length;
-
-    activeGroupStudents.forEach((student, index) => {
-      const extra = index === 0 ? remainder : 0;
-      updateStudentSteps(student.id, baseSteps + extra);
-    });
-
-    setStudents(getStudents());
-  }, [currentChallenge, activeGroupStudents]);
-
-  // Autoplay simulation
-  useEffect(() => {
-    if (isAutoplay) {
-      autoplayTimer.current = window.setInterval(() => {
-        const currentProgress = progressInfo ? progressInfo.progressPercent / 100 : 0;
-        if (currentProgress >= 1) {
-          setIsAutoplay(false);
-          if (autoplayTimer.current) clearInterval(autoplayTimer.current);
-          return;
-        }
-        
-        const nextProgress = Math.min(1, currentProgress + 0.02); // Add 2%
-        adjustProgressToPercent(nextProgress);
-      }, 800);
-    } else {
-      if (autoplayTimer.current) {
-        clearInterval(autoplayTimer.current);
-      }
-    }
-
-    return () => {
-      if (autoplayTimer.current) clearInterval(autoplayTimer.current);
-    };
-  }, [isAutoplay, progressInfo, adjustProgressToPercent]);
 
   const handleSidebarSelect = (item: string) => {
     if (item === 'sync-research' && (NativeHealthService.isNative() || window.innerWidth <= 768)) {
@@ -369,36 +283,57 @@ function App() {
           <h2 className="view-title">Aktuálně běží</h2>
         </div>
 
-        {/* Dropdown selectors for Challenge and Class matching screenshot 3 */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-wrap gap-4 items-center shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-500 uppercase">Vybrat výzvu:</span>
-            <select
-              value={activeChallengeId}
-              onChange={(e) => handleChallengeChange(e.target.value)}
-              className="replicated-input text-xs font-semibold max-w-[200px] cursor-pointer"
-            >
-              {challenges.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+        {/* Challenge and Class Control Bar */}
+        <div className="bg-white border border-gray-200/90 rounded-2xl p-4 flex flex-wrap gap-4 items-center justify-between shadow-xs">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1.5">
+                <span>🏆 Výzva:</span>
+              </span>
+              <select
+                value={activeChallengeId}
+                onChange={(e) => handleChallengeChange(e.target.value)}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-xs font-bold rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#007CA6] cursor-pointer"
+              >
+                {challenges.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1.5">
+                <span>👥 Třída:</span>
+              </span>
+              <select
+                value={activeGroupId}
+                onChange={(e) => handleGroupChange(e.target.value)}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-xs font-bold rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#007CA6] cursor-pointer"
+              >
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-500 uppercase">Vybrat třídu:</span>
-            <select
-              value={activeGroupId}
-              onChange={(e) => handleGroupChange(e.target.value)}
-              className="replicated-input text-xs font-semibold max-w-[150px] cursor-pointer"
+            <button
+              onClick={() => setActiveItem('admin-challenges')}
+              className="text-xs font-bold text-[#007CA6] bg-[#007CA6]/10 hover:bg-[#007CA6]/20 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
             >
-              {groups.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
+              <span>⚙️ Nastavit výzvu</span>
+            </button>
+            <button
+              onClick={() => setActiveItem('sync-research')}
+              className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+            >
+              <span>📱 Pozvánka pro žáky</span>
+            </button>
           </div>
         </div>
 
@@ -597,60 +532,6 @@ function App() {
           <span className="text-xs font-bold">{syncToast.message}</span>
         </div>
       )}
-
-      {/* Floating Developer Simulation Panel Drawer (Bottom Right) */}
-      <div className={`sim-drawer ${!isSimOpen ? 'collapsed' : ''}`}>
-        <div className="sim-drawer-header" onClick={() => setIsSimOpen(!isSimOpen)}>
-          <div className="flex items-center gap-1.5 text-[#007CA6]">
-            <Activity className="h-4 w-4 animate-pulse" />
-            <span className="text-[11px] font-black uppercase tracking-wider">Vývojářský simulátor PoC</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 font-bold">
-              {isSimOpen ? 'Skrýt' : 'Rozbalit'}
-            </span>
-            {isSimOpen ? <ChevronDown className="h-3 w-3 text-gray-400" /> : <ChevronUp className="h-3 w-3 text-gray-400" />}
-          </div>
-        </div>
-
-        {isSimOpen && (
-          <div className="mt-3 flex flex-col gap-3 animate-fade-in">
-            <p className="text-[10px] text-gray-500 leading-tight">
-              Měňte celkové procento plnění výzvy a pozorujte interaktivní odemykání.
-            </p>
-
-            <div className="flex items-center gap-3">
-              <input 
-                type="range" 
-                min="0" 
-                max="100" 
-                value={currentProgressPercent} 
-                onChange={handleSliderChange}
-                className="sim-slider-white flex-1"
-              />
-              <span className="text-xs font-black text-[#007CA6] w-10 text-right">
-                {Math.round(currentProgressPercent)} %
-              </span>
-            </div>
-
-            <div className="flex gap-2 mt-1">
-              <button
-                onClick={() => setIsAutoplay(!isAutoplay)}
-                className="replicated-button text-[10px] py-1.5 px-3 flex-1 justify-center"
-              >
-                {isAutoplay ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                <span>{isAutoplay ? 'Pozastavit' : 'Přehrát animaci'}</span>
-              </button>
-              <button
-                onClick={handleSyncSimulate}
-                className="replicated-button-outline text-[10px] py-1.5 px-3 flex-1 justify-center"
-              >
-                <span>Synchronizace</span>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

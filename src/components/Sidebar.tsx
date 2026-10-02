@@ -12,14 +12,23 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect }) => {
   return (
     <aside className="sidebar-container">
-      {/* Brand Header */}
-      <div className="sidebar-header">
+      {/* Brand Header with Instant Reset / Refresh */}
+      <div 
+        className="sidebar-header cursor-pointer select-none transition-all hover:bg-white/5 active:scale-[0.99] rounded-lg m-2 p-3"
+        onClick={() => {
+          window.location.href = '/';
+        }}
+        title="Kliknutím obnovíte Gamifiter na výchozí herní plochu"
+      >
         <img 
           src="/media__1782552769935.png" 
           alt="GAMIFITER Logo" 
           className="sidebar-logo" 
         />
-        <span className="sidebar-subbrand">Pohybový Portál</span>
+        <div className="flex items-center justify-between w-full mt-1">
+          <span className="sidebar-subbrand">Pohybový Portál</span>
+          <span className="text-[9px] bg-cyan-500/20 text-cyan-300 font-bold px-1.5 py-0.5 rounded">v1.0.7</span>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -100,13 +109,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect }) => {
         </button>
       </nav>
 
-      {/* Footer UPOL FTK Logo */}
-      <div className="sidebar-footer">
-        <img 
-          src="/media__1782552619434.png" 
-          alt="FTK UPOL Logo" 
-          className="sidebar-footer-logo"
-        />
+      {/* Footer UPOL FTK Academic Shield */}
+      <div className="sidebar-footer flex items-center justify-center gap-2.5 py-3 px-4 text-white/80 border-t border-white/10">
+        <div className="w-6 h-6 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-xs font-black text-cyan-300">
+          UP
+        </div>
+        <div className="text-[11px] leading-tight">
+          <div className="font-bold text-white">FTK Univerzita Palackého</div>
+          <div className="text-[9px] text-white/60">Olomouc • Kinantropologie</div>
+        </div>
       </div>
     </aside>
   );

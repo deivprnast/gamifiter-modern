@@ -182,12 +182,9 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#007CA6]/20 border border-cyan-400/40 flex items-center justify-center p-2 shrink-0 shadow-inner">
-              <img 
-                src="/media__1782552619434.png" 
-                alt="FTK UPOL" 
-                className="max-h-full max-w-full object-contain"
-              />
+            <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex flex-col items-center justify-center shrink-0 shadow-inner">
+              <span className="text-base font-black text-cyan-300">UP</span>
+              <span className="text-[9px] font-black text-cyan-400 tracking-wider">FTK</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
