@@ -7,7 +7,7 @@ import {
   addSchool, updateSchool, removeSchool,
   resetStorage, getChallenges, getGroups, getStudents, getSchools
 } from '../services/storage';
-import { Plus, Trash2, RotateCcw, AlertTriangle, QrCode, Smartphone, Download, Pencil, X, Check, Building2, School as SchoolIcon, Users, Footprints } from 'lucide-react';
+import { Plus, Trash2, RotateCcw, AlertTriangle, QrCode, Smartphone, Download, Pencil, X, Check, Building2, School as SchoolIcon, Users, Footprints, BookOpen } from 'lucide-react';
 import QRCode from 'qrcode';
 
 interface AdminPanelProps {
@@ -73,6 +73,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [cFile, setCFile] = useState('/tour_de_cities.geojson');
   const [cFrom, setCFrom] = useState('2026-06-01');
   const [cTo, setCTo] = useState('2026-07-31');
+  const [cTaskPrompt, setCTaskPrompt] = useState('');
+  const [cClue, setCClue] = useState('');
+  const [cSubject, setCSubject] = useState<'tv' | 'zemepis' | 'dejepis' | 'prirodopis' | 'zdravi' | 'obecne'>('obecne');
+  const [cAnswer, setCAnswer] = useState('');
 
   // Group Form States
   const [gName, setGName] = useState('');
@@ -111,13 +115,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       filePath: cFile,
       validFrom: cFrom,
       validTo: cTo,
+      customTaskPrompt: cTaskPrompt || undefined,
+      customClue: cClue || undefined,
+      subjectCategory: cSubject,
+      solutionAnswer: cAnswer || undefined
     });
 
     onChallengesUpdate(getChallenges()); // reload
     
     setCName('');
     setCDesc('');
-    alert('Výzva byla úspěšně přidána!');
+    setCTaskPrompt('');
+    setCClue('');
+    setCAnswer('');
+    alert('Výzva včetně mezipředmětové výukové hádanky byla úspěšně přidána!');
   };
 
   const handleDeleteChallenge = (id: string) => {
@@ -138,7 +149,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       targetSteps: editingChallenge.targetSteps,
       filePath: editingChallenge.filePath,
       validFrom: editingChallenge.validFrom,
-      validTo: editingChallenge.validTo
+      validTo: editingChallenge.validTo,
+      customTaskPrompt: editingChallenge.customTaskPrompt,
+      customClue: editingChallenge.customClue,
+      subjectCategory: editingChallenge.subjectCategory,
+      solutionAnswer: editingChallenge.solutionAnswer
     });
 
     onChallengesUpdate(updated);
@@ -706,6 +721,68 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </div>
                 </div>
 
+                {/* Pedagogical Custom Task Section (100% of teachers requested custom content in research study) */}
+                <div className="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex flex-col gap-2.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                    <BookOpen className="w-4 h-4 text-emerald-600" />
+                    <span>Mezipředmětové vazby & Výuková hádanka (FTK UP)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-snug">
+                    Vytvořte vlastní otázku či tajenku, kterou žáci postupně odhalují sbíráním kroků (např. Dějepis, Zeměpis, Přírodopis).
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[11px] font-bold text-gray-600">Vzdělávací obor</label>
+                      <select 
+                        value={cSubject} 
+                        onChange={e => setCSubject(e.target.value as any)}
+                        className="replicated-input text-xs"
+                      >
+                        <option value="obecne">Všeobecné</option>
+                        <option value="zemepis">Zeměpis / Geografie</option>
+                        <option value="dejepis">Dějepis / Historie</option>
+                        <option value="prirodopis">Přírodopis / Biologie</option>
+                        <option value="zdravi">Výchova ke zdraví</option>
+                        <option value="tv">Tělesná výchova</option>
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[11px] font-bold text-gray-600">Správná odpověď / Tajenka</label>
+                      <input 
+                        type="text" 
+                        value={cAnswer} 
+                        onChange={e => setCAnswer(e.target.value)} 
+                        placeholder="Např. Rožmberkové" 
+                        className="replicated-input text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-gray-600">Výuková otázka / Zadání hádanky</label>
+                    <input 
+                      type="text" 
+                      value={cTaskPrompt} 
+                      onChange={e => setCTaskPrompt(e.target.value)} 
+                      placeholder="Např. Poznáte, která osobnost se skrývá pod obrázkem?" 
+                      className="replicated-input text-xs"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-gray-600">Nápověda (odemkne se po 50 % kroků)</label>
+                    <input 
+                      type="text" 
+                      value={cClue} 
+                      onChange={e => setCClue(e.target.value)} 
+                      placeholder="Např. Měl ve znaku červenou růži..." 
+                      className="replicated-input text-xs"
+                    />
+                  </div>
+                </div>
+
                 <button type="submit" className="replicated-button w-full justify-center">
                   <Plus className="h-4 w-4" />
                   <span>Přidat výzvu</span>
@@ -1264,6 +1341,65 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     onChange={(e) => setEditingChallenge({ ...editingChallenge, validTo: e.target.value })}
                     required
                     className="replicated-input"
+                  />
+                </div>
+              </div>
+
+              {/* Pedagogical Custom Task Section in Edit Modal */}
+              <div className="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex flex-col gap-2.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                  <BookOpen className="w-4 h-4 text-emerald-600" />
+                  <span>Mezipředmětové vazby & Výuková hádanka (FTK UP)</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-gray-600">Vzdělávací obor</label>
+                    <select 
+                      value={editingChallenge.subjectCategory || 'obecne'} 
+                      onChange={e => setEditingChallenge({ ...editingChallenge, subjectCategory: e.target.value as any })}
+                      className="replicated-input text-xs"
+                    >
+                      <option value="obecne">Všeobecné</option>
+                      <option value="zemepis">Zeměpis / Geografie</option>
+                      <option value="dejepis">Dějepis / Historie</option>
+                      <option value="prirodopis">Přírodopis / Biologie</option>
+                      <option value="zdravi">Výchova ke zdraví</option>
+                      <option value="tv">Tělesná výchova</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-gray-600">Správná odpověď / Tajenka</label>
+                    <input 
+                      type="text" 
+                      value={editingChallenge.solutionAnswer || ''} 
+                      onChange={e => setEditingChallenge({ ...editingChallenge, solutionAnswer: e.target.value })} 
+                      placeholder="Např. Rožmberkové" 
+                      className="replicated-input text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-bold text-gray-600">Výuková otázka / Zadání hádanky</label>
+                  <input 
+                    type="text" 
+                    value={editingChallenge.customTaskPrompt || ''} 
+                    onChange={e => setEditingChallenge({ ...editingChallenge, customTaskPrompt: e.target.value })} 
+                    placeholder="Např. Poznáte, která osobnost se skrývá pod obrázkem?" 
+                    className="replicated-input text-xs"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-bold text-gray-600">Nápověda (odemkne se po 50 % kroků)</label>
+                  <input 
+                    type="text" 
+                    value={editingChallenge.customClue || ''} 
+                    onChange={e => setEditingChallenge({ ...editingChallenge, customClue: e.target.value })} 
+                    placeholder="Např. Měl ve znaku červenou růži..." 
+                    className="replicated-input text-xs"
                   />
                 </div>
               </div>

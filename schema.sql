@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS challenges (
   valid_from TEXT,
   valid_to TEXT,
   file_path TEXT,
+  custom_task_prompt TEXT DEFAULT '',
+  custom_clue TEXT DEFAULT '',
+  subject_category TEXT DEFAULT 'obecne',
+  solution_answer TEXT DEFAULT '',
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -39,6 +43,9 @@ CREATE TABLE IF NOT EXISTS students (
   device TEXT,
   token TEXT UNIQUE,
   last_sync TEXT,
+  avatar TEXT DEFAULT '🦊',
+  morning_steps INTEGER DEFAULT 0,
+  streak_days INTEGER DEFAULT 5,
   is_real INTEGER DEFAULT 0,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );

@@ -9,6 +9,10 @@ export interface Challenge {
   validFrom: string;
   validTo: string;
   filePath: string;
+  customTaskPrompt?: string; // Výuková hádanka učitele (mezipředmětové vazby)
+  customClue?: string; // Nápověda po 50 %
+  subjectCategory?: 'tv' | 'zemepis' | 'dejepis' | 'prirodopis' | 'zdravi' | 'obecne';
+  solutionAnswer?: string; // Správná tajenka
 }
 
 export interface School {
@@ -26,6 +30,7 @@ export interface Group {
   name: string;
   adminName: string;
   schoolId?: string;
+  streakDays?: number;
 }
 
 export interface Student {
@@ -33,6 +38,10 @@ export interface Student {
   name: string;
   groupId: string;
   steps: number; // accumulated steps for current challenge
+  morningSteps?: number; // kroky před 8:00 hod. (aktivní cesta do školy)
+  streakDays?: number; // počet po sobě jdoucích aktivních dnů
+  avatar?: string; // zvířecí avatar pro ochranu soukromí
+  isAnonymous?: boolean; // anonymní zobrazení v žebříčku
   device?: string; // 'Garmin Vívoactive 4' | 'Google Fit (Android)' | 'Apple Zdraví' | 'Telefon v kapse'
   lastSync?: string;
   isReal?: boolean;
@@ -46,4 +55,6 @@ export interface GroupProgress {
   totalDistanceKm: number;
   activeUsers: number;
   progressPercent: number;
+  activeCommutePercent?: number; // % žáků zapojených do ranní cesty do školy
+  streakDays?: number;
 }

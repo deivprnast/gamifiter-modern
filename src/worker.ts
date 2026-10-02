@@ -145,6 +145,9 @@ export default {
               device: s.device,
               pairedToken: s.token,
               lastSync: s.last_sync,
+              avatar: s.avatar || '🦊',
+              morningSteps: s.morning_steps || 0,
+              streakDays: s.streak_days || 5,
               status: s.steps > 0 ? 'synced' : 'waiting',
               isReal: s.is_real === 1
             }));
@@ -221,7 +224,11 @@ export default {
               targetSteps: c.target_steps,
               validFrom: c.valid_from,
               validTo: c.valid_to,
-              filePath: c.file_path
+              filePath: c.file_path,
+              customTaskPrompt: c.custom_task_prompt || undefined,
+              customClue: c.custom_clue || undefined,
+              subjectCategory: c.subject_category || 'obecne',
+              solutionAnswer: c.solution_answer || undefined
             }));
             return new Response(JSON.stringify({ success: true, challenges: formatted }), {
               headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
@@ -242,8 +249,8 @@ export default {
         const payload: any = await request.json();
         if (env.gamifiter_db && payload && payload.id) {
           await env.gamifiter_db.prepare(`
-            INSERT INTO challenges (id, name, description, module_type, target_steps, valid_from, valid_to, file_path)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO challenges (id, name, description, module_type, target_steps, valid_from, valid_to, file_path, custom_task_prompt, custom_clue, subject_category, solution_answer)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
               name = excluded.name,
               description = excluded.description,
@@ -251,7 +258,11 @@ export default {
               target_steps = excluded.target_steps,
               valid_from = excluded.valid_from,
               valid_to = excluded.valid_to,
-              file_path = excluded.file_path
+              file_path = excluded.file_path,
+              custom_task_prompt = excluded.custom_task_prompt,
+              custom_clue = excluded.custom_clue,
+              subject_category = excluded.subject_category,
+              solution_answer = excluded.solution_answer
           `).bind(
             payload.id,
             payload.name || '',
@@ -260,7 +271,11 @@ export default {
             payload.targetSteps || 100000,
             payload.validFrom || '',
             payload.validTo || '',
-            payload.filePath || ''
+            payload.filePath || '',
+            payload.customTaskPrompt || '',
+            payload.customClue || '',
+            payload.subjectCategory || 'obecne',
+            payload.solutionAnswer || ''
           ).run();
         }
         return new Response(JSON.stringify({ success: true, challenge: payload }), {

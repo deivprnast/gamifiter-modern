@@ -23,6 +23,8 @@ import { AdminPanel } from './components/AdminPanel';
 // Poster & Research Modals (FTK UP)
 import { ChallengePosterModal } from './components/ChallengePosterModal';
 import { ResearchModal } from './components/ResearchModal';
+import { PhysicalLiteracyModal } from './components/PhysicalLiteracyModal';
+import { SchoolReportModal } from './components/SchoolReportModal';
 
 // Game Module Views
 import { ModuleMap } from './components/games/ModuleMap';
@@ -78,6 +80,10 @@ function App() {
   const [activeItem, setActiveItem] = useState<string>(getRouteFromHash);
   const [gameTab, setGameTab] = useState<ModuleType>('map');
   const [isPosterOpen, setIsPosterOpen] = useState(false);
+  const [isLiteracyOpen, setIsLiteracyOpen] = useState(false);
+  const [isSchoolReportOpen, setIsSchoolReportOpen] = useState(false);
+  const [riddleGuess, setRiddleGuess] = useState('');
+  const [riddleSolved, setRiddleSolved] = useState(false);
 
   // Mobile sync portal route check (auto-open on native mobile or small screens)
   const [showMobilePortal, setShowMobilePortal] = useState(
@@ -542,6 +548,20 @@ function App() {
 
           <div className="flex items-center gap-2 flex-wrap">
             <button
+              onClick={() => setIsLiteracyOpen(true)}
+              className="text-xs font-bold text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-105 active:scale-95"
+              title="Otevřít minikvíz a poznatky o pohybové gramotnosti"
+            >
+              <span>🧠 Pohybová gramotnost</span>
+            </button>
+            <button
+              onClick={() => setIsSchoolReportOpen(true)}
+              className="text-xs font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-105 active:scale-95"
+              title="Oficiální manažerský report pro ředitele a ČŠI"
+            >
+              <span>📄 Report pro ředitele</span>
+            </button>
+            <button
               onClick={() => setIsPosterOpen(true)}
               className="text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-105 active:scale-95"
               title="Zobrazit a vytisknout oficiální diplom z výzvy pro celou třídu"
@@ -631,6 +651,79 @@ function App() {
             </button>
           </div>
         </div>
+
+        {/* Educational Cross-Curricular Riddle Banner (FTK UP Study Feature) */}
+        {currentChallenge.customTaskPrompt && (
+          <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 border border-emerald-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs text-lg">
+                {currentChallenge.subjectCategory === 'dejepis' ? '🏛️' : currentChallenge.subjectCategory === 'zemepis' ? '🌍' : currentChallenge.subjectCategory === 'prirodopis' ? '🧬' : currentChallenge.subjectCategory === 'zdravi' ? '🍎' : '💡'}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800">
+                    Výuková hádanka učitele ({currentChallenge.subjectCategory?.toUpperCase() || 'MEZIPŘEDMĚTOVÁ VAZBA'})
+                  </span>
+                  {currentProgressPercent >= 50 ? (
+                    <span className="text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                      💡 Nápověda odemčena
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                      🔒 Nápověda po 50 % kroků (nyní {Math.round(currentProgressPercent)} %)
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm font-bold text-slate-800 mt-1">
+                  {currentChallenge.customTaskPrompt}
+                </p>
+                {currentProgressPercent >= 50 && currentChallenge.customClue && (
+                  <p className="text-xs text-emerald-700 italic mt-0.5 font-medium">
+                    💡 Nápověda: {currentChallenge.customClue}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Riddle interactive answer check */}
+            <div className="w-full md:w-auto shrink-0 flex items-center gap-2">
+              {riddleSolved ? (
+                <div className="px-4 py-2 bg-emerald-100 border border-emerald-300 rounded-xl text-xs font-black text-emerald-900 flex items-center gap-1.5 shadow-xs">
+                  <span>🎉 SPRÁVNĚ!</span>
+                  <span className="font-semibold text-emerald-800">Tajenka: {currentChallenge.solutionAnswer}</span>
+                </div>
+              ) : (
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!riddleGuess) return;
+                    const correct = currentChallenge.solutionAnswer?.trim().toLowerCase();
+                    if (correct && (riddleGuess.trim().toLowerCase().includes(correct) || correct.includes(riddleGuess.trim().toLowerCase()))) {
+                      setRiddleSolved(true);
+                    } else {
+                      alert('Zatím to není správně! Zkuste jinou odpověď nebo nasbírejte více kroků pro nápovědu.');
+                    }
+                  }}
+                  className="flex items-center gap-2 w-full md:w-auto"
+                >
+                  <input
+                    type="text"
+                    value={riddleGuess}
+                    onChange={(e) => setRiddleGuess(e.target.value)}
+                    placeholder="Váš tip na tajenku..."
+                    className="replicated-input text-xs py-1.5 px-3 w-full md:w-44 bg-white"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all shrink-0 cursor-pointer"
+                  >
+                    Ověřit
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Tabs and selected game inside replicated-card */}
         <div className="replicated-card">
@@ -787,6 +880,28 @@ function App() {
             group={currentGroup}
             school={currentSchool}
             students={students}
+          />
+        )}
+
+        {/* Physical Literacy & Research Study Modal */}
+        {isLiteracyOpen && (
+          <PhysicalLiteracyModal
+            isOpen={isLiteracyOpen}
+            onClose={() => setIsLiteracyOpen(false)}
+            classNameTitle={currentGroup?.name}
+            classAvgSteps={activeGroupStudents.length > 0 ? Math.round(progressInfo.totalSteps / activeGroupStudents.length) : 9850}
+          />
+        )}
+
+        {/* School Management & Inspection Report Modal */}
+        {isSchoolReportOpen && currentGroup && currentChallenge && (
+          <SchoolReportModal
+            isOpen={isSchoolReportOpen}
+            onClose={() => setIsSchoolReportOpen(false)}
+            progress={progressInfo}
+            challengeName={currentChallenge.name}
+            school={currentSchool}
+            targetSteps={currentChallenge.targetSteps}
           />
         )}
       </div>

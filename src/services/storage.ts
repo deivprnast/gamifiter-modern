@@ -49,7 +49,11 @@ const DEFAULT_CHALLENGES: Challenge[] = [
     targetSteps: 500000,
     validFrom: '2026-06-01',
     validTo: '2026-07-31',
-    filePath: '/tour_de_cities.geojson'
+    filePath: '/tour_de_cities.geojson',
+    subjectCategory: 'zemepis',
+    customTaskPrompt: 'Které je nejzelenější hlavní město Evropy podle rozlohy městských parků na jednoho obyvatele?',
+    customClue: 'Leží na řece Dunaj, pyšní se Hofburgem a Prátrem.',
+    solutionAnswer: 'Vídeň'
   },
   {
     id: 'challenge-2',
@@ -59,7 +63,11 @@ const DEFAULT_CHALLENGES: Challenge[] = [
     targetSteps: 70000, // 14 districts in districts.geojson, 14 * 5000 = 70k steps
     validFrom: '2026-06-15',
     validTo: '2026-08-15',
-    filePath: '/districts.geojson'
+    filePath: '/districts.geojson',
+    subjectCategory: 'zemepis',
+    customTaskPrompt: 'Který moravský kraj je známý výrobou tvarůžků a barokním sloupem Nejsvětější Trojice?',
+    customClue: 'Krajské město je sídlem Univerzity Palackého.',
+    solutionAnswer: 'Olomoucký kraj'
   },
   {
     id: 'challenge-3',
@@ -69,7 +77,11 @@ const DEFAULT_CHALLENGES: Challenge[] = [
     targetSteps: 120000,
     validFrom: '2026-06-20',
     validTo: '2026-07-20',
-    filePath: '/krumlov.jpg'
+    filePath: '/krumlov.jpg',
+    subjectCategory: 'dejepis',
+    customTaskPrompt: 'Který slavný jihočeský šlechtický rod s pětilistou růží ve znaku tento zámek po staletí spravoval?',
+    customClue: 'Páni z R... měli své centrum v Českém Krumlově a Třeboni.',
+    solutionAnswer: 'Rožmberkové'
   },
   {
     id: 'challenge-4',
@@ -79,7 +91,11 @@ const DEFAULT_CHALLENGES: Challenge[] = [
     targetSteps: 100000,
     validFrom: '2026-06-10',
     validTo: '2026-07-10',
-    filePath: '/dna.jpg'
+    filePath: '/dna.jpg',
+    subjectCategory: 'prirodopis',
+    customTaskPrompt: 'Jak se nazývá základní stavební jednotka nukleových kyselin DNA a RNA?',
+    customClue: 'Skládá se z dusíkaté báze, pětiuhlíkatého cukru a fosfátové skupiny (N...tid).',
+    solutionAnswer: 'Nukleotid'
   },
   {
     id: 'challenge-5',
@@ -89,23 +105,27 @@ const DEFAULT_CHALLENGES: Challenge[] = [
     targetSteps: 80000,
     validFrom: '2026-06-05',
     validTo: '2026-07-05',
-    filePath: '/dataset.json'
+    filePath: '/dataset.json',
+    subjectCategory: 'zdravi',
+    customTaskPrompt: 'Kolik minut střední až intenzivní pohybové aktivity denně doporučuje WHO pro optimální vývoj dětí a mládeže?',
+    customClue: 'Přesně jedna celá vyučovací hodina plus přestávka (60 minut).',
+    solutionAnswer: '60 minut'
   }
 ];
 
 const DEFAULT_GROUPS: Group[] = [
-  { id: 'group-1', name: 'Třída 8.A (FTK UP)', adminName: 'David Prycl', schoolId: 'school-1' },
-  { id: 'group-2', name: 'Třída 9.B (Výzkumná kohorta)', adminName: 'David Prycl', schoolId: 'school-1' },
-  { id: 'group-3', name: 'Kinantropologický seminář UP', adminName: 'doc. Michal Vorlíček', schoolId: 'school-2' },
-  { id: 'group-4', name: 'Prima A (Gymnázium)', adminName: 'Mgr. Jan Novák', schoolId: 'school-3' }
+  { id: 'group-1', name: 'Třída 8.A (FTK UP)', adminName: 'David Prycl', schoolId: 'school-1', streakDays: 7 },
+  { id: 'group-2', name: 'Třída 9.B (Výzkumná kohorta)', adminName: 'David Prycl', schoolId: 'school-1', streakDays: 4 },
+  { id: 'group-3', name: 'Kinantropologický seminář UP', adminName: 'doc. Michal Vorlíček', schoolId: 'school-2', streakDays: 14 },
+  { id: 'group-4', name: 'Prima A (Gymnázium)', adminName: 'Mgr. Jan Novák', schoolId: 'school-3', streakDays: 6 }
 ];
 
 const DEFAULT_STUDENTS: Student[] = [
-  { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464, device: 'Garmin Vívoactive 4', isReal: true },
-  { id: 'student-2', name: 'Tomáš Kučera', groupId: 'group-1', steps: 7820, device: 'Apple Zdraví', isReal: false },
-  { id: 'student-3', name: 'Eliška Dvořáková', groupId: 'group-1', steps: 9410, device: 'Google Fit', isReal: false },
-  { id: 'student-4', name: 'Jakub Svoboda', groupId: 'group-2', steps: 6150, device: 'Garmin Forerunner', isReal: false },
-  { id: 'student-5', name: 'Tereza Králová', groupId: 'group-3', steps: 11200, device: 'Garmin Vívoactive', isReal: false }
+  { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464, morningSteps: 2150, streakDays: 8, avatar: '🦊', device: 'Garmin Vívoactive 4', isReal: true },
+  { id: 'student-2', name: 'Tomáš Kučera', groupId: 'group-1', steps: 7820, morningSteps: 1840, streakDays: 5, avatar: '🦅', device: 'Apple Zdraví', isReal: false },
+  { id: 'student-3', name: 'Eliška Dvořáková', groupId: 'group-1', steps: 9410, morningSteps: 2420, streakDays: 12, avatar: '🐆', device: 'Google Fit', isReal: false },
+  { id: 'student-4', name: 'Jakub Svoboda', groupId: 'group-2', steps: 6150, morningSteps: 1350, streakDays: 3, avatar: '🐺', device: 'Garmin Forerunner', isReal: false },
+  { id: 'student-5', name: 'Tereza Králová', groupId: 'group-3', steps: 11200, morningSteps: 2600, streakDays: 14, avatar: '🐬', device: 'Garmin Vívoactive', isReal: false }
 ];
 
 export const initializeStorage = (): void => {
@@ -153,21 +173,43 @@ export const initializeStorage = (): void => {
       const david = cleaned.find(s => s.name.includes('David Prycl') || s.id === 'student-1');
       if (!david) {
         cleaned.unshift({ id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464, device: 'Garmin Vívoactive 4', isReal: true });
-      } else {
-        if (david.steps >= 50000 || david.steps === 104620) {
-          david.steps = 6464;
-        }
+      } else if (david.steps >= 50000 || david.steps === 104620) {
+        david.steps = 6464;
       }
-      // If only 1 student, add peers for lively class representation
-      if (cleaned.length === 1) {
-        cleaned.push(
-          { id: 'student-2', name: 'Tomáš Kučera', groupId: 'group-1', steps: 7820, device: 'Apple Zdraví', isReal: false },
-          { id: 'student-3', name: 'Eliška Dvořáková', groupId: 'group-1', steps: 9410, device: 'Google Fit', isReal: false }
-        );
-      }
+      const avatarList = ['🦊', '🦅', '🐆', '🐺', '🐬', '🦁', '🐻', '🦉'];
+      cleaned = cleaned.map((s, idx) => ({
+        ...s,
+        avatar: s.avatar || avatarList[idx % avatarList.length],
+        morningSteps: s.morningSteps !== undefined ? s.morningSteps : Math.round(s.steps * 0.28),
+        streakDays: s.streakDays !== undefined ? s.streakDays : (idx === 0 ? 8 : (idx + 3) * 2)
+      }));
       localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(cleaned));
     } catch {
       localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(DEFAULT_STUDENTS));
+    }
+  }
+
+  // Ensure challenges have educational tasks backfilled
+  const existingChallengesRaw = localStorage.getItem(STORAGE_KEYS.CHALLENGES);
+  if (existingChallengesRaw) {
+    try {
+      const challenges: Challenge[] = JSON.parse(existingChallengesRaw);
+      const updated = challenges.map(c => {
+        const def = DEFAULT_CHALLENGES.find(dc => dc.id === c.id);
+        if (def && !c.customTaskPrompt) {
+          return {
+            ...c,
+            customTaskPrompt: def.customTaskPrompt,
+            customClue: def.customClue,
+            subjectCategory: def.subjectCategory,
+            solutionAnswer: def.solutionAnswer
+          };
+        }
+        return c;
+      });
+      localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(updated));
+    } catch {
+      localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(DEFAULT_CHALLENGES));
     }
   }
 
@@ -474,9 +516,12 @@ export const getGroupProgress = (challengeId: string, groupId: string): GroupPro
   const totalSteps = students.reduce((sum, s) => sum + s.steps, 0);
   const activeUsers = students.filter(s => s.steps > 0).length;
   const progressPercent = Math.min(100, Math.round((totalSteps / challenge.targetSteps) * 100 * 10) / 10);
-  
-  // Calculate virtual distance: average step is 0.7 meters
   const totalDistanceKm = Math.round((totalSteps * 0.0007) * 100) / 100;
+
+  // Active commute: pupils with morning steps >= 1200
+  const commuters = students.filter(s => (s.morningSteps || 0) >= 1200);
+  const activeCommutePercent = students.length > 0 ? Math.round((commuters.length / students.length) * 100) : 0;
+  const maxStreak = Math.max(0, ...students.map(s => s.streakDays || 0));
 
   return {
     groupId,
@@ -485,8 +530,40 @@ export const getGroupProgress = (challengeId: string, groupId: string): GroupPro
     totalSteps,
     totalDistanceKm,
     activeUsers,
-    progressPercent
+    progressPercent,
+    activeCommutePercent,
+    streakDays: maxStreak || 5
   };
+};
+
+export const updateStudentAvatar = (studentId: string, avatar: string): Student[] => {
+  const students = getStudents();
+  const index = students.findIndex(s => s.id === studentId);
+  if (index !== -1) {
+    students[index].avatar = avatar;
+    localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(students));
+  }
+  return students;
+};
+
+export const toggleStudentAnonymous = (studentId: string): Student[] => {
+  const students = getStudents();
+  const index = students.findIndex(s => s.id === studentId);
+  if (index !== -1) {
+    students[index].isAnonymous = !students[index].isAnonymous;
+    localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(students));
+  }
+  return students;
+};
+
+export const updateStudentMorningSteps = (studentId: string, morningSteps: number): Student[] => {
+  const students = getStudents();
+  const index = students.findIndex(s => s.id === studentId);
+  if (index !== -1) {
+    students[index].morningSteps = Math.max(0, morningSteps);
+    localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(students));
+  }
+  return students;
 };
 
 export const resetStorage = (): void => {
