@@ -48,7 +48,7 @@ export const ChallengePosterModal: React.FC<ChallengePosterModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md overflow-y-auto animate-fade-in print:p-0 print:bg-white print:static print:backdrop-blur-none">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md overflow-y-auto animate-fade-in print:p-0 print:bg-white print:static print:backdrop-blur-none">
       {/* Top Action Bar - Hidden in print */}
       <div className="relative w-full max-w-4xl my-8 bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col print:border-none print:shadow-none print:my-0 print:max-w-none">
         

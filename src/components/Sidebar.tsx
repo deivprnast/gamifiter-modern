@@ -23,13 +23,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect, isOpen =
       {isOpen && (
         <div 
           onClick={onClose}
-          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-40 transition-opacity animate-fade-in"
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] transition-opacity animate-fade-in"
         />
       )}
 
       {/* Sidebar Drawer Container */}
       <aside 
-        className={`sidebar-container fixed md:sticky top-0 left-0 h-screen z-50 transition-transform duration-300 ease-in-out ${
+        className={`sidebar-container fixed md:sticky top-0 left-0 h-screen z-[110] transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
         }`}
       >

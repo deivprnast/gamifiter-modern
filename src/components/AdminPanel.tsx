@@ -1231,7 +1231,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* Edit Challenge Modal (Apple UX Dialog) */}
       {editingChallenge && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/80 max-w-lg w-full p-6 space-y-4 animate-scale-in">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div className="flex items-center gap-2.5">
@@ -1427,7 +1427,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* Edit Group Modal (Apple UX Dialog) */}
       {editingGroup && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/80 max-w-md w-full p-6 space-y-4 animate-scale-in">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div className="flex items-center gap-2.5">
@@ -1511,7 +1511,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* Edit School Modal (Superadmin) */}
       {editingSchool && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/80 max-w-md w-full p-6 space-y-4 animate-scale-in">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div className="flex items-center gap-2.5">

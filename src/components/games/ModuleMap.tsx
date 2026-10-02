@@ -205,12 +205,12 @@ export const ModuleMap: React.FC<ModuleMapProps> = ({ progress, filePath, studen
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '520px' }}>
+    <div style={{ position: 'relative', width: '100%', height: '520px', zIndex: 0, isolation: 'isolate' }}>
       <MapContainer
         key={filePath}
         center={[50.075, 14.437]}
         zoom={4}
-        style={{ width: '100%', height: '100%', borderRadius: '16px' }}
+        style={{ width: '100%', height: '100%', borderRadius: '16px', zIndex: 0 }}
         zoomControl={true}
       >
         <TileLayer

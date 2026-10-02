@@ -209,6 +209,18 @@ body {
   border-bottom: none;
 }
 
+/* Leaflet Stacking Context Isolation: Prevent Leaflet map panes (z-200..1000) from rendering over modals, headers and drawers */
+.leaflet-container {
+  position: relative !important;
+  z-index: 0 !important;
+  isolation: isolate !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 20 !important;
+}
+
 /* Leaflet Popup Apple Style Override */
 .leaflet-popup-content-wrapper {
   background: #FFFFFF !important;

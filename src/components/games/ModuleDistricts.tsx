@@ -145,12 +145,12 @@ export const ModuleDistricts: React.FC<ModuleDistrictsProps> = ({ progress, file
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '500px' }}>
+    <div style={{ position: 'relative', width: '100%', height: '500px', zIndex: 0, isolation: 'isolate' }}>
       <MapContainer
         key={filePath}
         center={[49.8, 15.5]} // Center of Czechia
         zoom={7.5}
-        style={{ width: '100%', height: '100%', borderRadius: '12px' }}
+        style={{ width: '100%', height: '100%', borderRadius: '12px', zIndex: 0 }}
         zoomControl={true}
       >
         <TileLayer

@@ -26,7 +26,7 @@ export const ResearchModal: React.FC<ResearchModalProps> = ({
   const percentOfBenchmark = Math.min(150, Math.round((avgStepsPerStudent / nationalBenchmark) * 100));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md overflow-y-auto animate-fade-in">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md overflow-y-auto animate-fade-in">
       <div className="relative w-full max-w-4xl my-8 bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col">
         
         {/* Modal Top Header */}
