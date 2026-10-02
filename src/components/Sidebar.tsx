@@ -78,10 +78,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect }) => {
         <div className="sidebar-section-title">FTK UP Telemetrie</div>
         <button 
           onClick={() => onSelect('sync-research')}
-          className={`sidebar-link w-full text-left ${activeItem === 'sync-research' ? 'active' : ''}`}
+          className={`sidebar-link w-full text-left flex items-center justify-between ${activeItem === 'sync-research' ? 'active' : ''}`}
         >
-          <Watch className="h-4 w-4 text-cyan-600" />
-          <span className="font-bold text-[#007CA6]">Synchronizace zařízení</span>
+          <div className="flex items-center gap-3">
+            <Watch className="h-4 w-4" />
+            <span>Synchronizace zařízení</span>
+          </div>
+          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${activeItem === 'sync-research' ? 'bg-[#007CA6]/15 text-[#007CA6]' : 'bg-white/20 text-white'}`}>
+            LIVE
+          </span>
         </button>
 
         {/* Section: Administration */}
