@@ -33,8 +33,13 @@ export const MobileSyncPortal: React.FC<MobileSyncPortalProps> = ({ onBackToApp 
       } else if (urlToken.includes('prycl')) {
         setStudentName('David Prycl');
         setDevice('Garmin Vívoactive 4');
-        setSteps(9150);
+        setSteps(0);
       }
+    }
+
+    // Auto-read on launch if inside native app
+    if (NativeHealthService.isNative()) {
+      handleAutoReadSteps();
     }
   }, []);
 
@@ -42,10 +47,15 @@ export const MobileSyncPortal: React.FC<MobileSyncPortalProps> = ({ onBackToApp 
     try {
       await NativeHealthService.requestHealthPermissions();
       const reading = await NativeHealthService.getTodaySteps();
-      setSteps(reading.steps);
-      setActivityNote(`Automatický odečet ze senzorů (${reading.source})`);
-    } catch (e) {
+      if (reading.steps > 0) {
+        setSteps(reading.steps);
+        setActivityNote(`Živý odečet z hodinek Garmin (${reading.source})`);
+      } else {
+        setActivityNote(reading.source);
+      }
+    } catch (e: any) {
       console.error(e);
+      setActivityNote(`Ověřte povolení Health Connect: ${e?.message || 'Chyba'}`);
     }
   };
 

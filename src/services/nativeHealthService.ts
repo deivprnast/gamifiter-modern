@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { Health } from '@capgo/capacitor-health';
 
 export interface HealthStepReading {
   steps: number;
@@ -35,17 +36,19 @@ export class NativeHealthService {
     }
 
     try {
-      // In native environment, plugins trigger OS permission dialogs
       console.log(`[HealthService] Requesting native health permissions for platform: ${this.getPlatform()}`);
+      await Health.requestAuthorization({
+        read: ['steps']
+      });
       return true;
     } catch (e) {
-      console.error('[HealthService] Permission request failed:', e);
+      console.warn('[HealthService] Permission request failed or dismissed:', e);
       return false;
     }
   }
 
   /**
-   * Read steps for today from native sensors
+   * Read actual live steps for today from native sensors / Health Connect (Garmin)
    */
   static async getTodaySteps(): Promise<HealthStepReading> {
     const todayStr = new Date().toISOString().split('T')[0];
@@ -53,22 +56,43 @@ export class NativeHealthService {
     const platform = this.getPlatform();
 
     if (isNative) {
-      // On real native device, read aggregated steps
-      console.log(`[HealthService] Reading native steps from ${platform}`);
-      return {
-        steps: 8450, // Default calibrated reading
-        date: todayStr,
-        source: platform === 'android' ? 'android_health_connect' : 'apple_healthkit',
-        isNative: true
-      };
+      try {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const result = await Health.queryAggregated({
+          dataType: 'steps',
+          startDate: startOfDay.toISOString(),
+          endDate: new Date().toISOString(),
+          bucket: 'day',
+          aggregation: 'sum'
+        });
+
+        console.log('[HealthService] Real sensor reading from Health Connect:', result);
+        let stepsValue = 0;
+        if (result?.samples && result.samples.length > 0) {
+          stepsValue = Math.round(result.samples.reduce((acc, s) => acc + (s.value || 0), 0));
+        }
+
+        if (stepsValue > 0) {
+          return {
+            steps: stepsValue,
+            date: todayStr,
+            source: platform === 'android' ? 'Garmin Vívoactive 4 (Google Health Connect)' : 'Apple HealthKit',
+            isNative: true
+          };
+        }
+      } catch (e) {
+        console.error('[HealthService] Error querying real health records:', e);
+      }
     }
 
-    // Fallback in web / mobile browser
+    // Default reading if not in native or no steps yet
     return {
-      steps: 8200,
+      steps: 0,
       date: todayStr,
-      source: 'web_portal_sync',
-      isNative: false
+      source: isNative ? 'Health Connect (Zatím 0 kroků nebo nepotvrzeno oprávnění)' : 'web_portal_sync',
+      isNative
     };
   }
 
