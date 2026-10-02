@@ -296,15 +296,15 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
             </div>
             <div className="flex flex-col sm:flex-row gap-2 shrink-0 w-full md:w-auto">
               <a
-                href="/Gamifiter-Debug.apk"
-                download="Gamifiter-v1.0.0.apk"
+                href="/Gamifiter.apk"
+                download="Gamifiter-v1.0.6.apk"
                 className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
               >
                 <Download className="h-4 w-4" />
-                <span>Stáhnout Gamifiter.apk (6.1 MB)</span>
+                <span>Stáhnout Gamifiter v1.0.6 APK (Health Connect)</span>
               </a>
               <a
-                href="https://github.com/deivprnast/gamifiter-modern/releases/tag/v1.0.0"
+                href="https://github.com/deivprnast/gamifiter-modern/releases/tag/v1.0.6"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all"

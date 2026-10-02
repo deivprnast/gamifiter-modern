@@ -20,6 +20,11 @@ export default {
       });
     }
 
+    // Direct APK download routes
+    if (url.pathname === '/Gamifiter.apk' || url.pathname === '/download' || url.pathname === '/apk') {
+      return Response.redirect('https://github.com/deivprnast/gamifiter-modern/releases/download/v1.0.6/Gamifiter.apk', 302);
+    }
+
     // Endpoint: POST /api/sync
     if (url.pathname === '/api/sync' && request.method === 'POST') {
       try {
