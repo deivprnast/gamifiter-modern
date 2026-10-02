@@ -29,6 +29,7 @@ import { ModuleNetwork } from './components/games/ModuleNetwork';
 // Telemetry & Device Sync Views (FTK UP Research)
 import { SyncResearchPanel } from './components/SyncResearchPanel';
 import { MobileSyncPortal } from './components/MobileSyncPortal';
+import { NativeHealthService } from './services/nativeHealthService';
 
 // Icons
 import { Map, MapPin, Grid, Sparkles, Network, Activity, Play, Pause, ChevronUp, ChevronDown } from 'lucide-react';
@@ -69,7 +70,7 @@ function App() {
 
   // Global SSE listener for real-time mobile sync from Garmin/Health Connect
   useEffect(() => {
-    const eventSource = new EventSource('/api/sync/events');
+    const eventSource = new EventSource(NativeHealthService.getServerUrl('/api/sync/events'));
 
     eventSource.addEventListener('sync_received', (e: any) => {
       try {

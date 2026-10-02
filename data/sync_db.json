@@ -4,10 +4,10 @@
       "id": "student-1",
       "name": "David Prycl",
       "groupId": "group-1",
-      "steps": 242585,
+      "steps": 258885,
       "device": "Garmin Vívoactive 4",
       "pairedToken": "ftk-prycl-garmin",
-      "lastSync": "2026-10-01T18:57:58.227Z",
+      "lastSync": "2026-10-01T19:43:53.524Z",
       "status": "synced"
     },
     {
@@ -245,6 +245,40 @@
         "note": "Automatický odečet ze senzorů (web_portal_sync)",
         "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
         "timestamp": "2026-10-01T18:57:57.574Z"
+      }
+    },
+    {
+      "id": "log-1790883795614-194",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T19:43:15.614Z",
+      "date": "2026-10-01",
+      "steps": 251035,
+      "stepDelta": 8450,
+      "device": "Garmin Vívoactive 4",
+      "source": "health_connect_push",
+      "integrityHash": "ftk-sha256-5a309da8cdeaea83",
+      "valid": true,
+      "metadata": {}
+    },
+    {
+      "id": "log-1790883833524-796",
+      "studentId": "student-1",
+      "studentName": "David Prycl",
+      "timestamp": "2026-10-01T19:43:53.524Z",
+      "date": "2026-10-01",
+      "steps": 258885,
+      "stepDelta": 7850,
+      "device": "Garmin Vívoactive 4",
+      "source": "mobile_portal",
+      "integrityHash": "ftk-sha256-a1912cc9f516f66f",
+      "valid": true,
+      "metadata": {
+        "isNative": false,
+        "platform": "web",
+        "note": "Tělesná výchova + odpolední chůze",
+        "clientUserAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+        "timestamp": "2026-10-01T19:43:52.811Z"
       }
     }
   ]

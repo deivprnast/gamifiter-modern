@@ -73,6 +73,17 @@ export class NativeHealthService {
   }
 
   /**
+   * Get server host for native mobile environment vs browser
+   */
+  static getServerUrl(endpoint: string): string {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    const storedHost = localStorage.getItem('gamifiter_server_host') || 'gamifiter-modern.dprycl.workers.dev';
+    const protocol = storedHost.includes('workers.dev') || storedHost.includes('pages.dev') || storedHost.includes('https://') ? 'https://' : 'http://';
+    const cleanHost = storedHost.replace(/^https?:\/\//, '');
+    return `${protocol}${cleanHost}${cleanEndpoint}`;
+  }
+
+  /**
    * Send step telemetry to Gamifiter Cloud backend
    */
   static async syncStepsToServer(params: {
@@ -82,7 +93,8 @@ export class NativeHealthService {
     isDelta?: boolean;
     metadata?: Record<string, any>;
   }): Promise<any> {
-    const response = await fetch('/api/sync', {
+    const syncUrl = this.getServerUrl('/api/sync');
+    const response = await fetch(syncUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

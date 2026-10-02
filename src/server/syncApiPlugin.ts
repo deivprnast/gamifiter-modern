@@ -176,6 +176,28 @@ export function syncApiPlugin(): Plugin {
           return;
         }
 
+        // Endpoint: Direct APK download with correct Android MIME types
+        if (url === '/download/apk' || url.startsWith('/Gamifiter') || url.endsWith('.apk')) {
+          const possiblePaths = [
+            path.resolve(process.cwd(), 'public/Gamifiter.apk'),
+            path.resolve(process.cwd(), 'public/Gamifiter-Debug.apk'),
+            path.resolve(process.cwd(), 'build-output/Gamifiter-Debug.apk')
+          ];
+          const apkPath = possiblePaths.find((p) => fs.existsSync(p));
+
+          if (apkPath) {
+            const stat = fs.statSync(apkPath);
+            res.writeHead(200, {
+              'Content-Type': 'application/vnd.android.package-archive',
+              'Content-Length': stat.size,
+              'Content-Disposition': 'attachment; filename="Gamifiter.apk"',
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
+            });
+            fs.createReadStream(apkPath).pipe(res);
+            return;
+          }
+        }
+
         // Endpoint: GET /api/sync/status
         if (url === '/api/sync/status' && req.method === 'GET') {
           const db = loadDb();

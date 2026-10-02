@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Gamifiter',
   webDir: 'dist',
   server: {
+    url: 'https://gamifiter-modern.dprycl.workers.dev',
     cleartext: true
   }
 };

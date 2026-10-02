@@ -4,6 +4,7 @@ import {
   Watch, Smartphone, QrCode, RefreshCw, Download, 
   Send, ExternalLink, Zap
 } from 'lucide-react';
+import { NativeHealthService } from '../services/nativeHealthService';
 
 interface SyncResearchPanelProps {
   onSyncReceived?: (data: any) => void;
@@ -55,7 +56,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
   const loadStatus = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/sync/status');
+      const res = await fetch(NativeHealthService.getServerUrl('/api/sync/status'));
       const data = await res.json();
       if (data.success) {
         setStudents(data.students);
@@ -72,7 +73,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
     loadStatus();
 
     // Connect to Server-Sent Events (SSE) for live streaming updates
-    const eventSource = new EventSource('/api/sync/events');
+    const eventSource = new EventSource(NativeHealthService.getServerUrl('/api/sync/events'));
 
     eventSource.addEventListener('sync_received', (e: any) => {
       try {
@@ -125,7 +126,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
   const triggerTestSync = async (studentId: string, token: string, device: string, stepsToAdd: number) => {
     setTestSending((prev) => ({ ...prev, [studentId]: true }));
     try {
-      const res = await fetch('/api/sync', {
+      const res = await fetch(NativeHealthService.getServerUrl('/api/sync'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
