@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Award, Users, Home, PlayCircle, Archive, 
-  Settings, Layers, PlusCircle, Watch, Building2, BookOpen 
+  Settings, Layers, PlusCircle, Watch, Building2, BookOpen, Smartphone 
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -76,6 +76,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect }) => {
 
         {/* Section: Telemetry / Research */}
         <div className="sidebar-section-title">FTK UP Telemetrie</div>
+        <button 
+          onClick={() => onSelect('student-mobile')}
+          className={`sidebar-link w-full text-left flex items-center justify-between ${activeItem === 'student-mobile' ? 'active' : ''}`}
+        >
+          <div className="flex items-center gap-3">
+            <Smartphone className="h-4 w-4 text-emerald-300" />
+            <span>Mobilní appka žáka</span>
+          </div>
+          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-400/20 text-emerald-300">
+            PRO ŽÁKY
+          </span>
+        </button>
         <button 
           onClick={() => onSelect('sync-research')}
           className={`sidebar-link w-full text-left flex items-center justify-between ${activeItem === 'sync-research' ? 'active' : ''}`}

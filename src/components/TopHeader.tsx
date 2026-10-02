@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Award, Users, Home, PlayCircle, Settings, Building2, BookOpen } from 'lucide-react';
+import { Award, Users, Home, PlayCircle, Settings, Building2, BookOpen, Smartphone } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { ResearchModal } from './ResearchModal';
 
@@ -179,7 +179,20 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
         </div>
 
         {/* Right side: Language, settings, profile */}
-        <div className="top-header-right flex items-center gap-3 shrink-0">
+        <div className="top-header-right flex items-center gap-2.5 shrink-0">
+          {/* Student Mobile App Quick Switch */}
+          {onSelect && (
+            <button
+              onClick={() => onSelect('student-mobile')}
+              className="px-3 py-1.5 rounded-full text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+              title="Otevřít novou mobilní aplikaci pro žáky"
+            >
+              <Smartphone className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Mobilní appka žáka</span>
+              <span className="sm:hidden">Appka</span>
+            </button>
+          )}
+
           {/* Language Flag Widget */}
           <div className="top-header-lang hidden sm:flex items-center gap-1.5 text-xs text-gray-500 font-semibold px-2 py-1 rounded bg-gray-50 border border-gray-200">
             <img 

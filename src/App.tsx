@@ -47,6 +47,7 @@ const VALID_ROUTES = [
   'my-class',
   'my-school',
   'finished-challenges',
+  'student-mobile',
   'sync-research',
   'research-info',
   'admin-schools',
@@ -85,10 +86,11 @@ function App() {
   const [riddleGuess, setRiddleGuess] = useState('');
   const [riddleSolved, setRiddleSolved] = useState(false);
 
-  // Mobile sync portal route check (auto-open on native mobile or small screens)
-  const [showMobilePortal, setShowMobilePortal] = useState(
+  // Mobile sync portal route check (auto-open on native mobile, student-mobile route, or small screens)
+  const [showMobilePortal, setShowMobilePortal] = useState(() => 
     window.location.pathname === '/sync' || 
     window.location.search.includes('token=') ||
+    window.location.hash.includes('student-mobile') ||
     NativeHealthService.isNative() ||
     window.innerWidth <= 768
   );
@@ -142,6 +144,11 @@ function App() {
 
     const handleHashChange = () => {
       const route = getRouteFromHash();
+      if (route === 'student-mobile') {
+        setShowMobilePortal(true);
+      } else if (window.innerWidth > 768) {
+        setShowMobilePortal(false);
+      }
       setActiveItem(route);
     };
 
@@ -241,10 +248,19 @@ function App() {
   const currentProgressPercent = progressInfo ? progressInfo.progressPercent : 0;
 
   const handleSidebarSelect = (item: string) => {
-    if (item === 'sync-research' && (NativeHealthService.isNative() || window.innerWidth <= 768)) {
+    if (item === 'student-mobile') {
       setShowMobilePortal(true);
+      setActiveItem('student-mobile');
+      window.location.hash = '#/student-mobile';
       return;
     }
+    if (item === 'sync-research' && (NativeHealthService.isNative() || window.innerWidth <= 768)) {
+      setShowMobilePortal(true);
+      setActiveItem('student-mobile');
+      window.location.hash = '#/student-mobile';
+      return;
+    }
+    setShowMobilePortal(false);
     setActiveItem(item);
     window.location.hash = `#/${item}`;
   };
