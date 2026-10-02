@@ -5,7 +5,7 @@ import {
   getActiveChallengeId, setActiveChallengeId, 
   getActiveGroupId, setActiveGroupId, 
   getGroupProgress, updateStudentSteps, 
-  initializeStorage
+  initializeStorage, syncWithCloudD1
 } from './services/storage';
 import { type Challenge, type Group, type Student, type ModuleType } from './types';
 
@@ -61,10 +61,24 @@ function App() {
     visible: false
   });
 
+  const syncFromCloud = async () => {
+    try {
+      const res = await fetch(NativeHealthService.getServerUrl('/api/sync/status'));
+      const data = await res.json();
+      if (data.success && data.students && data.students.length > 0) {
+        const merged = syncWithCloudD1(data.students);
+        setStudents([...merged]);
+      }
+    } catch (e) {
+      console.warn('Initial cloud sync notice:', e);
+    }
+  };
+
   // Initialize storage & state
   useEffect(() => {
     initializeStorage();
     loadAllData();
+    syncFromCloud();
   }, []);
 
   // Global SSE listener for real-time mobile sync from Garmin/Health Connect
@@ -153,7 +167,16 @@ function App() {
   const renderActiveView = () => {
     switch (activeItem) {
       case 'my-results':
-        return <MyResults />;
+        return (
+          <MyResults 
+            students={students} 
+            onUpdateStudentSteps={(steps) => {
+              updateStudentSteps('student-1', steps);
+              setStudents(getStudents());
+            }}
+            onRefreshCloud={syncFromCloud}
+          />
+        );
         
       case 'my-class':
         return <MyClass students={activeGroupStudents} />;

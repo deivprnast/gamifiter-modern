@@ -1,12 +1,106 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { getStudents } from '../../services/storage';
-import { CheckCircle2 } from 'lucide-react';
+import { getStudents, updateStudentSteps, syncWithCloudD1 } from '../../services/storage';
+import { CheckCircle2, RefreshCw, Edit3, Save, X } from 'lucide-react';
+import { type Student } from '../../types';
+import { NativeHealthService } from '../../services/nativeHealthService';
 
-export const MyResults: React.FC = () => {
-  const students = getStudents();
-  const david = students.find(s => s.id === 'student-1' || s.name.includes('David Prycl'));
+interface MyResultsProps {
+  students?: Student[];
+  onUpdateStudentSteps?: (steps: number) => void;
+  onRefreshCloud?: () => Promise<void>;
+}
+
+export const MyResults: React.FC<MyResultsProps> = ({
+  students: propStudents,
+  onUpdateStudentSteps,
+  onRefreshCloud
+}) => {
+  const [localStudents, setLocalStudents] = useState<Student[]>(() => propStudents || getStudents());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const [statusNotice, setStatusNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (propStudents && propStudents.length > 0) {
+      setLocalStudents(propStudents);
+    }
+  }, [propStudents]);
+
+  const currentList = (propStudents && propStudents.length > 0) ? propStudents : localStudents;
+  const david = currentList.find(s => s.id === 'student-1' || s.name.includes('David Prycl'));
   const realStepsToday = david ? david.steps : 6464;
+
+  const handleRefreshFromCloud = async () => {
+    setIsRefreshing(true);
+    setStatusNotice(null);
+    try {
+      if (onRefreshCloud) {
+        await onRefreshCloud();
+      } else {
+        const res = await fetch(NativeHealthService.getServerUrl('/api/sync/status'));
+        const data = await res.json();
+        if (data.success && data.students && data.students.length > 0) {
+          const merged = syncWithCloudD1(data.students);
+          setLocalStudents([...merged]);
+        }
+      }
+      setStatusNotice('Kroky úspěšně aktualizovány z Cloudflare D1 databáze!');
+    } catch (e) {
+      setStatusNotice('Chyba při komunikaci s Cloudflare D1.');
+    } finally {
+      setIsRefreshing(false);
+      setTimeout(() => setStatusNotice(null), 4000);
+    }
+  };
+
+  const handleSaveManualSteps = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const val = parseInt(editValue, 10);
+    if (isNaN(val) || val < 0) return;
+
+    setIsRefreshing(true);
+    try {
+      // 1. Update Cloudflare D1
+      await fetch(NativeHealthService.getServerUrl('/api/sync'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: 'student-1',
+          studentName: 'David Prycl',
+          token: 'ftk-prycl-garmin',
+          steps: val,
+          isDelta: false,
+          device: 'Garmin Vívoactive 4',
+          source: 'manual_calibration'
+        })
+      });
+
+      // 2. Update local storage & state
+      const updated = updateStudentSteps('student-1', val);
+      setLocalStudents([...updated]);
+      if (onUpdateStudentSteps) {
+        onUpdateStudentSteps(val);
+      }
+
+      setIsEditing(false);
+      setEditValue('');
+      setStatusNotice(`Dnešní kroky nastaveny na ${val.toLocaleString()} a uloženy do cloudu D1.`);
+    } catch (err) {
+      // Local fallback
+      const updated = updateStudentSteps('student-1', val);
+      setLocalStudents([...updated]);
+      if (onUpdateStudentSteps) {
+        onUpdateStudentSteps(val);
+      }
+      setIsEditing(false);
+      setStatusNotice(`Dnešní kroky nastaveny na ${val.toLocaleString()} (lokálně).`);
+    } finally {
+      setIsRefreshing(false);
+      setTimeout(() => setStatusNotice(null), 4000);
+    }
+  };
 
   // Last 14 days: 13 simulated days (grey) + 1 real day today (cyan)
   const daysHistory = [
@@ -132,29 +226,114 @@ export const MyResults: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
-      <div className="view-title-container flex flex-col gap-1">
-        <h2 className="view-title">Moje výsledky</h2>
-        <p className="text-xs text-gray-500">
-          Osobní telemetrický profil a plnění pohybového doporučení (FTK UP)
-        </p>
+      <div className="view-title-container flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="view-title">Moje výsledky</h2>
+          <p className="text-xs text-gray-500">
+            Osobní telemetrický profil a plnění pohybového doporučení (FTK UP)
+          </p>
+        </div>
+
+        {/* Apple Style Cloud & Watch Action Controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleRefreshFromCloud}
+            disabled={isRefreshing}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 transition-all shadow-xs disabled:opacity-50"
+            title="Stáhnout nejnovější stav z Cloudflare D1 databáze"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 text-[#007CA6] ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>{isRefreshing ? 'Načítám...' : 'Obnovit z D1 cloudu'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setEditValue(String(realStepsToday));
+              setIsEditing(!isEditing);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-cyan-50 border border-cyan-200 text-[#007CA6] hover:bg-cyan-100 active:scale-95 transition-all shadow-xs"
+            title="Zadat nebo upravit aktuální stav kroků z hodinek"
+          >
+            <Edit3 className="h-3.5 w-3.5" />
+            <span>Upravit stav z hodinek</span>
+          </button>
+        </div>
       </div>
 
-      {/* Distinction Banner: Real vs Fictitious */}
-      <div className="bg-sky-50/80 border border-sky-200/80 rounded-2xl p-4 flex items-start gap-3">
-        <div className="w-8 h-8 rounded-xl bg-white border border-sky-300 flex items-center justify-center shrink-0 shadow-xs">
-          <CheckCircle2 className="h-5 w-5 text-[#007CA6]" />
-        </div>
-        <div className="text-xs text-sky-950 leading-relaxed">
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="font-bold text-sm text-[#007CA6]">Reálná telemetrie aktivní</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-              ● Garmin Vívoactive 4
-            </span>
+      {/* Manual Step Calibration Prompt */}
+      {isEditing && (
+        <form onSubmit={handleSaveManualSteps} className="bg-white border-2 border-[#007CA6]/30 rounded-2xl p-4 shadow-md flex flex-wrap items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-[#007CA6] shrink-0 font-bold">
+              ⌚
+            </div>
+            <div>
+              <div className="text-xs font-bold text-gray-900">Kalibrace kroků z hodinek Garmin</div>
+              <div className="text-[11px] text-gray-500">Zadejte přesný počet kroků, který právě teď ukazuje ciferník vašich Garmin hodinek:</div>
+            </div>
           </div>
-          <p className="text-sky-900/90 text-xs">
-            Váš dnešní reálný stav z hodinek je <strong className="text-[#007CA6] font-bold">{realStepsToday.toLocaleString()} kroků</strong> (zvýrazněn sytě modře). 
-            Zbylé sloupce a tabulka jsou zobrazeny <strong className="text-gray-500">šedě jako simulační demo vzor</strong> pro vizualizaci před začátkem dlouhodobého měření třídy.
-          </p>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min="0"
+              max="150000"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              className="w-32 px-3 py-1.5 text-sm font-bold text-gray-900 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#007CA6] text-right"
+              autoFocus
+            />
+            <span className="text-xs text-gray-500 font-semibold">kroků</span>
+            
+            <button
+              type="submit"
+              disabled={isRefreshing}
+              className="flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#007CA6] text-white hover:bg-[#006588] transition-all shadow-xs disabled:opacity-50"
+            >
+              <Save className="h-3.5 w-3.5" />
+              <span>Uložit</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Notification Toast */}
+      {statusNotice && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs animate-fade-in">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+          <span>{statusNotice}</span>
+        </div>
+      )}
+
+      {/* Distinction Banner: Real vs Fictitious */}
+      <div className="bg-sky-50/80 border border-sky-200/80 rounded-2xl p-4 flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-xl bg-white border border-sky-300 flex items-center justify-center shrink-0 shadow-xs">
+            <CheckCircle2 className="h-5 w-5 text-[#007CA6]" />
+          </div>
+          <div className="text-xs text-sky-950 leading-relaxed">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="font-bold text-sm text-[#007CA6]">Reálná telemetrie aktivní</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                ● Garmin Vívoactive 4
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
+                ☁️ Cloudflare D1 Live
+              </span>
+            </div>
+            <p className="text-sky-900/90 text-xs">
+              Váš dnešní reálný stav z hodinek je <strong className="text-[#007CA6] font-bold">{realStepsToday.toLocaleString()} kroků</strong> (zvýrazněn sytě modře). 
+              Zbylé sloupce a tabulka jsou zobrazeny <strong className="text-gray-500">šedě jako simulační demo vzor</strong> pro vizualizaci před začátkem dlouhodobého měření třídy.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -288,4 +467,3 @@ export const MyResults: React.FC = () => {
     </div>
   );
 };
-

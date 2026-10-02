@@ -241,15 +241,9 @@ export function syncApiPlugin(): Plugin {
                 stepDelta = inputSteps;
                 newTotalSteps += inputSteps;
               } else {
-                // If it's a daily reading or total
-                if (inputSteps >= student.steps) {
-                  stepDelta = inputSteps - student.steps;
-                  newTotalSteps = inputSteps;
-                } else {
-                  // e.g. today's steps (like 8,500) added to cumulative total
-                  stepDelta = inputSteps;
-                  newTotalSteps += inputSteps;
-                }
+                // Absolute daily reading from watch (replaces today's count)
+                stepDelta = Math.max(0, inputSteps - student.steps);
+                newTotalSteps = inputSteps;
               }
 
               const device = payload.device || student.device || 'Unspecified Device';

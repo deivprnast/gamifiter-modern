@@ -132,18 +132,18 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
       await response.json();
       const nowStr = new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
       setLastSyncTime(`Dnes v ${nowStr}`);
-      setSyncSuccessMsg(`+${stepsToSync.toLocaleString()} kroků připsáno do třídy ${currentGroup.name}!`);
+      setSyncSuccessMsg(`${stepsToSync.toLocaleString()} kroků synchronizováno do třídy ${currentGroup.name}!`);
 
       if (onSyncComplete) {
-        onSyncComplete(currentStudent.id, currentStudent.steps + stepsToSync);
+        onSyncComplete(currentStudent.id, stepsToSync);
       }
     } catch (err) {
       // Local fallback
       const nowStr = new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
       setLastSyncTime(`Dnes v ${nowStr}`);
-      setSyncSuccessMsg(`+${stepsToSync.toLocaleString()} kroků uloženo do třídy ${currentGroup.name}!`);
+      setSyncSuccessMsg(`${stepsToSync.toLocaleString()} kroků uloženo do třídy ${currentGroup.name}!`);
       if (onSyncComplete) {
-        onSyncComplete(currentStudent.id, currentStudent.steps + stepsToSync);
+        onSyncComplete(currentStudent.id, stepsToSync);
       }
     } finally {
       setIsSyncing(false);

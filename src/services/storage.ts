@@ -104,11 +104,16 @@ export const initializeStorage = (): void => {
     try {
       const students: Student[] = JSON.parse(existingStudentsRaw);
       const mockNames = ['Heidler', 'Vorlíček', 'Nováková', 'Horák', 'Malá', 'Velký', 'Černá', 'Bílý'];
-      const cleaned = students.filter(s => !mockNames.some(m => s.name.includes(m)));
+      let cleaned = students.filter(s => !mockNames.some(m => s.name.includes(m)));
       
-      const hasDavid = cleaned.some(s => s.name.includes('David Prycl'));
-      if (!hasDavid) {
+      const david = cleaned.find(s => s.name.includes('David Prycl') || s.id === 'student-1');
+      if (!david) {
         cleaned.unshift({ id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464 });
+      } else {
+        // If David's steps are inflated from previous cumulative additions (104 620 or >= 50 000), reset to real baseline 6464
+        if (david.steps >= 50000 || david.steps === 104620) {
+          david.steps = 6464;
+        }
       }
       localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(cleaned));
     } catch {
@@ -122,6 +127,28 @@ export const initializeStorage = (): void => {
   if (!localStorage.getItem(STORAGE_KEYS.ACTIVE_GROUP_ID)) {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_GROUP_ID, DEFAULT_GROUPS[0].id);
   }
+};
+
+export const syncWithCloudD1 = (cloudStudents: Array<{ id: string; name: string; steps: number }>): Student[] => {
+  const current = getStudents();
+  let updated = false;
+
+  const merged = current.map(localStudent => {
+    const cloudMatch = cloudStudents.find(cs => cs.id === localStudent.id || (localStudent.id === 'student-1' && cs.name.includes('David Prycl')));
+    if (cloudMatch && cloudMatch.steps !== localStudent.steps) {
+      updated = true;
+      return {
+        ...localStudent,
+        steps: cloudMatch.steps
+      };
+    }
+    return localStudent;
+  });
+
+  if (updated) {
+    localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(merged));
+  }
+  return merged;
 };
 
 export const getChallenges = (): Challenge[] => {
