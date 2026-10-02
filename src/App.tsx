@@ -47,9 +47,12 @@ function App() {
   // Collapsible Simulator Drawer state
   const [isSimOpen, setIsSimOpen] = useState(true);
 
-  // Mobile sync portal route check
+  // Mobile sync portal route check (auto-open on native mobile or small screens)
   const [showMobilePortal, setShowMobilePortal] = useState(
-    window.location.pathname === '/sync' || window.location.search.includes('token=')
+    window.location.pathname === '/sync' || 
+    window.location.search.includes('token=') ||
+    NativeHealthService.isNative() ||
+    window.innerWidth <= 600
   );
 
   // Sync toast notifications
@@ -127,6 +130,11 @@ function App() {
   };
 
   const handleSyncSimulate = () => {
+    if (NativeHealthService.isNative() || window.innerWidth <= 768) {
+      setShowMobilePortal(true);
+      return;
+    }
+
     const activeGroupStudents = students.filter(s => s.groupId === activeGroupId);
     if (activeGroupStudents.length === 0) {
       setSyncToast({
@@ -217,6 +225,10 @@ function App() {
   }, [isAutoplay, progressInfo, adjustProgressToPercent]);
 
   const handleSidebarSelect = (item: string) => {
+    if (item === 'sync-research' && (NativeHealthService.isNative() || window.innerWidth <= 768)) {
+      setShowMobilePortal(true);
+      return;
+    }
     setActiveItem(item);
   };
 
@@ -253,6 +265,13 @@ function App() {
         );
 
       case 'sync-research':
+        if (NativeHealthService.isNative() || window.innerWidth <= 768) {
+          return (
+            <MobileSyncPortal 
+              onBackToApp={() => setActiveItem('my-results')} 
+            />
+          );
+        }
         return (
           <SyncResearchPanel 
             onSyncReceived={(data) => {
