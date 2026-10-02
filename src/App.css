@@ -123,12 +123,9 @@
 /* Top Header Styles */
 .top-header-container {
   background-color: white;
-  border-bottom: 1px solid hsl(var(--border-color));
-  padding: 12px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 56px;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 10px 24px;
+  min-height: 56px;
 }
 
 .top-header-left {

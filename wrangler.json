@@ -1,11 +1,19 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "gamifiter-modern",
-  "compatibility_date": "2024-09-23",
-  "main": "src/worker.ts",
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application"
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "gamifiter-modern",
+	"compatibility_date": "2024-09-23",
+	"main": "src/worker.ts",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application"
+	},
+	"d1_databases": [
+		{
+			"binding": "gamifiter_db",
+			"database_name": "gamifiter-db",
+			"database_id": "8a2aa3e9-d73a-494c-a4aa-19f555a4bd16",
+			"remote": true
+		}
+	]
 }

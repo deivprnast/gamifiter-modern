@@ -91,49 +91,50 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
 
   return (
     <>
-      <div className="top-header-container flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shadow-xs">
-        {/* Left side: Navigation Breadcrumbs & Quick League Switches */}
-        <div className="top-header-left flex items-center gap-4">
+      <div className="top-header-container flex flex-wrap items-center justify-between px-6 py-2.5 bg-white border-b border-gray-200/80 shadow-xs gap-3">
+        {/* Left side: Navigation Breadcrumbs */}
+        <div className="top-header-left flex items-center gap-2 text-xs font-medium text-gray-500 shrink-0">
           {getBreadcrumbs()}
-
-          {onSelect && (
-            <div className="hidden lg:flex items-center gap-1 ml-4 pl-4 border-l border-gray-200/80 bg-gray-100/80 p-1 rounded-full border border-gray-200/50">
-              <button
-                onClick={() => onSelect('active-challenge')}
-                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
-                  activeItem === 'active-challenge'
-                    ? 'bg-white text-gray-900 shadow-xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <span>🎮 Velká tabule třídy</span>
-              </button>
-              <button
-                onClick={() => onSelect('admin-challenges')}
-                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
-                  activeItem.startsWith('admin')
-                    ? 'bg-white text-gray-900 shadow-xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <span>⚙️ Správa výzev a žáků</span>
-              </button>
-              <button
-                onClick={() => onSelect('sync-research')}
-                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
-                  activeItem === 'sync-research'
-                    ? 'bg-white text-gray-900 shadow-xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <span>📱 QR kód třídy</span>
-              </button>
-            </div>
-          )}
         </div>
 
+        {/* Center: Segmented Navigation Capsule */}
+        {onSelect && (
+          <div className="hidden md:flex items-center gap-1 bg-gray-100/90 p-1 rounded-full border border-gray-200/60 shadow-xs">
+            <button
+              onClick={() => onSelect('active-challenge')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                activeItem === 'active-challenge'
+                  ? 'bg-white text-gray-900 shadow-xs'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <span>🎮 Velká tabule</span>
+            </button>
+            <button
+              onClick={() => onSelect('admin-challenges')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                activeItem.startsWith('admin')
+                  ? 'bg-white text-gray-900 shadow-xs'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <span>⚙️ Správa výzev</span>
+            </button>
+            <button
+              onClick={() => onSelect('sync-research')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                activeItem === 'sync-research'
+                  ? 'bg-white text-gray-900 shadow-xs'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <span>📱 QR pro žáky</span>
+            </button>
+          </div>
+        )}
+
         {/* Right side: Language, settings, profile */}
-        <div className="top-header-right flex items-center gap-3">
+        <div className="top-header-right flex items-center gap-3 shrink-0">
           {/* Language Flag Widget */}
           <div className="top-header-lang hidden sm:flex items-center gap-1.5 text-xs text-gray-500 font-semibold px-2 py-1 rounded bg-gray-50 border border-gray-200">
             <img 
