@@ -16,9 +16,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect }) => {
       <div 
         className="sidebar-header cursor-pointer select-none transition-all hover:bg-white/5 active:scale-[0.99] rounded-lg m-2 p-3"
         onClick={() => {
-          window.location.href = '/';
+          onSelect('active-challenge');
         }}
-        title="Kliknutím obnovíte Gamifiter na výchozí herní plochu"
+        title="Kliknutím se vrátíte na výchozí herní plochu"
       >
         <img 
           src="/media__1782552769935.png" 
@@ -93,14 +93,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect }) => {
         <div className="sidebar-section-title">Správa</div>
         <button 
           onClick={() => onSelect('admin-school')}
-          className={`sidebar-link w-full text-left ${activeItem === 'admin-school' ? 'active' : ''}`}
+          className={`sidebar-link w-full text-left ${activeItem === 'admin-school' || activeItem === 'admin-reset' ? 'active' : ''}`}
         >
           <Settings className="h-4 w-4" />
           <span>Správa školy</span>
         </button>
         <button 
           onClick={() => onSelect('admin-challenges')}
-          className={`sidebar-link w-full text-left ${activeItem === 'admin-challenges' ? 'active' : ''}`}
+          className={`sidebar-link w-full text-left ${activeItem === 'admin-challenges' || activeItem === 'admin-invitations' ? 'active' : ''}`}
         >
           <Layers className="h-4 w-4" />
           <span>Správa výzev</span>

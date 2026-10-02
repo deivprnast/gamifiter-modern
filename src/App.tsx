@@ -34,6 +34,28 @@ import { NativeHealthService } from './services/nativeHealthService';
 // Icons
 import { Map, MapPin, Grid, Sparkles, Network, Activity } from 'lucide-react';
 
+const VALID_ROUTES = [
+  'active-challenge',
+  'my-results',
+  'my-class',
+  'my-school',
+  'finished-challenges',
+  'sync-research',
+  'admin-challenges',
+  'admin-school',
+  'admin-new-challenge',
+  'admin-invitations',
+  'admin-reset'
+];
+
+const getRouteFromHash = (): string => {
+  const hash = window.location.hash.replace(/^#\/?/, '').trim();
+  if (VALID_ROUTES.includes(hash)) {
+    return hash;
+  }
+  return 'active-challenge';
+};
+
 function App() {
   const [challenges, setChallenges] = useState<Challenge[]>(() => {
     initializeStorage();
@@ -44,7 +66,7 @@ function App() {
   
   const [activeChallengeId, setActiveChallengeIdState] = useState(() => getActiveChallengeId());
   const [activeGroupId, setActiveGroupIdState] = useState(() => getActiveGroupId());
-  const [activeItem, setActiveItem] = useState('active-challenge'); // Default to main big screen challenge view
+  const [activeItem, setActiveItem] = useState<string>(getRouteFromHash);
   const [gameTab, setGameTab] = useState<ModuleType>('map');
 
   // Mobile sync portal route check (auto-open on native mobile or small screens)
@@ -72,13 +94,49 @@ function App() {
     } catch (e) {
       console.warn('Initial cloud sync notice:', e);
     }
+
+    try {
+      const cRes = await fetch(NativeHealthService.getServerUrl('/api/challenges'));
+      const cData = await cRes.json();
+      if (cData.success && cData.challenges && cData.challenges.length > 0) {
+        localStorage.setItem('gamifiter_challenges', JSON.stringify(cData.challenges));
+        setChallenges(cData.challenges);
+      }
+    } catch (e) {
+      console.warn('Cloud challenges sync notice:', e);
+    }
+
+    try {
+      const gRes = await fetch(NativeHealthService.getServerUrl('/api/groups'));
+      const gData = await gRes.json();
+      if (gData.success && gData.groups && gData.groups.length > 0) {
+        localStorage.setItem('gamifiter_groups', JSON.stringify(gData.groups));
+        setGroups(gData.groups);
+      }
+    } catch (e) {
+      console.warn('Cloud groups sync notice:', e);
+    }
   };
 
-  // Initialize storage & state
+  // Initialize storage & state, and listen to URL hash changes
   useEffect(() => {
     initializeStorage();
     loadAllData();
     syncFromCloud();
+
+    const handleHashChange = () => {
+      const route = getRouteFromHash();
+      setActiveItem(route);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+
+    // If initial load doesn't have a hash, initialize it
+    if (!window.location.hash) {
+      window.history.replaceState(null, '', `/#/${getRouteFromHash()}`);
+    }
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   // Global SSE listener for real-time mobile sync from Garmin/Health Connect
@@ -161,6 +219,7 @@ function App() {
       return;
     }
     setActiveItem(item);
+    window.location.hash = `#/${item}`;
   };
 
   // Render the selected view
@@ -279,6 +338,38 @@ function App() {
           />
         );
 
+      case 'admin-invitations':
+        return (
+          <AdminPanel 
+            challenges={challenges}
+            groups={groups}
+            students={students}
+            activeGroupId={activeGroupId}
+            initialTab="invitations"
+            onChallengesUpdate={(c) => setChallenges(c)}
+            onGroupsUpdate={(g) => setGroups(g)}
+            onStudentsUpdate={(s) => setStudents(s)}
+            onGroupChange={handleGroupChange}
+            onReset={loadAllData}
+          />
+        );
+
+      case 'admin-reset':
+        return (
+          <AdminPanel 
+            challenges={challenges}
+            groups={groups}
+            students={students}
+            activeGroupId={activeGroupId}
+            initialTab="reset"
+            onChallengesUpdate={(c) => setChallenges(c)}
+            onGroupsUpdate={(g) => setGroups(g)}
+            onStudentsUpdate={(s) => setStudents(s)}
+            onGroupChange={handleGroupChange}
+            onReset={loadAllData}
+          />
+        );
+
       default:
         return <MyResults />;
     }
@@ -346,13 +437,13 @@ function App() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setActiveItem('admin-challenges')}
+              onClick={() => handleSidebarSelect('admin-challenges')}
               className="text-xs font-semibold text-[#007CA6] bg-[#007CA6]/10 hover:bg-[#007CA6]/20 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>⚙️ Nastavit výzvu</span>
             </button>
             <button
-              onClick={() => setActiveItem('sync-research')}
+              onClick={() => handleSidebarSelect('sync-research')}
               className="text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <span>📱 Pozvánka pro žáky</span>
@@ -526,9 +617,8 @@ function App() {
           });
         }}
         onSwitchToTeacherMode={() => {
-          window.history.pushState({}, '', '/');
           setShowMobilePortal(false);
-          setActiveItem('active-challenge');
+          handleSidebarSelect('active-challenge');
         }}
       />
     );

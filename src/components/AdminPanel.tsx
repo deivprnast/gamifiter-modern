@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { type Challenge, type Group, type Student, type ModuleType } from '../types';
 import { 
-  addChallenge, removeChallenge, 
-  addGroup, removeGroup, 
+  addChallenge, updateChallenge, removeChallenge, 
+  addGroup, updateGroup, removeGroup, 
   addStudent, removeStudent, updateStudentSteps, updateStudentDevice,
   resetStorage, getChallenges, getGroups, getStudents
 } from '../services/storage';
-import { Plus, Trash2, RotateCcw, AlertTriangle, QrCode, Smartphone, Download } from 'lucide-react';
+import { Plus, Trash2, RotateCcw, AlertTriangle, QrCode, Smartphone, Download, Pencil, X, Check } from 'lucide-react';
 import QRCode from 'qrcode';
 
 interface AdminPanelProps {
@@ -37,6 +37,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'challenges' | 'groups' | 'reset' | 'invitations'>('challenges');
   const [classQrUrl, setClassQrUrl] = useState<string>('');
+
+  // Modals for editing
+  const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(null);
+  const [editingGroup, setEditingGroup] = useState<Group | null>(null);
 
   // Sync tab with initialTab prop from sidebar clicks
   useEffect(() => {
@@ -105,23 +109,64 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
+  const handleSaveEditChallenge = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingChallenge) return;
+
+    const updated = updateChallenge(editingChallenge.id, {
+      name: editingChallenge.name,
+      description: editingChallenge.description,
+      moduleType: editingChallenge.moduleType,
+      targetSteps: editingChallenge.targetSteps,
+      filePath: editingChallenge.filePath,
+      validFrom: editingChallenge.validFrom,
+      validTo: editingChallenge.validTo
+    });
+
+    onChallengesUpdate(updated);
+    setEditingChallenge(null);
+  };
+
+  const handleSaveEditGroup = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingGroup) return;
+
+    const updated = updateGroup(editingGroup.id, editingGroup.name, editingGroup.adminName);
+    onGroupsUpdate(updated);
+    setEditingGroup(null);
+  };
+
+  const getFileForModuleType = (type: ModuleType): string => {
+    switch (type) {
+      case 'map': return '/tour_de_cities.geojson';
+      case 'districts': return '/districts.geojson';
+      case 'puzzle': return '/krumlov.jpg';
+      case 'pixelate': return '/dna.jpg';
+      case 'network': return '/dataset.json';
+      default: return '/tour_de_cities.geojson';
+    }
+  };
+
   const handleAddGroup = (e: React.FormEvent) => {
     e.preventDefault();
     if (!gName || !gTeacher) return;
 
-    addGroup(gName, gTeacher);
-    onGroupsUpdate(getGroups());
+    const newG = addGroup(gName, gTeacher);
+    const updated = getGroups();
+    onGroupsUpdate(updated);
+    onGroupChange(newG.id);
     
     setGName('');
     setGTeacher('');
-    alert('Třída byla úspěšně přidána!');
-    window.location.reload();
   };
 
   const handleDeleteGroup = (id: string) => {
     if (window.confirm('Smazáním třídy smažete i všechny žáky v ní. Pokračovat?')) {
-      removeGroup(id);
-      window.location.reload();
+      const remaining = removeGroup(id);
+      onGroupsUpdate(remaining);
+      if (remaining.length > 0) {
+        onGroupChange(remaining[0].id);
+      }
     }
   };
 
@@ -179,6 +224,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const activeGroupStudents = students.filter(s => s.groupId === activeGroupId);
 
+  const handleSwitchTab = (tab: 'challenges' | 'groups' | 'reset' | 'invitations') => {
+    setActiveTab(tab);
+    const routeMap: Record<string, string> = {
+      challenges: 'admin-challenges',
+      groups: 'admin-school',
+      invitations: 'admin-invitations',
+      reset: 'admin-reset'
+    };
+    window.location.hash = `#/${routeMap[tab]}`;
+  };
+
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-200/80">
@@ -194,8 +250,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         {/* Apple Segmented Control */}
         <div className="bg-gray-100/90 p-1 rounded-xl border border-gray-200/60 inline-flex items-center gap-1 self-start sm:self-auto shrink-0">
           <button
-            onClick={() => setActiveTab('challenges')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            onClick={() => handleSwitchTab('challenges')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'challenges' 
                 ? 'bg-white text-gray-900 shadow-xs' 
                 : 'text-gray-600 hover:text-gray-900'
@@ -204,8 +260,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             Seznam a tvorba výzev
           </button>
           <button
-            onClick={() => setActiveTab('invitations')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            onClick={() => handleSwitchTab('invitations')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'invitations' 
                 ? 'bg-white text-emerald-800 shadow-xs' 
                 : 'text-gray-600 hover:text-gray-900'
@@ -215,8 +271,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <span>Pozvánka pro žáky (QR)</span>
           </button>
           <button
-            onClick={() => setActiveTab('groups')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            onClick={() => handleSwitchTab('groups')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'groups' 
                 ? 'bg-white text-gray-900 shadow-xs' 
                 : 'text-gray-600 hover:text-gray-900'
@@ -225,8 +281,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             Správa tříd a studentů
           </button>
           <button
-            onClick={() => setActiveTab('reset')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            onClick={() => handleSwitchTab('reset')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'reset' 
                 ? 'bg-white text-red-600 shadow-xs font-bold' 
                 : 'text-gray-500 hover:text-red-600'
@@ -352,7 +408,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <th className="py-2 px-4">Výzva</th>
                     <th className="py-2 px-4">Hra</th>
                     <th className="py-2 px-4 text-right">Cílové kroky</th>
-                    <th className="py-2 px-4 w-20 text-center">Akce</th>
+                    <th className="py-2 px-4 w-24 text-center">Akce</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -381,13 +437,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           {c.targetSteps.toLocaleString()} <span className="text-xs font-normal text-gray-400">kroků</span>
                         </td>
                         <td className="py-3.5 px-4 text-center">
-                          <button
-                            onClick={() => handleDeleteChallenge(c.id)}
-                            className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                            title="Smazat výzvu"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => setEditingChallenge({ ...c })}
+                              className="text-gray-400 hover:text-[#007CA6] p-1.5 rounded-lg hover:bg-sky-50 transition-colors cursor-pointer"
+                              title="Upravit parametry výzvy"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteChallenge(c.id)}
+                              className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                              title="Smazat výzvu"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -506,13 +571,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <div className="replicated-card lg:col-span-2">
             <div className="replicated-card-header flex justify-between items-center">
               <span>Seznam studentů ve třídě</span>
-              <button
-                onClick={() => handleDeleteGroup(activeGroupId)}
-                className="bg-red-600/10 text-red-500 hover:bg-red-600/20 px-2 py-0.5 rounded text-[10px] font-bold border border-red-500/20 flex items-center gap-1"
-              >
-                <Trash2 className="h-3 w-3" />
-                <span>Smazat třídu</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentG = groups.find(g => g.id === activeGroupId);
+                    if (currentG) setEditingGroup({ ...currentG });
+                  }}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-gray-200/60"
+                  title="Upravit název třídy nebo jméno učitele"
+                >
+                  <Pencil className="h-3 w-3 text-gray-500" />
+                  <span>Upravit třídu</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteGroup(activeGroupId)}
+                  className="bg-red-600/10 text-red-500 hover:bg-red-600/20 px-2.5 py-1 rounded-lg text-xs font-bold border border-red-500/20 flex items-center gap-1 cursor-pointer transition-colors"
+                  title="Smazat třídu a její studenty"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  <span>Smazat třídu</span>
+                </button>
+              </div>
             </div>
             <div className="replicated-card-body p-0">
               <table className="replicated-table">
@@ -724,6 +805,212 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <RotateCcw className="h-4 w-4" />
               <span>Vymazat a obnovit výchozí stav</span>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Challenge Modal (Apple UX Dialog) */}
+      {editingChallenge && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/80 max-w-lg w-full p-6 space-y-4 animate-scale-in">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#007CA6]/10 text-[#007CA6] flex items-center justify-center">
+                  <Pencil className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-base">Upravit výzvu</h3>
+                  <p className="text-xs text-gray-500">Úprava cílů, termínů a herních parametrů výzvy</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingChallenge(null)}
+                className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditChallenge} className="flex flex-col gap-3.5">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-gray-600">Název výzvy</label>
+                <input
+                  type="text"
+                  value={editingChallenge.name}
+                  onChange={(e) => setEditingChallenge({ ...editingChallenge, name: e.target.value })}
+                  required
+                  className="replicated-input"
+                  placeholder="Např. Tour de Europe"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-gray-600">Popis</label>
+                <textarea
+                  value={editingChallenge.description}
+                  onChange={(e) => setEditingChallenge({ ...editingChallenge, description: e.target.value })}
+                  rows={2}
+                  className="replicated-input resize-none"
+                  placeholder="Popis výzvy pro žáky a učitele..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-gray-600">Typ modulu</label>
+                  <select
+                    value={editingChallenge.moduleType}
+                    onChange={(e) => {
+                      const mod = e.target.value as ModuleType;
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        moduleType: mod,
+                        filePath: getFileForModuleType(mod)
+                      });
+                    }}
+                    className="replicated-input"
+                  >
+                    <option value="map">Trasa (Map)</option>
+                    <option value="districts">Území (Districts)</option>
+                    <option value="puzzle">Odkrývání (Puzzle)</option>
+                    <option value="pixelate">Zaostřování (Pixelate)</option>
+                    <option value="network">Síťování (Network)</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-gray-600">Cílové kroky</label>
+                  <input
+                    type="number"
+                    min={1000}
+                    value={editingChallenge.targetSteps}
+                    onChange={(e) => setEditingChallenge({ ...editingChallenge, targetSteps: parseInt(e.target.value) || 1000 })}
+                    required
+                    className="replicated-input"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-gray-600">Datový soubor (GeoJSON / Foto)</label>
+                <input
+                  type="text"
+                  value={editingChallenge.filePath}
+                  onChange={(e) => setEditingChallenge({ ...editingChallenge, filePath: e.target.value })}
+                  required
+                  className="replicated-input font-mono text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-gray-600">Platnost od</label>
+                  <input
+                    type="date"
+                    value={editingChallenge.validFrom}
+                    onChange={(e) => setEditingChallenge({ ...editingChallenge, validFrom: e.target.value })}
+                    required
+                    className="replicated-input"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-gray-600">Platnost do</label>
+                  <input
+                    type="date"
+                    value={editingChallenge.validTo}
+                    onChange={(e) => setEditingChallenge({ ...editingChallenge, validTo: e.target.value })}
+                    required
+                    className="replicated-input"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingChallenge(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  Zrušit
+                </button>
+                <button
+                  type="submit"
+                  className="replicated-button flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="h-4 w-4" />
+                  <span>Uložit změny</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Group Modal (Apple UX Dialog) */}
+      {editingGroup && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/80 max-w-md w-full p-6 space-y-4 animate-scale-in">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#007CA6]/10 text-[#007CA6] flex items-center justify-center">
+                  <Pencil className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-base">Upravit třídu</h3>
+                  <p className="text-xs text-gray-500">Změna názvu třídy nebo jména učitele</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingGroup(null)}
+                className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditGroup} className="flex flex-col gap-3.5">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-gray-600">Název třídy</label>
+                <input
+                  type="text"
+                  value={editingGroup.name}
+                  onChange={(e) => setEditingGroup({ ...editingGroup, name: e.target.value })}
+                  required
+                  className="replicated-input"
+                  placeholder="Např. 8.A"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-gray-600">Třídní učitel</label>
+                <input
+                  type="text"
+                  value={editingGroup.adminName}
+                  onChange={(e) => setEditingGroup({ ...editingGroup, adminName: e.target.value })}
+                  required
+                  className="replicated-input"
+                  placeholder="Jméno a příjmení učitele"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingGroup(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  Zrušit
+                </button>
+                <button
+                  type="submit"
+                  className="replicated-button flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="h-4 w-4" />
+                  <span>Uložit změny</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

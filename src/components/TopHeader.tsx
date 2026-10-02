@@ -84,6 +84,20 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
             <span className="text-xs font-bold text-gray-500">/ Správa / Nová výzva</span>
           </>
         );
+      case 'admin-invitations':
+        return (
+          <>
+            <Settings className="h-4 w-4 text-[#007CA6]" />
+            <span className="text-xs font-bold text-gray-500">/ Správa / Pozvánka pro žáky (QR)</span>
+          </>
+        );
+      case 'admin-reset':
+        return (
+          <>
+            <Settings className="h-4 w-4 text-red-600" />
+            <span className="text-xs font-bold text-gray-500">/ Správa / Obnova databáze</span>
+          </>
+        );
       default:
         return null;
     }

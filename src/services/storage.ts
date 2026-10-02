@@ -239,6 +239,27 @@ export const addGroup = (name: string, adminName: string): Group => {
   return newGroup;
 };
 
+export const updateGroup = (id: string, name: string, adminName: string): Group[] => {
+  const groups = getGroups();
+  const index = groups.findIndex(g => g.id === id);
+  if (index !== -1) {
+    groups[index] = { ...groups[index], name, adminName };
+    localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(groups));
+
+    // Background sync to Cloudflare D1
+    try {
+      fetch('/api/groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(groups[index])
+      }).catch(err => console.warn('Cloud group update notice:', err));
+    } catch (e) {
+      console.warn('Sync group background error:', e);
+    }
+  }
+  return groups;
+};
+
 export const removeGroup = (groupId: string): Group[] => {
   const groups = getGroups();
   const filtered = groups.filter(g => g.id !== groupId);
@@ -248,6 +269,15 @@ export const removeGroup = (groupId: string): Group[] => {
   const students = getStudents();
   const studentsFiltered = students.filter(s => s.groupId !== groupId);
   localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(studentsFiltered));
+
+  // Background sync to Cloudflare D1
+  try {
+    fetch(`/api/groups/${groupId}`, {
+      method: 'DELETE'
+    }).catch(err => console.warn('Cloud group delete notice:', err));
+  } catch (e) {
+    console.warn('Sync group background error:', e);
+  }
 
   return filtered;
 };
@@ -260,7 +290,40 @@ export const addChallenge = (challenge: Omit<Challenge, 'id'>): Challenge => {
   };
   challenges.push(newChallenge);
   localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(challenges));
+
+  // Background sync to Cloudflare D1
+  try {
+    fetch('/api/challenges', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newChallenge)
+    }).catch(err => console.warn('Cloud challenge add notice:', err));
+  } catch (e) {
+    console.warn('Sync challenge background error:', e);
+  }
+
   return newChallenge;
+};
+
+export const updateChallenge = (id: string, updated: Partial<Challenge>): Challenge[] => {
+  const challenges = getChallenges();
+  const index = challenges.findIndex(c => c.id === id);
+  if (index !== -1) {
+    challenges[index] = { ...challenges[index], ...updated };
+    localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(challenges));
+
+    // Background sync to Cloudflare D1
+    try {
+      fetch('/api/challenges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(challenges[index])
+      }).catch(err => console.warn('Cloud challenge update notice:', err));
+    } catch (e) {
+      console.warn('Sync challenge background error:', e);
+    }
+  }
+  return challenges;
 };
 
 export const removeChallenge = (challengeId: string): Challenge[] => {
@@ -272,6 +335,16 @@ export const removeChallenge = (challengeId: string): Challenge[] => {
   if (getActiveChallengeId() === challengeId && filtered.length > 0) {
     setActiveChallengeId(filtered[0].id);
   }
+
+  // Background sync to Cloudflare D1
+  try {
+    fetch(`/api/challenges/${challengeId}`, {
+      method: 'DELETE'
+    }).catch(err => console.warn('Cloud challenge delete notice:', err));
+  } catch (e) {
+    console.warn('Sync challenge background error:', e);
+  }
+
   return filtered;
 };
 

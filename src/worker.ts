@@ -231,6 +231,125 @@ export default {
           console.error('D1 challenges read error:', e);
         }
       }
+      return new Response(JSON.stringify({ success: true, challenges: [] }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    // Endpoint: POST /api/challenges (Upsert to Cloudflare D1)
+    if (url.pathname === '/api/challenges' && request.method === 'POST') {
+      try {
+        const payload: any = await request.json();
+        if (env.gamifiter_db && payload && payload.id) {
+          await env.gamifiter_db.prepare(`
+            INSERT INTO challenges (id, name, description, module_type, target_steps, valid_from, valid_to, file_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              name = excluded.name,
+              description = excluded.description,
+              module_type = excluded.module_type,
+              target_steps = excluded.target_steps,
+              valid_from = excluded.valid_from,
+              valid_to = excluded.valid_to,
+              file_path = excluded.file_path
+          `).bind(
+            payload.id,
+            payload.name || '',
+            payload.description || '',
+            payload.moduleType || 'map',
+            payload.targetSteps || 100000,
+            payload.validFrom || '',
+            payload.validTo || '',
+            payload.filePath || ''
+          ).run();
+        }
+        return new Response(JSON.stringify({ success: true, challenge: payload }), {
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      }
+    }
+
+    // Endpoint: DELETE /api/challenges/:id (Delete from Cloudflare D1)
+    if (url.pathname.startsWith('/api/challenges/') && request.method === 'DELETE') {
+      const challengeId = url.pathname.replace('/api/challenges/', '');
+      if (env.gamifiter_db && challengeId) {
+        try {
+          await env.gamifiter_db.prepare('DELETE FROM challenges WHERE id = ?').bind(challengeId).run();
+        } catch (e) {
+          console.error('D1 delete challenge error:', e);
+        }
+      }
+      return new Response(JSON.stringify({ success: true, id: challengeId }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    // Endpoint: GET /api/groups (Read from Cloudflare D1)
+    if (url.pathname === '/api/groups' && request.method === 'GET') {
+      if (env.gamifiter_db) {
+        try {
+          const gRes = await env.gamifiter_db.prepare('SELECT * FROM groups').all();
+          if (gRes && gRes.results && gRes.results.length > 0) {
+            const formatted = gRes.results.map((g: any) => ({
+              id: g.id,
+              name: g.name,
+              adminName: g.admin_name
+            }));
+            return new Response(JSON.stringify({ success: true, groups: formatted }), {
+              headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+            });
+          }
+        } catch (e) {
+          console.error('D1 groups read error:', e);
+        }
+      }
+      return new Response(JSON.stringify({ success: true, groups: [] }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    // Endpoint: POST /api/groups (Upsert to Cloudflare D1)
+    if (url.pathname === '/api/groups' && request.method === 'POST') {
+      try {
+        const payload: any = await request.json();
+        if (env.gamifiter_db && payload && payload.id) {
+          await env.gamifiter_db.prepare(`
+            INSERT INTO groups (id, name, admin_name)
+            VALUES (?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              name = excluded.name,
+              admin_name = excluded.admin_name
+          `).bind(payload.id, payload.name || '', payload.adminName || '').run();
+        }
+        return new Response(JSON.stringify({ success: true, group: payload }), {
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      }
+    }
+
+    // Endpoint: DELETE /api/groups/:id (Delete from Cloudflare D1)
+    if (url.pathname.startsWith('/api/groups/') && request.method === 'DELETE') {
+      const groupId = url.pathname.replace('/api/groups/', '');
+      if (env.gamifiter_db && groupId) {
+        try {
+          await env.gamifiter_db.prepare('DELETE FROM groups WHERE id = ?').bind(groupId).run();
+        } catch (e) {
+          console.error('D1 delete group error:', e);
+        }
+      }
+      return new Response(JSON.stringify({ success: true, id: groupId }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
     }
 
     // Delegate all web application requests to Cloudflare Static Assets
