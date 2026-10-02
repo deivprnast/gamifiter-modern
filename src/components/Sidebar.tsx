@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Award, Users, Home, PlayCircle, Archive, 
-  Settings, Layers, PlusCircle, Watch 
+  Settings, Layers, PlusCircle, Watch, Building2, BookOpen 
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -88,15 +88,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onSelect }) => {
             LIVE
           </span>
         </button>
+        <button 
+          onClick={() => onSelect('research-info')}
+          className={`sidebar-link w-full text-left ${activeItem === 'research-info' ? 'active' : ''}`}
+        >
+          <BookOpen className="h-4 w-4" />
+          <span>Národní zpráva & Výzkum</span>
+        </button>
 
         {/* Section: Administration */}
         <div className="sidebar-section-title">Správa</div>
+        <button 
+          onClick={() => onSelect('admin-schools')}
+          className={`sidebar-link w-full text-left flex items-center justify-between ${activeItem === 'admin-schools' ? 'active' : ''}`}
+        >
+          <div className="flex items-center gap-3">
+            <Building2 className="h-4 w-4 text-indigo-400" />
+            <span>Správa škol</span>
+          </div>
+          <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-indigo-500/25 text-indigo-200">
+            SUPERADMIN
+          </span>
+        </button>
         <button 
           onClick={() => onSelect('admin-school')}
           className={`sidebar-link w-full text-left ${activeItem === 'admin-school' || activeItem === 'admin-reset' ? 'active' : ''}`}
         >
           <Settings className="h-4 w-4" />
-          <span>Správa školy</span>
+          <span>Správa tříd</span>
         </button>
         <button 
           onClick={() => onSelect('admin-challenges')}

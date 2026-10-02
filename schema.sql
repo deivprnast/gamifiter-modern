@@ -13,10 +13,21 @@ CREATE TABLE IF NOT EXISTS challenges (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS schools (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  city TEXT NOT NULL,
+  code TEXT NOT NULL UNIQUE,
+  address TEXT,
+  admin_email TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS groups (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   admin_name TEXT,
+  school_id TEXT DEFAULT 'school-1',
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -45,9 +56,15 @@ CREATE TABLE IF NOT EXISTS sync_logs (
   is_real INTEGER DEFAULT 0
 );
 
--- Seed initial real data for David Prycl & default challenges
-INSERT OR IGNORE INTO groups (id, name, admin_name) 
-VALUES ('group-1', 'Třída 8.A (FTK UP)', 'David Prycl');
+-- Seed initial real data for Schools, Groups, David Prycl & default challenges
+INSERT OR IGNORE INTO schools (id, name, city, code, address, admin_email)
+VALUES 
+  ('school-1', 'FZŠ Heyrovského Olomouc', 'Olomouc', 'FZSH-OLO', 'Heyrovského 33, 779 00 Olomouc', 'vedeni@fzs-heyrovskeho.cz'),
+  ('school-2', 'FTK Univerzita Palackého (Laboratoř)', 'Olomouc', 'FTK-UPOL', 'Tř. Míru 117, 771 11 Olomouc', 'kinantropologie@upol.cz'),
+  ('school-3', 'Gymnázium Čajkovského Olomouc', 'Olomouc', 'GYM-CAJK', 'Čajkovského 9, 779 00 Olomouc', 'info@gcajko.cz');
+
+INSERT OR IGNORE INTO groups (id, name, admin_name, school_id) 
+VALUES ('group-1', 'Třída 8.A (FTK UP)', 'David Prycl', 'school-1');
 
 INSERT OR IGNORE INTO students (id, name, group_id, steps, device, token, last_sync, is_real)
 VALUES ('student-1', 'David Prycl', 'group-1', 6464, 'Garmin Vívoactive 4', 'ftk-prycl-garmin', CURRENT_TIMESTAMP, 1);

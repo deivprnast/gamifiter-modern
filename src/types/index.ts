@@ -11,10 +11,21 @@ export interface Challenge {
   filePath: string;
 }
 
+export interface School {
+  id: string;
+  name: string;
+  city: string;
+  code: string;
+  address?: string;
+  adminEmail?: string;
+  createdAt?: string;
+}
+
 export interface Group {
   id: string;
   name: string;
   adminName: string;
+  schoolId?: string;
 }
 
 export interface Student {

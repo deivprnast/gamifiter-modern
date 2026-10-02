@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { 
-  getChallenges, getGroups, getStudents, 
+  getChallenges, getGroups, getStudents, getSchools,
   getActiveChallengeId, setActiveChallengeId, 
   getActiveGroupId, setActiveGroupId, 
+  getActiveSchoolId, setActiveSchoolId,
   getGroupProgress, updateStudentSteps, updateChallenge,
   initializeStorage, syncWithCloudD1
 } from './services/storage';
-import { type Challenge, type Group, type Student, type ModuleType } from './types';
+import { type Challenge, type Group, type Student, type ModuleType, type School } from './types';
 
 // Layout & Replicated Navigation Components
 import { Sidebar } from './components/Sidebar';
@@ -18,6 +19,10 @@ import { MyResults } from './components/dashboards/MyResults';
 import { MyClass } from './components/dashboards/MyClass';
 import { MySchool } from './components/dashboards/MySchool';
 import { AdminPanel } from './components/AdminPanel';
+
+// Poster & Research Modals (FTK UP)
+import { ChallengePosterModal } from './components/ChallengePosterModal';
+import { ResearchModal } from './components/ResearchModal';
 
 // Game Module Views
 import { ModuleMap } from './components/games/ModuleMap';
@@ -32,7 +37,7 @@ import { StudentMobileApp } from './components/StudentMobileApp';
 import { NativeHealthService } from './services/nativeHealthService';
 
 // Icons
-import { Map, MapPin, Grid, Sparkles, Network, Activity, Watch, RefreshCw } from 'lucide-react';
+import { Map, MapPin, Grid, Sparkles, Network, Activity, Watch, RefreshCw, Award } from 'lucide-react';
 
 const VALID_ROUTES = [
   'active-challenge',
@@ -41,6 +46,8 @@ const VALID_ROUTES = [
   'my-school',
   'finished-challenges',
   'sync-research',
+  'research-info',
+  'admin-schools',
   'admin-challenges',
   'admin-school',
   'admin-new-challenge',
@@ -63,11 +70,14 @@ function App() {
   });
   const [groups, setGroups] = useState<Group[]>(() => getGroups());
   const [students, setStudents] = useState<Student[]>(() => getStudents());
+  const [schools, setSchools] = useState<School[]>(() => getSchools());
   
   const [activeChallengeId, setActiveChallengeIdState] = useState(() => getActiveChallengeId());
   const [activeGroupId, setActiveGroupIdState] = useState(() => getActiveGroupId());
+  const [activeSchoolId, setActiveSchoolIdState] = useState(() => getActiveSchoolId());
   const [activeItem, setActiveItem] = useState<string>(getRouteFromHash);
   const [gameTab, setGameTab] = useState<ModuleType>('map');
+  const [isPosterOpen, setIsPosterOpen] = useState(false);
 
   // Mobile sync portal route check (auto-open on native mobile or small screens)
   const [showMobilePortal, setShowMobilePortal] = useState(
@@ -166,16 +176,20 @@ function App() {
     const loadedChallenges = getChallenges();
     const loadedGroups = getGroups();
     const loadedStudents = getStudents();
+    const loadedSchools = getSchools();
     
     setChallenges(loadedChallenges);
     setGroups(loadedGroups);
     setStudents(loadedStudents);
+    setSchools(loadedSchools);
 
     const activeC = getActiveChallengeId();
     const activeG = getActiveGroupId();
+    const activeS = getActiveSchoolId();
 
     setActiveChallengeIdState(activeC);
     setActiveGroupIdState(activeG);
+    setActiveSchoolIdState(activeS);
 
     const currentChallenge = loadedChallenges.find(c => c.id === activeC);
     if (currentChallenge) {
@@ -197,6 +211,11 @@ function App() {
     setActiveGroupIdState(id);
   };
 
+  const handleSchoolChange = (id: string) => {
+    setActiveSchoolId(id);
+    setActiveSchoolIdState(id);
+  };
+
   // Autohide Toast
   useEffect(() => {
     if (syncToast.visible) {
@@ -209,6 +228,8 @@ function App() {
 
   // Calculations
   const currentChallenge = challenges.find(c => c.id === activeChallengeId);
+  const currentGroup = groups.find(g => g.id === activeGroupId) || groups[0];
+  const currentSchool = schools.find(s => s.id === currentGroup?.schoolId) || schools.find(s => s.id === activeSchoolId) || schools[0];
   const activeGroupStudents = students.filter(s => s.groupId === activeGroupId);
   const progressInfo = currentChallenge ? getGroupProgress(activeChallengeId, activeGroupId) : null;
   const currentProgressPercent = progressInfo ? progressInfo.progressPercent : 0;
@@ -248,10 +269,44 @@ function App() {
         );
         
       case 'my-class':
-        return <MyClass students={activeGroupStudents} />;
+        return (
+          <MyClass 
+            students={activeGroupStudents} 
+            group={currentGroup} 
+            challenge={currentChallenge} 
+            school={currentSchool} 
+          />
+        );
         
       case 'my-school':
-        return <MySchool groups={groups} students={students} challenge={currentChallenge} />;
+        return (
+          <MySchool 
+            groups={groups} 
+            students={students} 
+            schools={schools} 
+            activeSchoolId={activeSchoolId} 
+            challenge={currentChallenge} 
+            onSchoolChange={handleSchoolChange} 
+          />
+        );
+
+      case 'research-info':
+        return (
+          <div className="flex flex-col gap-6 animate-fade-in">
+            <div className="view-title-container">
+              <h2 className="view-title">Vědecký výzkum & Národní zpráva</h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Vědecká garance Fakulty tělesné kultury Univerzity Palackého v Olomouci
+              </p>
+            </div>
+            <ResearchModal 
+              isOpen={true} 
+              onClose={() => handleSidebarSelect('active-challenge')} 
+              students={students} 
+              challenge={currentChallenge} 
+            />
+          </div>
+        );
 
       case 'active-challenge':
         return renderActiveChallenge();
@@ -300,18 +355,42 @@ function App() {
           />
         );
 
+      case 'admin-schools':
+        return (
+          <AdminPanel 
+            challenges={challenges}
+            groups={groups}
+            students={students}
+            schools={schools}
+            activeGroupId={activeGroupId}
+            activeSchoolId={activeSchoolId}
+            initialTab="schools"
+            onChallengesUpdate={(c) => setChallenges(c)}
+            onGroupsUpdate={(g) => setGroups(g)}
+            onStudentsUpdate={(s) => setStudents(s)}
+            onSchoolsUpdate={(sc) => setSchools(sc)}
+            onGroupChange={handleGroupChange}
+            onSchoolChange={handleSchoolChange}
+            onReset={loadAllData}
+          />
+        );
+
       case 'admin-school':
         return (
           <AdminPanel 
             challenges={challenges}
             groups={groups}
             students={students}
+            schools={schools}
             activeGroupId={activeGroupId}
+            activeSchoolId={activeSchoolId}
             initialTab="groups"
             onChallengesUpdate={(c) => setChallenges(c)}
             onGroupsUpdate={(g) => setGroups(g)}
             onStudentsUpdate={(s) => setStudents(s)}
+            onSchoolsUpdate={(sc) => setSchools(sc)}
             onGroupChange={handleGroupChange}
+            onSchoolChange={handleSchoolChange}
             onReset={loadAllData}
           />
         );
@@ -322,12 +401,16 @@ function App() {
             challenges={challenges}
             groups={groups}
             students={students}
+            schools={schools}
             activeGroupId={activeGroupId}
+            activeSchoolId={activeSchoolId}
             initialTab="challenges"
             onChallengesUpdate={(c) => setChallenges(c)}
             onGroupsUpdate={(g) => setGroups(g)}
             onStudentsUpdate={(s) => setStudents(s)}
+            onSchoolsUpdate={(sc) => setSchools(sc)}
             onGroupChange={handleGroupChange}
+            onSchoolChange={handleSchoolChange}
             onReset={loadAllData}
           />
         );
@@ -338,12 +421,16 @@ function App() {
             challenges={challenges}
             groups={groups}
             students={students}
+            schools={schools}
             activeGroupId={activeGroupId}
+            activeSchoolId={activeSchoolId}
             initialTab="challenges"
             onChallengesUpdate={(c) => setChallenges(c)}
             onGroupsUpdate={(g) => setGroups(g)}
             onStudentsUpdate={(s) => setStudents(s)}
+            onSchoolsUpdate={(sc) => setSchools(sc)}
             onGroupChange={handleGroupChange}
+            onSchoolChange={handleSchoolChange}
             onReset={loadAllData}
           />
         );
@@ -354,12 +441,16 @@ function App() {
             challenges={challenges}
             groups={groups}
             students={students}
+            schools={schools}
             activeGroupId={activeGroupId}
+            activeSchoolId={activeSchoolId}
             initialTab="invitations"
             onChallengesUpdate={(c) => setChallenges(c)}
             onGroupsUpdate={(g) => setGroups(g)}
             onStudentsUpdate={(s) => setStudents(s)}
+            onSchoolsUpdate={(sc) => setSchools(sc)}
             onGroupChange={handleGroupChange}
+            onSchoolChange={handleSchoolChange}
             onReset={loadAllData}
           />
         );
@@ -370,12 +461,16 @@ function App() {
             challenges={challenges}
             groups={groups}
             students={students}
+            schools={schools}
             activeGroupId={activeGroupId}
+            activeSchoolId={activeSchoolId}
             initialTab="reset"
             onChallengesUpdate={(c) => setChallenges(c)}
             onGroupsUpdate={(g) => setGroups(g)}
             onStudentsUpdate={(s) => setStudents(s)}
+            onSchoolsUpdate={(sc) => setSchools(sc)}
             onGroupChange={handleGroupChange}
+            onSchoolChange={handleSchoolChange}
             onReset={loadAllData}
           />
         );
@@ -445,7 +540,15 @@ function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setIsPosterOpen(true)}
+              className="text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-105 active:scale-95"
+              title="Zobrazit a vytisknout oficiální diplom z výzvy pro celou třídu"
+            >
+              <Award className="h-4 w-4 text-amber-700" />
+              <span>🏆 Diplom & Report výzvy</span>
+            </button>
             <button
               onClick={() => handleSidebarSelect('admin-challenges')}
               className="text-xs font-semibold text-[#007CA6] bg-[#007CA6]/10 hover:bg-[#007CA6]/20 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
@@ -674,6 +777,18 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Challenge Poster & Diploma Modal */}
+        {isPosterOpen && currentChallenge && currentGroup && (
+          <ChallengePosterModal
+            isOpen={isPosterOpen}
+            onClose={() => setIsPosterOpen(false)}
+            challenge={currentChallenge}
+            group={currentGroup}
+            school={currentSchool}
+            students={students}
+          />
+        )}
       </div>
     );
   };

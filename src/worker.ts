@@ -298,7 +298,8 @@ export default {
             const formatted = gRes.results.map((g: any) => ({
               id: g.id,
               name: g.name,
-              adminName: g.admin_name
+              adminName: g.admin_name,
+              schoolId: g.school_id || 'school-1'
             }));
             return new Response(JSON.stringify({ success: true, groups: formatted }), {
               headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
@@ -319,12 +320,13 @@ export default {
         const payload: any = await request.json();
         if (env.gamifiter_db && payload && payload.id) {
           await env.gamifiter_db.prepare(`
-            INSERT INTO groups (id, name, admin_name)
-            VALUES (?, ?, ?)
+            INSERT INTO groups (id, name, admin_name, school_id)
+            VALUES (?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
               name = excluded.name,
-              admin_name = excluded.admin_name
-          `).bind(payload.id, payload.name || '', payload.adminName || '').run();
+              admin_name = excluded.admin_name,
+              school_id = excluded.school_id
+          `).bind(payload.id, payload.name || '', payload.adminName || '', payload.schoolId || 'school-1').run();
         }
         return new Response(JSON.stringify({ success: true, group: payload }), {
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
@@ -348,6 +350,83 @@ export default {
         }
       }
       return new Response(JSON.stringify({ success: true, id: groupId }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    // Endpoint: GET /api/schools (Read from Cloudflare D1)
+    if (url.pathname === '/api/schools' && request.method === 'GET') {
+      if (env.gamifiter_db) {
+        try {
+          const sRes = await env.gamifiter_db.prepare('SELECT * FROM schools').all();
+          if (sRes && sRes.results && sRes.results.length > 0) {
+            const formatted = sRes.results.map((s: any) => ({
+              id: s.id,
+              name: s.name,
+              city: s.city,
+              code: s.code,
+              address: s.address,
+              adminEmail: s.admin_email,
+              createdAt: s.created_at
+            }));
+            return new Response(JSON.stringify({ success: true, schools: formatted }), {
+              headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+            });
+          }
+        } catch (e) {
+          console.error('D1 schools read error:', e);
+        }
+      }
+      return new Response(JSON.stringify({ success: true, schools: [] }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    // Endpoint: POST /api/schools (Upsert to Cloudflare D1)
+    if (url.pathname === '/api/schools' && request.method === 'POST') {
+      try {
+        const payload: any = await request.json();
+        if (env.gamifiter_db && payload && payload.id) {
+          await env.gamifiter_db.prepare(`
+            INSERT INTO schools (id, name, city, code, address, admin_email)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              name = excluded.name,
+              city = excluded.city,
+              code = excluded.code,
+              address = excluded.address,
+              admin_email = excluded.admin_email
+          `).bind(
+            payload.id,
+            payload.name || '',
+            payload.city || '',
+            payload.code || '',
+            payload.address || '',
+            payload.adminEmail || ''
+          ).run();
+        }
+        return new Response(JSON.stringify({ success: true, school: payload }), {
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      }
+    }
+
+    // Endpoint: DELETE /api/schools/:id (Delete from Cloudflare D1)
+    if (url.pathname.startsWith('/api/schools/') && request.method === 'DELETE') {
+      const schoolId = url.pathname.replace('/api/schools/', '');
+      if (env.gamifiter_db && schoolId) {
+        try {
+          await env.gamifiter_db.prepare('DELETE FROM schools WHERE id = ?').bind(schoolId).run();
+        } catch (e) {
+          console.error('D1 delete school error:', e);
+        }
+      }
+      return new Response(JSON.stringify({ success: true, id: schoolId }), {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
     }

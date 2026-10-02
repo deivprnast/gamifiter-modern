@@ -1,12 +1,44 @@
-import { type Challenge, type Group, type Student, type GroupProgress } from '../types';
+import { type Challenge, type Group, type Student, type GroupProgress, type School } from '../types';
 
 const STORAGE_KEYS = {
   CHALLENGES: 'gamifiter_challenges',
   GROUPS: 'gamifiter_groups',
   STUDENTS: 'gamifiter_students',
+  SCHOOLS: 'gamifiter_schools',
   ACTIVE_CHALLENGE_ID: 'gamifiter_active_challenge_id',
   ACTIVE_GROUP_ID: 'gamifiter_active_group_id',
+  ACTIVE_SCHOOL_ID: 'gamifiter_active_school_id',
 };
+
+const DEFAULT_SCHOOLS: School[] = [
+  {
+    id: 'school-1',
+    name: 'FZŠ Heyrovského Olomouc',
+    city: 'Olomouc',
+    code: 'FZSH-OLO',
+    address: 'Heyrovského 33, 779 00 Olomouc',
+    adminEmail: 'vedeni@fzs-heyrovskeho.cz',
+    createdAt: '2026-01-15'
+  },
+  {
+    id: 'school-2',
+    name: 'FTK Univerzita Palackého (Laboratoř)',
+    city: 'Olomouc',
+    code: 'FTK-UPOL',
+    address: 'Tř. Míru 117, 771 11 Olomouc',
+    adminEmail: 'kinantropologie@upol.cz',
+    createdAt: '2026-02-01'
+  },
+  {
+    id: 'school-3',
+    name: 'Gymnázium Čajkovského Olomouc',
+    city: 'Olomouc',
+    code: 'GYM-CAJK',
+    address: 'Čajkovského 9, 779 00 Olomouc',
+    adminEmail: 'info@gcajko.cz',
+    createdAt: '2026-02-20'
+  }
+];
 
 const DEFAULT_CHALLENGES: Challenge[] = [
   {
@@ -62,30 +94,42 @@ const DEFAULT_CHALLENGES: Challenge[] = [
 ];
 
 const DEFAULT_GROUPS: Group[] = [
-  { id: 'group-1', name: 'Třída 8.A (FTK UP)', adminName: 'David Prycl' }
+  { id: 'group-1', name: 'Třída 8.A (FTK UP)', adminName: 'David Prycl', schoolId: 'school-1' },
+  { id: 'group-2', name: 'Třída 9.B (Výzkumná kohorta)', adminName: 'David Prycl', schoolId: 'school-1' },
+  { id: 'group-3', name: 'Kinantropologický seminář UP', adminName: 'doc. Michal Vorlíček', schoolId: 'school-2' },
+  { id: 'group-4', name: 'Prima A (Gymnázium)', adminName: 'Mgr. Jan Novák', schoolId: 'school-3' }
 ];
 
 const DEFAULT_STUDENTS: Student[] = [
-  { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464 }
+  { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464, device: 'Garmin Vívoactive 4', isReal: true },
+  { id: 'student-2', name: 'Tomáš Kučera', groupId: 'group-1', steps: 7820, device: 'Apple Zdraví', isReal: false },
+  { id: 'student-3', name: 'Eliška Dvořáková', groupId: 'group-1', steps: 9410, device: 'Google Fit', isReal: false },
+  { id: 'student-4', name: 'Jakub Svoboda', groupId: 'group-2', steps: 6150, device: 'Garmin Forerunner', isReal: false },
+  { id: 'student-5', name: 'Tereza Králová', groupId: 'group-3', steps: 11200, device: 'Garmin Vívoactive', isReal: false }
 ];
 
 export const initializeStorage = (): void => {
+  if (!localStorage.getItem(STORAGE_KEYS.SCHOOLS)) {
+    localStorage.setItem(STORAGE_KEYS.SCHOOLS, JSON.stringify(DEFAULT_SCHOOLS));
+  }
+
   if (!localStorage.getItem(STORAGE_KEYS.CHALLENGES)) {
     localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(DEFAULT_CHALLENGES));
   }
 
-  // Ensure clean groups without old demo teacher accounts
+  // Ensure clean groups with proper schoolId
   const existingGroupsRaw = localStorage.getItem(STORAGE_KEYS.GROUPS);
   if (!existingGroupsRaw) {
     localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(DEFAULT_GROUPS));
   } else {
     try {
       const groups: Group[] = JSON.parse(existingGroupsRaw);
-      const cleaned = groups
-        .filter(g => !g.adminName?.includes('Heidler') && g.id !== 'group-2')
+      const cleaned: Group[] = groups
+        .filter(g => !g.adminName?.includes('Heidler'))
         .map(g => ({
           ...g,
-          adminName: g.adminName?.includes('Vorlíček') ? 'David Prycl' : (g.adminName || 'David Prycl')
+          schoolId: g.schoolId || 'school-1',
+          adminName: g.adminName?.includes('Vorlíček') ? 'doc. Michal Vorlíček' : (g.adminName || 'David Prycl')
         }));
       if (cleaned.length === 0) {
         cleaned.push(...DEFAULT_GROUPS);
@@ -96,24 +140,30 @@ export const initializeStorage = (): void => {
     }
   }
 
-  // Purge old mock students (Heidler, Vorlíček, Nováková, Horák, Malá, Velký, Černá, Bílý)
+  // Ensure students have valid references
   const existingStudentsRaw = localStorage.getItem(STORAGE_KEYS.STUDENTS);
   if (!existingStudentsRaw) {
     localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(DEFAULT_STUDENTS));
   } else {
     try {
       const students: Student[] = JSON.parse(existingStudentsRaw);
-      const mockNames = ['Heidler', 'Vorlíček', 'Nováková', 'Horák', 'Malá', 'Velký', 'Černá', 'Bílý'];
+      const mockNames = ['Heidler', 'Nováková', 'Horák', 'Malá', 'Velký', 'Černá', 'Bílý'];
       let cleaned = students.filter(s => !mockNames.some(m => s.name.includes(m)));
       
       const david = cleaned.find(s => s.name.includes('David Prycl') || s.id === 'student-1');
       if (!david) {
-        cleaned.unshift({ id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464 });
+        cleaned.unshift({ id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464, device: 'Garmin Vívoactive 4', isReal: true });
       } else {
-        // If David's steps are inflated from previous cumulative additions (104 620 or >= 50 000), reset to real baseline 6464
         if (david.steps >= 50000 || david.steps === 104620) {
           david.steps = 6464;
         }
+      }
+      // If only 1 student, add peers for lively class representation
+      if (cleaned.length === 1) {
+        cleaned.push(
+          { id: 'student-2', name: 'Tomáš Kučera', groupId: 'group-1', steps: 7820, device: 'Apple Zdraví', isReal: false },
+          { id: 'student-3', name: 'Eliška Dvořáková', groupId: 'group-1', steps: 9410, device: 'Google Fit', isReal: false }
+        );
       }
       localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(cleaned));
     } catch {
@@ -126,6 +176,9 @@ export const initializeStorage = (): void => {
   }
   if (!localStorage.getItem(STORAGE_KEYS.ACTIVE_GROUP_ID)) {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_GROUP_ID, DEFAULT_GROUPS[0].id);
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.ACTIVE_SCHOOL_ID)) {
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_SCHOOL_ID, DEFAULT_SCHOOLS[0].id);
   }
 };
 
@@ -154,6 +207,20 @@ export const syncWithCloudD1 = (cloudStudents: Array<{ id: string; name: string;
 export const getChallenges = (): Challenge[] => {
   initializeStorage();
   return JSON.parse(localStorage.getItem(STORAGE_KEYS.CHALLENGES) || '[]');
+};
+
+export const getSchools = (): School[] => {
+  initializeStorage();
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.SCHOOLS) || '[]');
+};
+
+export const getActiveSchoolId = (): string => {
+  initializeStorage();
+  return localStorage.getItem(STORAGE_KEYS.ACTIVE_SCHOOL_ID) || DEFAULT_SCHOOLS[0].id;
+};
+
+export const setActiveSchoolId = (id: string): void => {
+  localStorage.setItem(STORAGE_KEYS.ACTIVE_SCHOOL_ID, id);
 };
 
 export const getGroups = (): Group[] => {
@@ -227,23 +294,73 @@ export const removeStudent = (studentId: string): Student[] => {
   return filtered;
 };
 
-export const addGroup = (name: string, adminName: string): Group => {
+export const addSchool = (name: string, city: string, code: string, address?: string, adminEmail?: string): School => {
+  const schools = getSchools();
+  const newSchool: School = {
+    id: `school-${Date.now()}`,
+    name,
+    city,
+    code: code.toUpperCase(),
+    address: address || '',
+    adminEmail: adminEmail || '',
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+  schools.push(newSchool);
+  localStorage.setItem(STORAGE_KEYS.SCHOOLS, JSON.stringify(schools));
+  return newSchool;
+};
+
+export const updateSchool = (id: string, name: string, city: string, code: string, address?: string, adminEmail?: string): School[] => {
+  const schools = getSchools();
+  const index = schools.findIndex(s => s.id === id);
+  if (index !== -1) {
+    schools[index] = {
+      ...schools[index],
+      name,
+      city,
+      code: code.toUpperCase(),
+      address: address !== undefined ? address : schools[index].address,
+      adminEmail: adminEmail !== undefined ? adminEmail : schools[index].adminEmail
+    };
+    localStorage.setItem(STORAGE_KEYS.SCHOOLS, JSON.stringify(schools));
+  }
+  return schools;
+};
+
+export const removeSchool = (schoolId: string): School[] => {
+  const schools = getSchools();
+  const filtered = schools.filter(s => s.id !== schoolId);
+  localStorage.setItem(STORAGE_KEYS.SCHOOLS, JSON.stringify(filtered));
+
+  if (getActiveSchoolId() === schoolId && filtered.length > 0) {
+    setActiveSchoolId(filtered[0].id);
+  }
+  return filtered;
+};
+
+export const addGroup = (name: string, adminName: string, schoolId: string = 'school-1'): Group => {
   const groups = getGroups();
   const newGroup: Group = {
     id: `group-${Date.now()}`,
     name,
-    adminName
+    adminName,
+    schoolId
   };
   groups.push(newGroup);
   localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(groups));
   return newGroup;
 };
 
-export const updateGroup = (id: string, name: string, adminName: string): Group[] => {
+export const updateGroup = (id: string, name: string, adminName: string, schoolId?: string): Group[] => {
   const groups = getGroups();
   const index = groups.findIndex(g => g.id === id);
   if (index !== -1) {
-    groups[index] = { ...groups[index], name, adminName };
+    groups[index] = { 
+      ...groups[index], 
+      name, 
+      adminName,
+      ...(schoolId ? { schoolId } : {})
+    };
     localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(groups));
 
     // Background sync to Cloudflare D1
@@ -376,7 +493,9 @@ export const resetStorage = (): void => {
   localStorage.removeItem(STORAGE_KEYS.CHALLENGES);
   localStorage.removeItem(STORAGE_KEYS.GROUPS);
   localStorage.removeItem(STORAGE_KEYS.STUDENTS);
+  localStorage.removeItem(STORAGE_KEYS.SCHOOLS);
   localStorage.removeItem(STORAGE_KEYS.ACTIVE_CHALLENGE_ID);
   localStorage.removeItem(STORAGE_KEYS.ACTIVE_GROUP_ID);
+  localStorage.removeItem(STORAGE_KEYS.ACTIVE_SCHOOL_ID);
   initializeStorage();
 };

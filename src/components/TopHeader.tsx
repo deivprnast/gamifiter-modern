@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Award, Users, Home, PlayCircle, Settings } from 'lucide-react';
+import { Award, Users, Home, PlayCircle, Settings, Building2, BookOpen } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
+import { ResearchModal } from './ResearchModal';
 
 interface TopHeaderProps {
   activeItem: string;
@@ -9,6 +10,7 @@ interface TopHeaderProps {
 
 export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isResearchOpen, setIsResearchOpen] = useState(false);
   const [adminName, setAdminName] = useState(() => localStorage.getItem('gamifiter_admin_name') || 'David Prycl');
 
   const initials = adminName
@@ -63,6 +65,13 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
             <span className="text-xs font-bold text-gray-500">/ Správa / Správa školy a tříd</span>
           </>
         );
+      case 'admin-schools':
+        return (
+          <>
+            <Building2 className="h-4 w-4 text-indigo-600" />
+            <span className="text-xs font-bold text-gray-500">/ Správa / Správa škol (Superadmin)</span>
+          </>
+        );
       case 'admin-challenges':
         return (
           <>
@@ -112,40 +121,62 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
         </div>
 
         {/* Center: Segmented Navigation Capsule */}
-        {onSelect && (
-          <div className="hidden md:flex items-center gap-1 bg-gray-100/90 p-1 rounded-full border border-gray-200/60 shadow-xs">
-            <button
-              onClick={() => onSelect('active-challenge')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                activeItem === 'active-challenge'
-                  ? 'bg-white text-gray-900 shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <span>🎮 Velká tabule</span>
-            </button>
-            <button
-              onClick={() => onSelect('admin-challenges')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                activeItem.startsWith('admin')
-                  ? 'bg-white text-gray-900 shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <span>⚙️ Správa výzev</span>
-            </button>
-            <button
-              onClick={() => onSelect('sync-research')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                activeItem === 'sync-research'
-                  ? 'bg-white text-gray-900 shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <span>📱 QR pro žáky</span>
-            </button>
-          </div>
-        )}
+        <div className="hidden lg:flex items-center gap-2">
+          {onSelect && (
+            <div className="flex items-center gap-1 bg-gray-100/90 p-1 rounded-full border border-gray-200/60 shadow-xs">
+              <button
+                onClick={() => onSelect('active-challenge')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeItem === 'active-challenge'
+                    ? 'bg-white text-gray-900 shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <span>🎮 Velká tabule</span>
+              </button>
+              <button
+                onClick={() => onSelect('admin-schools')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeItem === 'admin-schools'
+                    ? 'bg-white text-indigo-900 shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <span>🏫 Školy</span>
+              </button>
+              <button
+                onClick={() => onSelect('admin-challenges')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeItem.startsWith('admin') && activeItem !== 'admin-schools'
+                    ? 'bg-white text-gray-900 shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <span>⚙️ Správa</span>
+              </button>
+              <button
+                onClick={() => onSelect('sync-research')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeItem === 'sync-research'
+                    ? 'bg-white text-gray-900 shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <span>📱 QR pro žáky</span>
+              </button>
+            </div>
+          )}
+
+          {/* Research & National Report Button */}
+          <button
+            onClick={() => setIsResearchOpen(true)}
+            className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-800 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+            title="Vědecký výzkum z FTK UP a Národní zpráva o pohybové aktivitě"
+          >
+            <BookOpen className="h-3.5 w-3.5 text-[#007CA6]" />
+            <span>📚 Národní zpráva & Výzkum</span>
+          </button>
+        </div>
 
         {/* Right side: Language, settings, profile */}
         <div className="top-header-right flex items-center gap-3 shrink-0">
@@ -196,6 +227,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
         onSettingsSaved={() => {
           setAdminName(localStorage.getItem('gamifiter_admin_name') || 'David Prycl');
         }}
+      />
+
+      {/* Research & National Physical Activity Guidelines Modal */}
+      <ResearchModal
+        isOpen={isResearchOpen}
+        onClose={() => setIsResearchOpen(false)}
       />
     </>
   );
