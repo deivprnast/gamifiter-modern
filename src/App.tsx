@@ -284,16 +284,16 @@ function App() {
         </div>
 
         {/* Challenge and Class Control Bar */}
-        <div className="bg-white border border-gray-200/90 rounded-2xl p-4 flex flex-wrap gap-4 items-center justify-between shadow-xs">
+        <div className="bg-white border border-gray-200/80 rounded-2xl p-4 flex flex-wrap gap-4 items-center justify-between shadow-xs">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1.5">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
                 <span>🏆 Výzva:</span>
               </span>
               <select
                 value={activeChallengeId}
                 onChange={(e) => handleChallengeChange(e.target.value)}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-xs font-bold rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#007CA6] cursor-pointer"
+                className="bg-gray-50/80 border border-gray-200 text-gray-900 text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-[#007CA6] focus:ring-2 focus:ring-[#007CA6]/15 transition-all cursor-pointer"
               >
                 {challenges.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -304,13 +304,13 @@ function App() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1.5">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
                 <span>👥 Třída:</span>
               </span>
               <select
                 value={activeGroupId}
                 onChange={(e) => handleGroupChange(e.target.value)}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-xs font-bold rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#007CA6] cursor-pointer"
+                className="bg-gray-50/80 border border-gray-200 text-gray-900 text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-[#007CA6] focus:ring-2 focus:ring-[#007CA6]/15 transition-all cursor-pointer"
               >
                 {groups.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -324,13 +324,13 @@ function App() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveItem('admin-challenges')}
-              className="text-xs font-bold text-[#007CA6] bg-[#007CA6]/10 hover:bg-[#007CA6]/20 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+              className="text-xs font-semibold text-[#007CA6] bg-[#007CA6]/10 hover:bg-[#007CA6]/20 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>⚙️ Nastavit výzvu</span>
             </button>
             <button
               onClick={() => setActiveItem('sync-research')}
-              className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+              className="text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <span>📱 Pozvánka pro žáky</span>
             </button>
@@ -339,10 +339,15 @@ function App() {
 
         {/* Tabs and selected game inside replicated-card */}
         <div className="replicated-card">
-          <div className="replicated-card-header">
-            <span>{getChallengeGameTitle()} | Splněno {Math.round(currentProgressPercent)} %</span>
-            <span className="text-xs font-normal font-mono">
-              Celkem: {progressInfo.totalSteps.toLocaleString()} / {currentChallenge.targetSteps.toLocaleString()} kroků
+          <div className="replicated-card-header flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-gray-900">{getChallengeGameTitle()}</span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#007CA6]/10 text-[#007CA6]">
+                Splněno {Math.round(currentProgressPercent)} %
+              </span>
+            </div>
+            <span className="text-xs font-semibold text-gray-500">
+              Celkem: <strong className="text-gray-900 font-mono">{progressInfo.totalSteps.toLocaleString()}</strong> / {currentChallenge.targetSteps.toLocaleString()} kroků
             </span>
           </div>
           
@@ -425,56 +430,55 @@ function App() {
           </div>
         </div>
 
-        {/* Stats Panel Details Cards inside replicated flow */}
+        {/* Stats Panel Details Cards inside Apple grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="replicated-card">
-            <div className="replicated-card-header bg-slate-700">
-              <span>Popis výzvy</span>
-            </div>
-            <div className="replicated-card-body flex flex-col justify-between min-h-[140px]">
-              <p className="text-xs text-gray-500 leading-relaxed">{currentChallenge.description}</p>
-              <div className="text-[10px] text-gray-400 font-bold border-t border-gray-100 pt-2 mt-4 flex justify-between">
-                <span>Od: {new Date(currentChallenge.validFrom).toLocaleDateString()}</span>
-                <span>Do: {new Date(currentChallenge.validTo).toLocaleDateString()}</span>
+          <div className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Popis výzvy</span>
+                <span className="w-2 h-2 rounded-full bg-slate-400" />
               </div>
+              <p className="text-xs text-gray-600 leading-relaxed font-normal">{currentChallenge.description}</p>
             </div>
-          </div>
-
-          <div className="replicated-card border-l-4 border-l-[#007CA6]">
-            <div className="replicated-card-header">
-              <span>Kroky a Kilometry</span>
-            </div>
-            <div className="replicated-card-body flex flex-col justify-between min-h-[140px]">
-              <div>
-                <div className="text-sm font-bold text-gray-700">
-                  {progressInfo.totalSteps.toLocaleString()} / {currentChallenge.targetSteps.toLocaleString()} kroků
-                </div>
-                <div className="text-xs text-gray-400 font-semibold mt-1">
-                  Ušli jsme: {progressInfo.totalDistanceKm} km celkem
-                </div>
-              </div>
-              <div className="text-[10px] text-gray-400 font-semibold border-t border-gray-100 pt-2 mt-4">
-                Průměrný krok nastaven na 0.7m.
-              </div>
+            <div className="text-[11px] text-gray-400 font-medium border-t border-gray-100 pt-3 mt-4 flex justify-between">
+              <span>Od: <strong className="text-gray-600">{new Date(currentChallenge.validFrom).toLocaleDateString()}</strong></span>
+              <span>Do: <strong className="text-gray-600">{new Date(currentChallenge.validTo).toLocaleDateString()}</strong></span>
             </div>
           </div>
 
-          <div className="replicated-card border-l-4 border-l-emerald-600">
-            <div className="replicated-card-header bg-emerald-600">
-              <span>Aktivní zapojení žáků</span>
+          <div className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-[#007CA6] uppercase tracking-wider">Kroky & Kilometry</span>
+                <span className="w-2 h-2 rounded-full bg-[#007CA6]" />
+              </div>
+              <div className="text-2xl font-bold tracking-tight text-gray-900 font-mono">
+                {progressInfo.totalSteps.toLocaleString()} <span className="text-xs font-semibold text-gray-500 font-sans">kroků</span>
+              </div>
+              <div className="text-xs text-gray-500 font-medium mt-1">
+                Ušli jsme celkem: <strong className="text-gray-800">{progressInfo.totalDistanceKm} km</strong>
+              </div>
             </div>
-            <div className="replicated-card-body flex flex-col justify-between min-h-[140px]">
-              <div>
-                <div className="text-sm font-bold text-emerald-700">
-                  {progressInfo.activeUsers} / {activeGroupStudents.length} aktivních
-                </div>
-                <p className="text-[11px] text-gray-500 mt-1">
-                  Už {Math.round((progressInfo.activeUsers / activeGroupStudents.length) * 100) || 0} % třídy má zapsaný pohyb!
-                </p>
+            <div className="text-[11px] text-gray-400 font-medium border-t border-gray-100 pt-3 mt-4">
+              Průměrný krok nastaven na 0.7 m.
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Aktivní zapojení</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
               </div>
-              <div className="text-[10px] text-emerald-600 font-bold border-t border-gray-100 pt-2 mt-4">
-                Třídní učitel: {progressInfo.adminName}
+              <div className="text-2xl font-bold tracking-tight text-emerald-700">
+                {progressInfo.activeUsers} <span className="text-sm font-semibold text-gray-500">/ {activeGroupStudents.length} žáků</span>
               </div>
+              <p className="text-xs text-gray-600 font-medium mt-1">
+                Už <strong className="text-emerald-700 font-bold">{Math.round((progressInfo.activeUsers / activeGroupStudents.length) * 100) || 0} %</strong> třídy má zaznamenaný pohyb.
+              </p>
+            </div>
+            <div className="text-[11px] text-gray-500 font-medium border-t border-gray-100 pt-3 mt-4">
+              Třídní učitel: <strong className="text-gray-800">{progressInfo.adminName}</strong>
             </div>
           </div>
         </div>

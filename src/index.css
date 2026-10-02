@@ -1,22 +1,25 @@
+@import "tailwindcss";
 @import 'leaflet/dist/leaflet.css';
 
 :root {
-  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   
-  /* Original Replicated Color Palette (Light Theme + Deep Cyan) */
-  --bg-page: 220 14% 96%;        /* Light grey #F3F4F6 */
-  --bg-sidebar: 195 100% 33%;    /* Deep Cyan #007CA6 */
-  --bg-sidebar-hover: 195 100% 28%;
-  --bg-card: 0 0% 100%;          /* White #FFFFFF */
-  --border-color: 220 15% 90%;   /* Light border */
+  /* Apple Light Theme + Gamifiter Cyan */
+  --bg-page: 240 5% 96%;         /* Apple light grey #F5F5F7 */
+  --bg-sidebar: 195 100% 32%;     /* Deep Cyan #007CA6 */
+  --bg-sidebar-hover: 195 100% 26%;
+  --bg-card: 0 0% 100%;           /* Pure White #FFFFFF */
+  --border-color: 240 6% 90%;    /* Apple subtle divider */
   
-  --primary: 195 100% 35%;       /* Brand Cyan #0082b2 */
-  --success: 142 72% 29%;        /* Emerald #15803d */
-  --warning: 343 90% 60%;        /* Rose */
+  --primary: 195 100% 33%;        /* Brand Cyan #007CA6 */
+  --primary-hover: 195 100% 28%;
+  --apple-blue: 211 100% 44%;     /* #0071E3 */
+  --success: 142 70% 35%;         /* Emerald #16a34a */
+  --warning: 343 90% 60%;         /* Rose */
   
-  --text-primary: 220 30% 10%;   /* Dark Slate */
-  --text-secondary: 220 15% 40%;  /* Muted Grey */
-  --text-muted: 220 10% 60%;
+  --text-primary: 240 6% 12%;     /* #1D1D1F Apple Charcoal */
+  --text-secondary: 240 4% 46%;   /* #6E6E73 Apple Muted */
+  --text-muted: 240 5% 65%;
 }
 
 * {
@@ -26,11 +29,13 @@
 }
 
 body {
-  background-color: hsl(var(--bg-page));
-  color: hsl(var(--text-primary));
+  background-color: #F5F5F7;
+  color: #1D1D1F;
   font-family: var(--font-sans);
   overflow-x: hidden;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Scrollbars */
@@ -39,104 +44,163 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(var(--bg-page));
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--text-muted));
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
 }
 
-/* Original Branded Card Styles */
+/* Apple-grade Branded Card Styles */
 .replicated-card {
-  background: hsl(var(--bg-card));
-  border: 1px solid hsl(var(--border-color));
-  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 4px 16px -2px rgba(0, 0, 0, 0.04);
   margin-bottom: 24px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.replicated-card:hover {
+  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.07);
 }
 
 .replicated-card-header {
-  background-color: hsl(var(--primary));
-  color: white;
-  padding: 10px 16px;
-  font-size: 0.9rem;
+  background: #FFFFFF;
+  color: #111827;
+  padding: 16px 22px;
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid #F3F4F6;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .replicated-card-body {
-  padding: 20px;
+  padding: 22px;
 }
 
 /* Grid layout rules */
 .replicated-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 20px;
+  gap: 24px;
 }
 
-/* Forms and Inputs */
+/* Forms and Inputs with Apple ergonomics */
 .replicated-input {
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  color: hsl(var(--text-primary));
-  padding: 8px 12px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  color: #111827;
+  padding: 10px 14px;
   font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   outline: none;
   width: 100%;
+  transition: all 0.15s ease;
 }
 
 .replicated-input:focus {
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 2px hsla(var(--primary), 0.2);
+  background: #FFFFFF;
+  border-color: #007CA6;
+  box-shadow: 0 0 0 3px rgba(0, 124, 166, 0.15);
 }
 
+/* Apple Rounded Pill Buttons */
 .replicated-button {
-  background-color: hsl(var(--primary));
+  background-color: #007CA6;
   color: white;
   font-weight: 600;
   border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
+  border-radius: 9999px;
+  padding: 10px 20px;
   font-family: var(--font-sans);
   font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 124, 166, 0.2);
 }
 
 .replicated-button:hover {
-  background-color: hsl(var(--bg-sidebar-hover));
+  background-color: #006588;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 124, 166, 0.3);
+}
+
+.replicated-button:active {
+  transform: scale(0.98);
 }
 
 .replicated-button-outline {
-  background: white;
-  color: hsl(var(--text-secondary));
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  padding: 8px 16px;
+  background: #F3F4F6;
+  color: #374151;
+  border: 1px solid #E5E7EB;
+  border-radius: 9999px;
+  padding: 10px 20px;
   font-family: var(--font-sans);
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .replicated-button-outline:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-  color: hsl(var(--text-primary));
+  background: #E5E7EB;
+  color: #111827;
+}
+
+.replicated-button-outline:active {
+  transform: scale(0.98);
+}
+
+/* Tables with Apple Elegance */
+.replicated-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.replicated-table th {
+  padding: 12px 18px;
+  background-color: #F9FAFB;
+  color: #6B7280;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.replicated-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 0.85rem;
+  color: #1F2937;
+  vertical-align: middle;
+}
+
+.replicated-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.replicated-table tbody tr:hover {
+  background-color: #F9FAFB;
+}
+
+.replicated-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 /* Leaflet Popup Light Override */
@@ -145,21 +209,21 @@ body {
   border: 1px solid #e2e8f0 !important;
   color: #1e293b !important;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-  border-radius: 6px !important;
+  border-radius: 12px !important;
 }
 
 .leaflet-popup-content {
   margin: 12px 16px !important;
 }
 
-/* League Level Game Tabs & Controls */
+/* League Level Game Tabs & Controls (Apple Segmented Control) */
 .game-tabs-container {
   display: flex;
-  gap: 6px;
-  background: #f1f5f9;
-  padding: 5px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  gap: 4px;
+  background: #F1F5F9;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
   width: fit-content;
   flex-wrap: wrap;
 }
@@ -171,24 +235,23 @@ body {
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 0.8rem;
-  font-weight: 700;
-  color: #64748b;
+  font-weight: 600;
+  color: #64748B;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .game-tab:hover {
-  color: #0f172a;
-  background: rgba(255, 255, 255, 0.7);
+  color: #0F172A;
 }
 
 .game-tab.active {
-  background: white;
+  background: #FFFFFF;
   color: #007CA6;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  font-weight: 800;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
 }
 
 /* Animations */

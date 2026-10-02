@@ -13,7 +13,7 @@ interface SyncResearchPanelProps {
 
 export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncReceived, onOpenMobilePortal }) => {
   const [pryclQr, setPryclQr] = useState<string>('');
-  const [vorlicekQr, setVorlicekQr] = useState<string>('');
+  const [studentMobileQr, setStudentMobileQr] = useState<string>('');
   const [apkQr, setApkQr] = useState<string>('');
   const [students, setStudents] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
@@ -29,7 +29,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
     }
   }, []);
 
-  // Generate QR codes for David Prycl, Michal Vorlicek, and APK download
+  // Generate QR codes for David Prycl, mobile student, and APK download
   useEffect(() => {
     const baseUrl = `http://${networkHost}`;
     
@@ -39,11 +39,11 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
       color: { dark: '#0F172A', light: '#FFFFFF' }
     }).then(setPryclQr);
 
-    QRCode.toDataURL(`${baseUrl}/sync?token=ftk-vorlicek-google`, {
+    QRCode.toDataURL(`${baseUrl}/sync?token=ftk-student-mobile`, {
       width: 200,
       margin: 1,
       color: { dark: '#0F172A', light: '#FFFFFF' }
-    }).then(setVorlicekQr);
+    }).then(setStudentMobileQr);
 
     QRCode.toDataURL(`${baseUrl}/Gamifiter-Debug.apk`, {
       width: 200,
@@ -166,10 +166,10 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
 
   const secondStudent = students.find((s) => s.id !== 'student-1') || {
     id: 'student-2',
-    name: 'Další žák výzvy',
+    name: 'Nový žák výzvy (Mobil)',
     steps: 0,
     device: 'Google Health Connect (Android)',
-    pairedToken: 'ftk-student-2',
+    pairedToken: 'ftk-student-mobile',
     lastSync: 'Čeká na připojení',
     status: 'waiting'
   };
@@ -210,7 +210,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
             {onOpenMobilePortal && (
               <button
                 onClick={onOpenMobilePortal}
-                className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center gap-1.5 transition-all shadow-md"
+                className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 <span>Otevřít mobilní portál</span>
@@ -227,26 +227,26 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
           </div>
         </div>
 
-        {/* Tab switcher */}
-        <div className="flex gap-2 mt-6 border-t border-slate-800 pt-4">
+        {/* Tab switcher (Apple style glass pills) */}
+        <div className="flex flex-wrap gap-2 mt-6 border-t border-slate-700/60 pt-4">
           <button
             onClick={() => setActiveTab('devices')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'devices'
-                ? 'bg-cyan-500 text-slate-950 font-black shadow'
-                : 'text-slate-300 hover:bg-slate-800'
+                ? 'bg-cyan-400 text-slate-950 font-bold shadow-md'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <Watch className="h-4 w-4" />
-            <span>Telemetrie žáků (David & připojená zařízení)</span>
+            <span>Telemetrie žáků (David & Garmin)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('protocol')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'protocol'
-                ? 'bg-cyan-500 text-slate-950 font-black shadow'
-                : 'text-slate-300 hover:bg-slate-800'
+                ? 'bg-cyan-400 text-slate-950 font-bold shadow-md'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <span>Vědecký auditní protokol ({logs.length})</span>
@@ -254,10 +254,10 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
 
           <button
             onClick={() => setActiveTab('tech')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'tech'
-                ? 'bg-cyan-500 text-slate-950 font-black shadow'
-                : 'text-slate-300 hover:bg-slate-800'
+                ? 'bg-cyan-400 text-slate-950 font-bold shadow-md'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <span>Technická architektura & API Webhook</span>
@@ -389,7 +389,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
                   <button
                     onClick={() => triggerTestSync('student-1', 'ftk-prycl-garmin', 'Garmin Vívoactive 4', 2500)}
                     disabled={testSending['student-1']}
-                    className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50"
+                    className="flex-1 bg-[#007CA6] hover:bg-[#006588] text-white font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
                     <Send className="h-3.5 w-3.5" />
                     <span>{testSending['student-1'] ? 'Posílám...' : '+2 500 kroků (Běh)'}</span>
@@ -398,7 +398,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
                   <button
                     onClick={() => triggerTestSync('student-1', 'ftk-prycl-garmin', 'Garmin Vívoactive 4', 5000)}
                     disabled={testSending['student-1']}
-                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50"
+                    className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
                     <Zap className="h-3.5 w-3.5 text-cyan-400" />
                     <span>{testSending['student-1'] ? 'Posílám...' : '+5 000 kroků (Závod)'}</span>
@@ -407,18 +407,18 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
               </div>
             </div>
 
-            <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+            <div className="bg-gray-50/70 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
               <span>Token: <code className="text-[#007CA6] font-bold">ftk-prycl-garmin</code></span>
-              <span className="text-[10px] bg-cyan-100 text-cyan-800 font-bold px-2 py-0.5 rounded">Garmin Connect Bridge</span>
+              <span className="text-[10px] bg-cyan-100 text-cyan-800 font-bold px-2.5 py-0.5 rounded-full">Garmin Connect Bridge</span>
             </div>
           </div>
 
-          {/* Card: Michal Vorlicek (Google Health Connect) */}
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col justify-between">
+          {/* Card: Mobile Student (Google Health Connect) */}
+          <div className="bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden flex flex-col justify-between">
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 shadow-sm">
+                  <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200/80 flex items-center justify-center text-purple-600 shadow-xs">
                     <Smartphone className="h-6 w-6" />
                   </div>
                   <div>
@@ -428,9 +428,9 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
                         Subjekt #2
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 font-semibold flex items-center gap-1.5 mt-0.5">
+                    <p className="text-xs text-gray-500 font-medium flex items-center gap-1.5 mt-0.5">
                       <span>Platforma:</span>
-                      <strong className="text-gray-800 font-bold">Google Health Connect (Android)</strong>
+                      <strong className="text-gray-800 font-semibold">Google Health Connect (Android)</strong>
                     </p>
                   </div>
                 </div>
@@ -458,23 +458,23 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
               </div>
 
               {/* QR Code and Quick Phone Instructions */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
-                {vorlicekQr ? (
-                  <img src={vorlicekQr} alt="QR kód Michal" className="w-28 h-28 rounded-lg shadow-sm border border-gray-200 bg-white p-1" />
+              <div className="flex flex-col sm:flex-row items-center gap-4 bg-gray-50/80 border border-gray-200/80 rounded-xl p-4 mb-4">
+                {studentMobileQr ? (
+                  <img src={studentMobileQr} alt="QR kód Mobil" className="w-28 h-28 rounded-lg shadow-xs border border-gray-200 bg-white p-1" />
                 ) : (
                   <div className="w-28 h-28 bg-gray-200 animate-pulse rounded-lg" />
                 )}
                 <div className="text-xs text-gray-600 space-y-1.5">
                   <div className="font-bold text-gray-800 flex items-center gap-1">
                     <QrCode className="h-4 w-4 text-purple-600" />
-                    <span>Naskenujte Androidem k propojení:</span>
+                    <span>Naskenujte mobilem k propojení:</span>
                   </div>
                   <p className="text-[11px] text-gray-500 leading-snug">
-                    Otevřete fotoaparát v telefonu a načtěte kód. Otevře se portál pro <strong>Google Health Connect</strong>.
+                    Otevřete fotoaparát v telefonu a načtěte kód. Otevře se mobilní portál Gamifiter pro <strong>Google Health Connect</strong>.
                   </p>
                   <div className="pt-1">
                     <span className="font-mono text-[10px] bg-white border border-gray-300 px-2 py-0.5 rounded text-gray-700 select-all">
-                      http://{networkHost}/sync?token=ftk-vorlicek-google
+                      http://{networkHost}/sync?token=ftk-student-mobile
                     </span>
                   </div>
                 </div>
@@ -487,18 +487,18 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => triggerTestSync('student-2', 'ftk-vorlicek-google', 'Google Health Connect (Android)', 3100)}
+                    onClick={() => triggerTestSync('student-2', 'ftk-student-mobile', 'Google Health Connect (Android)', 3100)}
                     disabled={testSending['student-2']}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
                     <Send className="h-3.5 w-3.5" />
                     <span>{testSending['student-2'] ? 'Posílám...' : '+3 100 kroků (Chůze)'}</span>
                   </button>
 
                   <button
-                    onClick={() => triggerTestSync('student-2', 'ftk-vorlicek-google', 'Google Health Connect (Android)', 6000)}
+                    onClick={() => triggerTestSync('student-2', 'ftk-student-mobile', 'Google Health Connect (Android)', 6000)}
                     disabled={testSending['student-2']}
-                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50"
+                    className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
                     <Zap className="h-3.5 w-3.5 text-purple-400" />
                     <span>{testSending['student-2'] ? 'Posílám...' : '+6 000 kroků (Trénink)'}</span>
@@ -507,9 +507,9 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
               </div>
             </div>
 
-            <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-              <span>Token: <code className="text-purple-700 font-bold">ftk-vorlicek-google</code></span>
-              <span className="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded">Health Connect Core</span>
+            <div className="bg-gray-50/70 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+              <span>Token: <code className="text-purple-700 font-bold">ftk-student-mobile</code></span>
+              <span className="text-[10px] bg-purple-100 text-purple-800 font-bold px-2.5 py-0.5 rounded-full">Health Connect Core</span>
             </div>
           </div>
         </div>

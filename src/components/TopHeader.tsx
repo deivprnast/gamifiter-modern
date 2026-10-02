@@ -97,33 +97,33 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
           {getBreadcrumbs()}
 
           {onSelect && (
-            <div className="hidden lg:flex items-center gap-2 ml-4 pl-4 border-l border-gray-200">
+            <div className="hidden lg:flex items-center gap-1 ml-4 pl-4 border-l border-gray-200/80 bg-gray-100/80 p-1 rounded-full border border-gray-200/50">
               <button
                 onClick={() => onSelect('active-challenge')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
+                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
                   activeItem === 'active-challenge'
-                    ? 'bg-[#007CA6] text-white shadow-sm ring-2 ring-[#007CA6]/20'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-white text-gray-900 shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 <span>🎮 Velká tabule třídy</span>
               </button>
               <button
                 onClick={() => onSelect('admin-challenges')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
+                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
                   activeItem.startsWith('admin')
-                    ? 'bg-purple-600 text-white shadow-sm ring-2 ring-purple-500/20'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-white text-gray-900 shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 <span>⚙️ Správa výzev a žáků</span>
               </button>
               <button
                 onClick={() => onSelect('sync-research')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
+                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all ${
                   activeItem === 'sync-research'
-                    ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-500/20'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-white text-gray-900 shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 <span>📱 QR kód třídy</span>

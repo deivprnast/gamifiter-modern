@@ -175,50 +175,55 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
-      <div className="view-title-container flex justify-between items-center border-b border-gray-200 pb-3">
-        <h2 className="view-title">
-          {activeTab === 'challenges' ? 'Správa výzev' : activeTab === 'groups' ? 'Správa školy' : activeTab === 'invitations' ? 'Pozvánka pro žáky & QR kód třídy' : 'Nastavení systému'}
-        </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-200/80">
+        <div>
+          <h2 className="view-title">
+            {activeTab === 'challenges' ? 'Správa výzev' : activeTab === 'groups' ? 'Správa školy a tříd' : activeTab === 'invitations' ? 'Pozvánka pro žáky & QR kód třídy' : 'Nastavení systému'}
+          </h2>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Administrace pohybových výzev, třídních kolektivů a registrace studentů
+          </p>
+        </div>
         
-        {/* Internal Tabs for navigation */}
-        <div className="flex gap-2">
+        {/* Apple Segmented Control */}
+        <div className="bg-gray-100/90 p-1 rounded-xl border border-gray-200/60 inline-flex items-center gap-1 self-start sm:self-auto shrink-0">
           <button
             onClick={() => setActiveTab('challenges')}
-            className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'challenges' 
-                ? 'bg-[#007CA6] text-white' 
-                : 'text-gray-500 bg-white border border-gray-200 hover:bg-gray-50'
+                ? 'bg-white text-gray-900 shadow-xs' 
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Seznam a tvorba výzev
           </button>
           <button
             onClick={() => setActiveTab('invitations')}
-            className={`px-3 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
               activeTab === 'invitations' 
-                ? 'bg-emerald-600 text-white' 
-                : 'text-gray-500 bg-white border border-gray-200 hover:bg-gray-50'
+                ? 'bg-white text-emerald-800 shadow-xs' 
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            <QrCode className="h-3.5 w-3.5" />
+            <QrCode className="h-3.5 w-3.5 text-emerald-600" />
             <span>Pozvánka pro žáky (QR)</span>
           </button>
           <button
             onClick={() => setActiveTab('groups')}
-            className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'groups' 
-                ? 'bg-[#007CA6] text-white' 
-                : 'text-gray-500 bg-white border border-gray-200 hover:bg-gray-50'
+                ? 'bg-white text-gray-900 shadow-xs' 
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Správa tříd a studentů
           </button>
           <button
             onClick={() => setActiveTab('reset')}
-            className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'reset' 
-                ? 'bg-red-600 text-white' 
-                : 'text-gray-500 bg-white border border-gray-200 hover:bg-gray-50'
+                ? 'bg-white text-red-600 shadow-xs font-bold' 
+                : 'text-gray-500 hover:text-red-600'
             }`}
           >
             Obnova databáze
@@ -345,30 +350,42 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {challenges.map((c) => (
-                    <tr key={c.id}>
-                      <td className="py-3 px-4 font-semibold text-gray-800">
-                        <div>{c.name}</div>
-                        <div className="text-[10px] text-gray-400 font-normal line-clamp-1">{c.description}</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                          {c.moduleType}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-bold text-[#0082b2]">
-                        {c.targetSteps.toLocaleString()} kroků
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => handleDeleteChallenge(c.id)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {challenges.map((c) => {
+                    const badgeStyles: Record<string, string> = {
+                      map: 'bg-sky-50 text-sky-700 border-sky-200/80',
+                      districts: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+                      puzzle: 'bg-amber-50 text-amber-700 border-amber-200/80',
+                      pixelate: 'bg-purple-50 text-purple-700 border-purple-200/80',
+                      network: 'bg-rose-50 text-rose-700 border-rose-200/80'
+                    };
+                    const badgeClass = badgeStyles[c.moduleType] || 'bg-slate-50 text-slate-700 border-slate-200';
+
+                    return (
+                      <tr key={c.id}>
+                        <td className="py-3.5 px-4 font-semibold text-gray-900">
+                          <div>{c.name}</div>
+                          <div className="text-[11px] text-gray-400 font-normal line-clamp-1 mt-0.5">{c.description}</div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold border ${badgeClass}`}>
+                            {c.moduleType}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-bold text-[#007CA6]">
+                          {c.targetSteps.toLocaleString()} <span className="text-xs font-normal text-gray-400">kroků</span>
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <button
+                            onClick={() => handleDeleteChallenge(c.id)}
+                            className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                            title="Smazat výzvu"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -494,10 +511,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                     return (
                       <tr key={student.id}>
-                        <td className="py-3 px-4 font-semibold text-gray-800">
+                        <td className="py-3.5 px-4 font-semibold text-gray-900">
                           {student.name}
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3.5 px-4 text-right">
                           <input 
                             type="number" 
                             value={displaySteps} 
@@ -505,26 +522,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               const val = parseInt(e.target.value) || 0;
                               setEditingSteps({ ...editingSteps, [student.id]: val });
                             }}
-                            className={`w-32 text-xs px-2 py-1 bg-white border rounded text-right font-bold ${
-                              isEditing ? 'border-[#0082b2] text-[#0082b2]' : 'border-gray-200 text-gray-700'
+                            className={`w-32 text-xs px-3 py-1.5 rounded-xl border text-right font-bold transition-all outline-none ${
+                              isEditing 
+                                ? 'bg-cyan-50/50 border-[#007CA6] text-[#007CA6] ring-2 ring-[#007CA6]/20' 
+                                : 'bg-gray-50 border-gray-200 text-gray-800 focus:bg-white focus:border-[#007CA6]'
                             }`}
                           />
                         </td>
-                        <td className="py-3 px-4 text-center flex justify-center gap-2">
-                          {isEditing && (
+                        <td className="py-3.5 px-4 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            {isEditing && (
+                              <button
+                                onClick={() => handleSaveStudentSteps(student.id)}
+                                className="px-2.5 py-1 bg-[#007CA6] hover:bg-[#006588] text-white text-[11px] font-bold rounded-lg shadow-xs transition-all cursor-pointer"
+                              >
+                                Uložit
+                              </button>
+                            )}
                             <button
-                              onClick={() => handleSaveStudentSteps(student.id)}
-                              className="px-2 py-1 bg-[#0082b2] hover:bg-[#007CA6] text-white text-[10px] font-bold rounded"
+                              onClick={() => handleDeleteStudent(student.id)}
+                              className="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                              title="Smazat žáka"
                             >
-                              Uložit
+                              <Trash2 className="h-4 w-4" />
                             </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteStudent(student.id)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </div>
                         </td>
                       </tr>
                     );
