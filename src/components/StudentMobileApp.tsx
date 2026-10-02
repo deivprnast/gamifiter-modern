@@ -37,14 +37,40 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   const [lastSyncTime, setLastSyncTime] = useState<string>('Zatím neproběhlo');
   const [showIdentityPicker, setShowIdentityPicker] = useState<boolean>(false);
 
-  const currentChallenge = challenges.find(c => c.id === activeChallengeId) || challenges[0];
-  const currentGroup = groups.find(g => g.id === activeGroupId) || groups[0];
-  const classStudents = students.filter(s => s.groupId === currentGroup?.id);
-  const currentStudent = students.find(s => s.id === selectedStudentId) || students[0] || {
+  const currentChallenge = (challenges && challenges.length > 0)
+    ? (challenges.find(c => c.id === activeChallengeId) || challenges[0])
+    : {
+        id: 'challenge-1',
+        name: 'Krkonošská stezka (Třída 7. A)',
+        description: 'Ujděte s celou třídou 500 000 kroků a posuňte se v herní mapě.',
+        moduleType: 'map' as const,
+        targetSteps: 500000,
+        validFrom: '2026-10-01',
+        validTo: '2026-10-31',
+        filePath: '/tour_de_cities.geojson'
+      };
+
+  const currentGroup = (groups && groups.length > 0)
+    ? (groups.find(g => g.id === activeGroupId) || groups[0])
+    : {
+        id: 'group-1',
+        name: 'Třída 7. A',
+        adminName: 'Mgr. Michal Vorlíček'
+      };
+
+  const classStudents = (students && students.length > 0)
+    ? students.filter(s => s.groupId === currentGroup.id)
+    : [
+        { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 180000 },
+        { id: 'student-2', name: 'Michal Vorlíček', groupId: 'group-1', steps: 145000 },
+        { id: 'student-3', name: 'Josef Heidler', groupId: 'group-1', steps: 95000 }
+      ];
+
+  const currentStudent = classStudents.find(s => s.id === selectedStudentId) || classStudents[0] || {
     id: 'student-1',
     name: 'David Prycl',
     steps: 180000,
-    groupId: currentGroup?.id
+    groupId: currentGroup.id
   };
 
   // Calculate class progress
@@ -54,7 +80,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
   // Sort class leaderboard
   const sortedClass = [...classStudents].sort((a, b) => b.steps - a.steps);
-  const myRank = sortedClass.findIndex(s => s.id === currentStudent.id) + 1;
+  const myRank = Math.max(1, sortedClass.findIndex(s => s.id === currentStudent.id) + 1);
 
   // On mount: Auto-connect to Garmin / Health Connect
   useEffect(() => {

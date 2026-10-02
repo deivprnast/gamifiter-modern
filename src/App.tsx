@@ -35,12 +35,15 @@ import { NativeHealthService } from './services/nativeHealthService';
 import { Map, MapPin, Grid, Sparkles, Network, Activity, Play, Pause, ChevronUp, ChevronDown } from 'lucide-react';
 
 function App() {
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [challenges, setChallenges] = useState<Challenge[]>(() => {
+    initializeStorage();
+    return getChallenges();
+  });
+  const [groups, setGroups] = useState<Group[]>(() => getGroups());
+  const [students, setStudents] = useState<Student[]>(() => getStudents());
   
-  const [activeChallengeId, setActiveChallengeIdState] = useState('');
-  const [activeGroupId, setActiveGroupIdState] = useState('');
+  const [activeChallengeId, setActiveChallengeIdState] = useState(() => getActiveChallengeId());
+  const [activeGroupId, setActiveGroupIdState] = useState(() => getActiveGroupId());
   const [activeItem, setActiveItem] = useState('my-results'); // Sidebar active link
   const [gameTab, setGameTab] = useState<ModuleType>('map');
   
