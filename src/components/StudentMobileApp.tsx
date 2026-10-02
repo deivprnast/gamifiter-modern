@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Trophy, Users, RefreshCw, Footprints, 
+  Trophy, Users, RefreshCw, 
   CheckCircle2, ChevronDown, Watch, 
   Map, Grid, Sparkles, Flame, Settings, 
-  X, Send, HelpCircle, Activity
+  X, Send, HelpCircle, Activity,
+  Zap, ShieldCheck, Compass, BatteryCharging
 } from 'lucide-react';
 import { NativeHealthService, type DaySegmentBreakdown } from '../services/nativeHealthService';
 import { type Challenge, type Group, type Student } from '../types';
@@ -30,8 +31,8 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   onSyncComplete,
   onSwitchToTeacherMode
 }) => {
-  // Navigation Tabs: 'challenge' (Výzva) | 'my-day' (Můj den) | 'class' (Moje třída) | 'sync' (Senzory)
-  const [activeTab, setActiveTab] = useState<'challenge' | 'my-day' | 'class' | 'sync'>('challenge');
+  // Navigation Tabs: 'challenge' | 'my-day' | 'class' | 'sync'
+  const [activeTab, setActiveTab] = useState<'challenge' | 'my-day' | 'class' | 'sync'>('my-day');
   const [gameSubTab, setGameSubTab] = useState<'map' | 'puzzle' | 'pixelate'>('map');
 
   // Student Identity
@@ -43,10 +44,11 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   const [sensorStatus, setSensorStatus] = useState<string>('Garmin Vívoactive 4 připojen');
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncSuccessMsg, setSyncSuccessMsg] = useState<string | null>(null);
-  const [lastSyncTime, setLastSyncTime] = useState<string>('Právě teď');
+  const [lastSyncTime, setLastSyncTime] = useState<string>('Dnes ve 20:17');
   const [showDevicePicker, setShowDevicePicker] = useState<boolean>(false);
   const [currentDevice, setCurrentDevice] = useState<string>('Garmin Vívoactive 4');
   const [useTeamShare, setUseTeamShare] = useState<boolean>(true);
+  const [kudosSent, setKudosSent] = useState<Record<string, boolean>>({});
 
   // Manual calibration state
   const [isCalibrating, setIsCalibrating] = useState<boolean>(false);
@@ -61,16 +63,16 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
     ? (challenges.find(c => c.id === activeChallengeId) || challenges[0])
     : {
         id: 'challenge-1',
-        name: 'Krkonošská stezka (Třída 7. A)',
-        description: 'Ujděte s celou třídou 500 000 kroků a posuňte se v herní mapě.',
+        name: 'Tour de Europe (Třída 8. A)',
+        description: 'Ujděte s celou třídou 500 000 kroků a procestujte celou Evropu.',
         moduleType: 'map' as const,
         targetSteps: 500000,
         validFrom: '2026-10-01',
         validTo: '2026-10-31',
         filePath: '/tour_de_cities.geojson',
-        customTaskPrompt: 'Která hora v Krkonoších je nejvyšší?',
-        customClue: 'Začíná na písmeno S a měří 1 603 metrů.',
-        solutionAnswer: 'Sněžka',
+        customTaskPrompt: 'Které hlavní město na naší trase leží na řece Dunaj?',
+        customClue: 'Je to Vídeň nebo Bratislava. Obě leží na stejné řece!',
+        solutionAnswer: 'Vídeň',
         subjectCategory: 'Zeměpis'
       };
 
@@ -85,7 +87,11 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   const classStudents = (students && students.length > 0)
     ? students.filter(s => s.groupId === currentGroup.id)
     : [
-        { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464, avatar: '🦊', streakDays: 5, morningSteps: 1810 }
+        { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464, avatar: '🦊', streakDays: 8, morningSteps: 1810 },
+        { id: 'student-2', name: 'Eliška Novotná', groupId: 'group-1', steps: 5820, avatar: '🐱', streakDays: 7, morningSteps: 1650 },
+        { id: 'student-3', name: 'Jakub Svoboda', groupId: 'group-1', steps: 5120, avatar: '🐻', streakDays: 6, morningSteps: 1400 },
+        { id: 'student-4', name: 'Tereza Dvořáková', groupId: 'group-1', steps: 4450, avatar: '🐼', streakDays: 4, morningSteps: 950 },
+        { id: 'student-5', name: 'Matěj Procházka', groupId: 'group-1', steps: 3980, avatar: '🦁', streakDays: 5, morningSteps: 1100 }
       ];
 
   const currentStudent = classStudents.find(s => s.id === selectedStudentId) || classStudents[0] || {
@@ -94,7 +100,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
     steps: 6464,
     groupId: currentGroup.id,
     avatar: '🦊',
-    streakDays: 5,
+    streakDays: 8,
     morningSteps: 1810
   };
 
@@ -104,7 +110,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   const progressPercent = Math.min(100, Math.round((classTotalSteps / targetSteps) * 100));
   const classAvgSteps = classStudents.length > 0 ? Math.round(classTotalSteps / classStudents.length) : 0;
   const activeCommuteCount = classStudents.filter(s => (s.morningSteps || 0) >= 1200).length;
-  const activeCommutePercent = classStudents.length > 0 ? Math.round((activeCommuteCount / classStudents.length) * 100) : 68;
+  const activeCommutePercent = classStudents.length > 0 ? Math.round((activeCommuteCount / classStudents.length) * 100) : 74;
 
   // Day breakdown
   const [breakdown, setBreakdown] = useState<DaySegmentBreakdown>(() => {
@@ -128,7 +134,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   }, []);
 
   const readLiveSensors = async () => {
-    setSensorStatus('Čtu data z Google Health Connect (Garmin)...');
+    setSensorStatus('Čtu data z Google Health Connect...');
     try {
       const authorized = await NativeHealthService.requestHealthPermissions();
       if (authorized) {
@@ -142,7 +148,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
       } else {
         setSensorStatus('Oprávnění potvrzeno • Senzory aktivní');
       }
-    } catch (e: any) {
+    } catch {
       setSensorStatus('Garmin Vívoactive 4 (Cloudflare D1)');
     }
   };
@@ -168,15 +174,15 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
       const nowStr = new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
       setLastSyncTime(`Dnes v ${nowStr}`);
-      setSyncSuccessMsg(`Synchronizováno ${stepsToSync.toLocaleString()} kroků do třídy ${currentGroup.name}!`);
+      setSyncSuccessMsg(`⚡ Synchronizováno ${stepsToSync.toLocaleString()} kroků do tabule!`);
 
       if (onSyncComplete) {
         onSyncComplete(currentStudent.id, stepsToSync);
       }
-    } catch (e) {
+    } catch {
       const nowStr = new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
       setLastSyncTime(`Dnes v ${nowStr}`);
-      setSyncSuccessMsg(`${stepsToSync.toLocaleString()} kroků uloženo do třídy ${currentGroup.name}!`);
+      setSyncSuccessMsg(`⚡ ${stepsToSync.toLocaleString()} kroků uloženo do třídy!`);
       if (onSyncComplete) {
         onSyncComplete(currentStudent.id, stepsToSync);
       }
@@ -184,6 +190,16 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
       setIsSyncing(false);
       setTimeout(() => setSyncSuccessMsg(null), 4000);
     }
+  };
+
+  const handleQuickAdd = (addedSteps: number) => {
+    const newVal = currentStudent.steps + addedSteps;
+    setLiveSteps(newVal);
+    if (onSyncComplete) {
+      onSyncComplete(currentStudent.id, newVal);
+    }
+    setSyncSuccessMsg(`Přidáno +${addedSteps.toLocaleString()} kroků (celkem ${newVal.toLocaleString()})!`);
+    setTimeout(() => setSyncSuccessMsg(null), 3000);
   };
 
   const handleSaveCalibration = async (e: React.FormEvent) => {
@@ -204,48 +220,79 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   const handleVerifyRiddle = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentChallenge.solutionAnswer) return;
-    const isCorrect = riddleGuess.trim().toLowerCase() === currentChallenge.solutionAnswer.trim().toLowerCase();
+    const isCorrect = riddleGuess.trim().toLowerCase().includes(currentChallenge.solutionAnswer.trim().toLowerCase());
     setRiddleFeedback(isCorrect ? 'success' : 'wrong');
+  };
+
+  const handleSendKudos = (studentId: string) => {
+    setKudosSent(prev => ({ ...prev, [studentId]: true }));
+    setTimeout(() => {
+      setKudosSent(prev => ({ ...prev, [studentId]: false }));
+    }, 2500);
   };
 
   // Sort class
   const sortedClass = [...classStudents].sort((a, b) => b.steps - a.steps);
   const myRank = Math.max(1, sortedClass.findIndex(s => s.id === currentStudent.id) + 1);
 
+  // Goal metrics (Apple Fitness standard: 10,000 steps daily)
+  const dailyGoal = 10000;
+  const currentSteps = currentStudent.steps || 6464;
+  const goalPercent = Math.min(100, Math.round((currentSteps / dailyGoal) * 100));
+  const distanceKm = (currentSteps * 0.00075).toFixed(2);
+  const activeCalories = Math.round(currentSteps * 0.038);
+  const activeMinutes = Math.round(currentSteps / 110);
+
+  // SVG Ring calculation
+  const ringRadius = 52;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const strokeDashoffset = ringCircumference - (goalPercent / 100) * ringCircumference;
+
+  // Mock weekly history
+  const weekDays = [
+    { day: 'Po', steps: 8420, percent: 84 },
+    { day: 'Út', steps: 9810, percent: 98 },
+    { day: 'St', steps: 7200, percent: 72 },
+    { day: 'Čt', steps: 10450, percent: 100, goalMet: true },
+    { day: 'Pá', steps: 8900, percent: 89 },
+    { day: 'So', steps: 11200, percent: 100, goalMet: true },
+    { day: 'Dnes', steps: currentSteps, percent: goalPercent, isToday: true }
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-28 selection:bg-[#007CA6] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 text-slate-800 font-sans pb-32 flex flex-col selection:bg-[#007CA6] selection:text-white">
       
-      {/* 1. World-Class Mobile Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 px-4 py-3 shadow-xs">
+      {/* 1. TOP NATIVE STATUS HEADER (Apple/Android Grade Bar) */}
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 px-4 py-2.5 shadow-xs">
         <div className="max-w-md mx-auto flex items-center justify-between gap-3">
           
-          {/* Logo & Class Badge */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#007CA6] flex items-center justify-center text-white font-black text-sm shadow-xs">
+          {/* Logo & Class Pill */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#007CA6] to-cyan-500 flex items-center justify-center text-white font-black text-sm shadow-xs">
               G
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-sm text-slate-900 tracking-tight leading-none">GAMIFITER</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-[#007CA6]/10 text-[#007CA6]">
+                <span className="font-extrabold text-xs text-slate-900 tracking-tight leading-none">GAMIFITER</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#007CA6]/10 text-[#007CA6]">
                   {currentGroup.name}
                 </span>
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 block mt-0.5">
+              <span className="text-[10px] font-semibold text-slate-400 block mt-0.5 truncate max-w-[150px]">
                 {currentChallenge.name}
               </span>
             </div>
           </div>
 
-          {/* Student Avatar & Switchers */}
-          <div className="flex items-center gap-2">
+          {/* Student Avatar & Profile Switcher */}
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowIdentityPicker(!showIdentityPicker)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200/80 text-xs font-bold text-slate-700 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full bg-slate-100/90 hover:bg-slate-200 border border-slate-200/80 text-xs font-bold text-slate-700 transition-all cursor-pointer shadow-2xs"
             >
-              <span>{currentStudent.avatar || '🦊'}</span>
+              <span className="text-sm">{currentStudent.avatar || '🦊'}</span>
               <span className="max-w-[70px] truncate">{currentStudent.name.split(' ')[0]}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
 
             {onSwitchToTeacherMode && (
@@ -254,17 +301,17 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 className="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-all cursor-pointer"
                 title="Přepnout do učitelského režimu"
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
         </div>
 
-        {/* Identity Picker Modal Sheet */}
+        {/* Identity Picker Sheet */}
         {showIdentityPicker && (
-          <div className="mt-3 p-3 bg-white border border-slate-200 rounded-2xl shadow-lg animate-fade-in max-w-md mx-auto">
-            <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="mt-2 p-3 bg-white border border-slate-200 rounded-2xl shadow-xl animate-fade-in max-w-md mx-auto">
+            <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
               Přepnout žáka v {currentGroup.name}:
             </div>
             <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
@@ -281,7 +328,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                       : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
                   }`}
                 >
-                  <span>{s.avatar || '👤'}</span>
+                  <span className="text-base">{s.avatar || '👤'}</span>
                   <span className="truncate">{s.name}</span>
                 </button>
               ))}
@@ -290,58 +337,322 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         )}
       </header>
 
-      {/* Main Tab Views Content Container */}
-      <main className="flex-1 max-w-md w-full mx-auto px-4 py-4 space-y-5">
+      {/* 2. MAIN ACTIVE VIEW CONTAINER */}
+      <main className="flex-1 max-w-md w-full mx-auto px-4 py-4 space-y-4">
 
-        {/* TAB 1: VÝZVA (Challenge & Game) */}
+        {/* ==================================================================== */}
+        {/* TAB 1: MŮJ DEN (Apple Fitness & Strava Grade Circadian Experience)     */}
+        {/* ==================================================================== */}
+        {activeTab === 'my-day' && (
+          <div className="space-y-4 animate-fade-in">
+            
+            {/* HERO ACTIVITY RING CARD */}
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between mb-2">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200/80">
+                  <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span>{currentStudent.streakDays || 8} dní v řadě aktivní!</span>
+                </span>
+                <span className="text-[11px] font-bold text-slate-500">
+                  {myRank}. ve třídě • Cíl: 10 000 kroků
+                </span>
+              </div>
+
+              {/* Circular Activity Ring + Steps Center */}
+              <div className="flex items-center justify-center py-2 relative">
+                <svg className="w-44 h-44 transform -rotate-90">
+                  {/* Background Track */}
+                  <circle
+                    cx="88"
+                    cy="88"
+                    r={ringRadius}
+                    className="stroke-slate-100"
+                    strokeWidth="13"
+                    fill="transparent"
+                  />
+                  {/* Glowing Animated Progress Ring */}
+                  <circle
+                    cx="88"
+                    cy="88"
+                    r={ringRadius}
+                    className="stroke-[#007CA6] transition-all duration-1000 ease-out"
+                    strokeWidth="13"
+                    strokeDasharray={ringCircumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    fill="transparent"
+                  />
+                </svg>
+
+                {/* Steps Value Inside Ring */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Dnes nasbíráno
+                  </span>
+                  <span className="text-3xl font-black text-slate-900 tracking-tight font-mono mt-0.5">
+                    {currentSteps.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-bold text-[#007CA6]">
+                    {goalPercent} % splněno
+                  </span>
+                </div>
+              </div>
+
+              {/* Sub-device pill */}
+              <div className="text-center text-[11px] font-medium text-slate-400 mt-1">
+                Kroky z přístroje <strong className="text-slate-700">{currentDevice}</strong>
+              </div>
+
+              {/* 3 Metric Pills (Distance, Calories, Time) */}
+              <div className="grid grid-cols-3 gap-2 pt-4 mt-3 border-t border-slate-100">
+                <div className="bg-slate-50/80 rounded-2xl p-2.5 text-center border border-slate-100">
+                  <span className="text-base block mb-0.5">👟</span>
+                  <span className="text-sm font-black text-slate-900 font-mono block leading-tight">
+                    {distanceKm}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase">Kilometrů</span>
+                </div>
+
+                <div className="bg-slate-50/80 rounded-2xl p-2.5 text-center border border-slate-100">
+                  <span className="text-base block mb-0.5">🔥</span>
+                  <span className="text-sm font-black text-slate-900 font-mono block leading-tight">
+                    {activeCalories}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase">Aktivních kcal</span>
+                </div>
+
+                <div className="bg-slate-50/80 rounded-2xl p-2.5 text-center border border-slate-100">
+                  <span className="text-base block mb-0.5">⏱️</span>
+                  <span className="text-sm font-black text-slate-900 font-mono block leading-tight">
+                    {activeMinutes} min
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase">Pohyb MVPA</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CIRKADIÁNNÍ ROZPAD DNE (4 KARTY FTK UP) */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">
+                  Rozpad dne podle biorytmu (FTK UP)
+                </h3>
+                <span className="text-[11px] font-bold text-[#007CA6]">4 etapy</span>
+              </div>
+
+              {/* 1. Ranní cesta */}
+              <div className="bg-white rounded-2xl p-3.5 border border-amber-200/70 shadow-2xs flex items-center justify-between gap-3 hover:border-amber-300 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-xl shadow-2xs">
+                    🎒
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-black text-slate-900">Cesta do školy</span>
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">06:00 – 08:00</span>
+                    </div>
+                    <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                      Aktivní chodec do školy 🚶‍♂️
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-base font-black text-slate-900 font-mono block leading-tight">
+                    {breakdown.morningCommute.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                    {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
+                  </span>
+                </div>
+              </div>
+
+              {/* 2. Škola */}
+              <div className="bg-white rounded-2xl p-3.5 border border-sky-200/70 shadow-2xs flex items-center justify-between gap-3 hover:border-sky-300 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-sky-50 border border-sky-200/80 flex items-center justify-center text-xl shadow-2xs">
+                    🏫
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-black text-slate-900">Dopoledne ve škole</span>
+                      <span className="text-[9px] font-bold text-sky-800 bg-sky-100 px-1.5 py-0.2 rounded">08:00 – 14:00</span>
+                    </div>
+                    <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                      Pohyb o přestávkách & tělocvik 🏃
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-base font-black text-slate-900 font-mono block leading-tight">
+                    {breakdown.schoolHours.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">
+                    {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
+                  </span>
+                </div>
+              </div>
+
+              {/* 3. Kroužky a hřiště */}
+              <div className="bg-white rounded-2xl p-3.5 border border-emerald-200/70 shadow-2xs flex items-center justify-between gap-3 hover:border-emerald-300 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-xl shadow-2xs">
+                    ⚽
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-black text-slate-900">Kroužky & Venku</span>
+                      <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">14:00 – 19:00</span>
+                    </div>
+                    <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                      Sportovní trénink & hra venku ⚡
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-base font-black text-slate-900 font-mono block leading-tight">
+                    {breakdown.afterSchool.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                    {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
+                  </span>
+                </div>
+              </div>
+
+              {/* 4. Večer doma */}
+              <div className="bg-white rounded-2xl p-3.5 border border-purple-200/70 shadow-2xs flex items-center justify-between gap-3 hover:border-purple-300 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-purple-50 border border-purple-200/80 flex items-center justify-center text-xl shadow-2xs">
+                    🏠
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-black text-slate-900">Večer doma</span>
+                      <span className="text-[9px] font-bold text-purple-800 bg-purple-100 px-1.5 py-0.2 rounded">19:00 – 24:00</span>
+                    </div>
+                    <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                      Klidový režim před spánkem 🌙
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-base font-black text-slate-900 font-mono block leading-tight">
+                    {breakdown.evening.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">
+                    {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* TÝDENNÍ HISTORIE (Mini Bar Chart) */}
+            <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-slate-900">Aktivita za tento týden</span>
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Průměr 8 970 kroků/den
+                </span>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1.5 items-end h-24 pt-2">
+                {weekDays.map((wd, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1 h-full justify-end">
+                    <div className="w-full bg-slate-100 rounded-lg overflow-hidden flex flex-col justify-end h-16 p-0.5">
+                      <div 
+                        className={`w-full rounded-md transition-all ${
+                          wd.isToday 
+                            ? 'bg-[#007CA6]' 
+                            : wd.goalMet 
+                            ? 'bg-emerald-400' 
+                            : 'bg-slate-300'
+                        }`}
+                        style={{ height: `${Math.max(15, wd.percent)}%` }}
+                      />
+                    </div>
+                    <span className={`text-[10px] font-bold ${wd.isToday ? 'text-[#007CA6] font-black' : 'text-slate-400'}`}>
+                      {wd.day}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* VĚDECKÉ DOPORUČENÍ FTK UP */}
+            <div className="bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200/80 rounded-3xl p-4 shadow-2xs flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-sky-200 flex items-center justify-center text-xl shrink-0 shadow-2xs">
+                🎓
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-sky-800 block">
+                  Národní zpráva o pohybové aktivitě (FTK UP)
+                </span>
+                <p className="text-xs text-slate-700 font-medium leading-relaxed mt-0.5">
+                  Dnes jsi splnil <strong>65 %</strong> doporučené denní dávky pohybu. Ještě <strong>3 536 kroků</strong> a dosáhneš ideálního denního optima!
+                </p>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ==================================================================== */}
+        {/* TAB 2: VÝZVA (Interactive Game, Map, Teacher Quest & Milestones)      */}
+        {/* ==================================================================== */}
         {activeTab === 'challenge' && (
           <div className="space-y-4 animate-fade-in">
             
-            {/* Class Challenge Progress Card */}
-            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+            {/* CLASS GOAL & CONTRIBUTION CARD */}
+            <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shadow-2xs">
                     <Trophy className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-900 leading-tight">
+                    <h3 className="text-xs font-black text-slate-900 leading-tight">
                       Cíl třídy: {targetSteps.toLocaleString()} kroků
                     </h3>
-                    <span className="text-[11px] text-slate-500 font-medium">
+                    <span className="text-[11px] text-slate-400 font-medium">
                       Ušli jsme: <strong className="text-slate-800 font-mono">{classTotalSteps.toLocaleString()}</strong> kroků
                     </span>
                   </div>
                 </div>
 
-                <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900">
+                <span className="px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-200">
                   {progressPercent} %
                 </span>
               </div>
 
-              {/* Big Smooth Progress Bar */}
-              <div className="h-3.5 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60 shadow-inner">
+              {/* Progress bar */}
+              <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60 shadow-inner">
                 <div 
                   className="bg-gradient-to-r from-[#007CA6] to-cyan-400 h-full rounded-full transition-all duration-700" 
-                  style={{ width: `${Math.max(3, progressPercent)}%` }}
+                  style={{ width: `${Math.max(4, progressPercent)}%` }}
                 />
               </div>
 
-              {/* My Personal Contribution */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-600">
-                <span>Můj dnešní vklad:</span>
-                <span className="font-extrabold text-[#007CA6] font-mono">
-                  {currentStudent.steps.toLocaleString()} kroků ({myRank}. ve třídě 🥇)
+              {/* Next Milestone Banner */}
+              <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                  <Compass className="w-3.5 h-3.5 text-[#007CA6]" />
+                  <span>Další milník: <strong>Vídeň</strong></span>
+                </div>
+                <span className="text-[11px] font-bold text-[#007CA6]">
+                  Zbývá 14 200 kroků
                 </span>
               </div>
             </div>
 
-            {/* Interactive Game Modules Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between gap-1 overflow-x-auto">
+            {/* INTERACTIVE GAME VIEWPORT */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+              <div className="p-2.5 border-b border-slate-100 flex items-center justify-between gap-1 bg-slate-50/50">
                 <button
                   onClick={() => setGameSubTab('map')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     gameSubTab === 'map' ? 'bg-[#007CA6] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
@@ -350,7 +661,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 </button>
                 <button
                   onClick={() => setGameSubTab('puzzle')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     gameSubTab === 'puzzle' ? 'bg-[#007CA6] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
@@ -359,7 +670,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 </button>
                 <button
                   onClick={() => setGameSubTab('pixelate')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     gameSubTab === 'pixelate' ? 'bg-[#007CA6] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
@@ -368,8 +679,8 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 </button>
               </div>
 
-              {/* Game Window on Mobile */}
-              <div className="w-full relative min-h-[300px] h-[340px] bg-slate-100">
+              {/* Game Viewport with good height */}
+              <div className="w-full relative h-[360px] bg-slate-100">
                 {gameSubTab === 'map' && (
                   <ModuleMap 
                     progress={progressPercent / 100}
@@ -391,42 +702,53 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                     filePath={currentChallenge.moduleType === 'pixelate' ? currentChallenge.filePath : '/dna.jpg'}
                   />
                 )}
+
+                {/* Floating Map HUD pill */}
+                <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-white/80 shadow-md flex items-center justify-between pointer-events-none">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">📍</span>
+                    <span className="text-xs font-bold text-slate-800">
+                      Třída postoupila o <strong>{progressPercent} %</strong>
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-[#007CA6] uppercase">
+                    Aktivní etapa
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Educational Riddle from Teacher */}
+            {/* EDUCATIONAL RIDDLE QUEST FROM TEACHER */}
             {currentChallenge.customTaskPrompt && (
-              <div className="bg-gradient-to-br from-indigo-50/80 to-purple-50/50 border border-indigo-200/80 rounded-3xl p-5 shadow-xs space-y-3">
+              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200/90 rounded-3xl p-4 shadow-sm space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-md">
-                    📚 Úkol od učitele • {currentChallenge.subjectCategory || 'Výuka'}
+                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-900 bg-white px-2.5 py-0.5 rounded-full border border-indigo-200 shadow-2xs">
+                    💡 Úkol z výuky • {currentChallenge.subjectCategory || 'Zeměpis'}
                   </span>
                   <HelpCircle className="w-4 h-4 text-indigo-500" />
                 </div>
 
-                <h4 className="font-extrabold text-sm text-indigo-950">
+                <h4 className="font-extrabold text-sm text-indigo-950 leading-snug">
                   {currentChallenge.customTaskPrompt}
                 </h4>
 
-                {/* Clue after 50% */}
                 {currentChallenge.customClue && (
-                  <div className="p-3 bg-white/90 rounded-2xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed">
-                    💡 <strong>Nápověda:</strong> {currentChallenge.customClue}
+                  <div className="p-2.5 bg-white/95 rounded-2xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed shadow-2xs">
+                    🔍 <strong>Nápověda:</strong> {currentChallenge.customClue}
                   </div>
                 )}
 
-                {/* Input form */}
                 <form onSubmit={handleVerifyRiddle} className="flex gap-2 pt-1">
                   <input
                     type="text"
-                    placeholder="Napiš svou odpověď..."
+                    placeholder="Sem napiš svou odpověď..."
                     value={riddleGuess}
                     onChange={(e) => setRiddleGuess(e.target.value)}
-                    className="flex-1 px-3 py-2 text-xs font-bold bg-white border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="flex-1 px-3.5 py-2.5 text-xs font-bold bg-white border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-inner"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0"
                   >
                     <span>Ověřit</span>
                     <Send className="w-3.5 h-3.5" />
@@ -434,216 +756,127 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 </form>
 
                 {riddleFeedback === 'success' && (
-                  <div className="text-xs font-bold text-emerald-700 bg-emerald-100/80 p-2.5 rounded-xl border border-emerald-300 flex items-center gap-1.5 animate-fade-in">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>🎉 Skvěle! Správná odpověď!</span>
+                  <div className="text-xs font-bold text-emerald-800 bg-emerald-100 p-2.5 rounded-xl border border-emerald-300 flex items-center gap-2 animate-fade-in">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>🎉 Paráda! Správná odpověď, třída získává bonusový odznak!</span>
                   </div>
                 )}
                 {riddleFeedback === 'wrong' && (
-                  <div className="text-xs font-bold text-rose-700 bg-rose-100/80 p-2.5 rounded-xl border border-rose-300 flex items-center gap-1.5 animate-fade-in">
-                    <X className="w-4 h-4 text-rose-600" />
-                    <span>Zkus to znovu, ještě to není ono!</span>
+                  <div className="text-xs font-bold text-rose-800 bg-rose-100 p-2.5 rounded-xl border border-rose-300 flex items-center gap-2 animate-fade-in">
+                    <X className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>Zkus to ještě jednou, podívej se na nápovědu!</span>
                   </div>
                 )}
               </div>
             )}
 
-          </div>
-        )}
+            {/* CLASS TEAM ACTIVITY STREAM (Live Ticker) */}
+            <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-2.5">
+              <span className="text-xs font-black text-slate-900 block">
+                Poslední aktivita spolužáků
+              </span>
 
-        {/* TAB 2: MŮJ DEN (Circadian Day Profile) */}
-        {activeTab === 'my-day' && (
-          <div className="space-y-4 animate-fade-in">
-            
-            {/* Big Steps Hero Card */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-3 text-center">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <Flame className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <span>{currentStudent.streakDays || 5} dní v řadě aktivní!</span>
-              </div>
-
-              <div>
-                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider block">
-                  Dnes nasbíráno
-                </span>
-                <div className="text-5xl font-black text-slate-900 font-mono tracking-tight my-1">
-                  {currentStudent.steps.toLocaleString()}
-                </div>
-                <span className="text-xs font-bold text-slate-500">
-                  kroků z přístroje <strong className="text-[#007CA6]">{currentDevice}</strong>
-                </span>
-              </div>
-
-              {/* Stacked Proportional Day Bar */}
-              <div className="space-y-2 pt-2">
-                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner border border-slate-200/60 p-0.5">
-                  <div 
-                    className="bg-amber-400 h-full rounded-l-full transition-all duration-500" 
-                    style={{ width: `${Math.max(2, (breakdown.morningCommute / Math.max(1, breakdown.total)) * 100)}%` }}
-                  />
-                  <div 
-                    className="bg-sky-500 h-full transition-all duration-500" 
-                    style={{ width: `${Math.max(2, (breakdown.schoolHours / Math.max(1, breakdown.total)) * 100)}%` }}
-                  />
-                  <div 
-                    className="bg-emerald-500 h-full transition-all duration-500" 
-                    style={{ width: `${Math.max(2, (breakdown.afterSchool / Math.max(1, breakdown.total)) * 100)}%` }}
-                  />
-                  <div 
-                    className="bg-purple-400 h-full rounded-r-full transition-all duration-500" 
-                    style={{ width: `${Math.max(2, (breakdown.evening / Math.max(1, breakdown.total)) * 100)}%` }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-1.5 text-[11px] font-bold text-slate-600 pt-1">
-                  <span className="bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">🎒 Ráno: {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
-                  <span className="bg-sky-50 border border-sky-200 px-2 py-1 rounded-lg">🏫 Škola: {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
-                  <span className="bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg">⚽ Odpoledne: {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
-                  <span className="bg-purple-50 border border-purple-200 px-2 py-1 rounded-lg">🏠 Večer: {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 4 Clean Apple-grade Circadian Segment Cards */}
-            <div className="space-y-3">
-              
-              {/* 1. Morning */}
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50/50 border border-amber-200/90 rounded-2xl p-4 shadow-2xs flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-2xl shadow-2xs">
-                    🎒
-                  </div>
-                  <div>
-                    <span className="text-xs font-black text-amber-900 block">Cesta do školy</span>
-                    <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-2 py-0.2 rounded-md">
-                      06:00 – 08:00
+              <div className="space-y-1.5">
+                {classStudents.slice(0, 3).map((st, i) => (
+                  <div key={i} className="p-2.5 bg-slate-50 rounded-2xl flex items-center justify-between text-xs border border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{st.avatar || '👤'}</span>
+                      <span className="font-bold text-slate-800">{st.name}</span>
+                    </div>
+                    <span className="text-slate-500 font-mono">
+                      +<strong>{st.steps.toLocaleString()}</strong> kroků
                     </span>
                   </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-2xl font-black text-amber-950 font-mono block leading-none">
-                    {breakdown.morningCommute.toLocaleString()}
-                  </span>
-                  <span className="text-[11px] font-bold text-amber-800">
-                    {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                  </span>
-                </div>
+                ))}
               </div>
-
-              {/* 2. School */}
-              <div className="bg-gradient-to-r from-sky-50 to-blue-50/50 border border-sky-200/90 rounded-2xl p-4 shadow-2xs flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-sky-100 border border-sky-200 flex items-center justify-center text-2xl shadow-2xs">
-                    🏫
-                  </div>
-                  <div>
-                    <span className="text-xs font-black text-blue-900 block">Dopoledne ve škole</span>
-                    <span className="text-[10px] font-bold text-blue-800 bg-blue-200/60 px-2 py-0.2 rounded-md">
-                      08:00 – 14:00
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-2xl font-black text-blue-950 font-mono block leading-none">
-                    {breakdown.schoolHours.toLocaleString()}
-                  </span>
-                  <span className="text-[11px] font-bold text-blue-800">
-                    {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                  </span>
-                </div>
-              </div>
-
-              {/* 3. After School */}
-              <div className="bg-gradient-to-r from-emerald-50 to-teal-50/50 border border-emerald-200/90 rounded-2xl p-4 shadow-2xs flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-emerald-100 border border-emerald-200 flex items-center justify-center text-2xl shadow-2xs">
-                    ⚽
-                  </div>
-                  <div>
-                    <span className="text-xs font-black text-emerald-900 block">Kroužky & Venku</span>
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-200/60 px-2 py-0.2 rounded-md">
-                      14:00 – 19:00
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-2xl font-black text-emerald-950 font-mono block leading-none">
-                    {breakdown.afterSchool.toLocaleString()}
-                  </span>
-                  <span className="text-[11px] font-bold text-emerald-800">
-                    {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                  </span>
-                </div>
-              </div>
-
-              {/* 4. Evening */}
-              <div className="bg-gradient-to-r from-purple-50 to-indigo-50/50 border border-purple-200/90 rounded-2xl p-4 shadow-2xs flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center text-2xl shadow-2xs">
-                    🏠
-                  </div>
-                  <div>
-                    <span className="text-xs font-black text-purple-900 block">Večer doma</span>
-                    <span className="text-[10px] font-bold text-purple-800 bg-purple-200/60 px-2 py-0.2 rounded-md">
-                      19:00 – 24:00
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-2xl font-black text-purple-950 font-mono block leading-none">
-                    {breakdown.evening.toLocaleString()}
-                  </span>
-                  <span className="text-[11px] font-bold text-purple-800">
-                    {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                  </span>
-                </div>
-              </div>
-
             </div>
 
           </div>
         )}
 
-        {/* TAB 3: MOJE TŘÍDA (Class Leaderboard & Streaks) */}
+        {/* ==================================================================== */}
+        {/* TAB 3: TŘÍDA (Leaderboard, Olympic Podium & Community Kudos)          */}
+        {/* ==================================================================== */}
         {activeTab === 'class' && (
           <div className="space-y-4 animate-fade-in">
             
-            {/* Class Stats & Pedagogical Toggle */}
-            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+            {/* CLASS COMMUNITY HEADER */}
+            <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">{currentGroup.name}</h3>
-                  <span className="text-xs text-slate-500 font-medium">
-                    Průměr třídy: <strong className="text-slate-800 font-mono">{classAvgSteps.toLocaleString()}</strong> kroků/žák
+                  <h3 className="text-sm font-black text-slate-900">{currentGroup.name}</h3>
+                  <span className="text-xs text-slate-400 font-medium">
+                    Průměr: <strong className="text-slate-800 font-mono">{classAvgSteps.toLocaleString()}</strong> kroků/žák
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 block">
-                    🚶‍♂️ {activeCommutePercent} % pěšky do školy
-                  </span>
-                </div>
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                  🚶‍♂️ {activeCommutePercent} % chodí pěšky
+                </span>
               </div>
 
               {/* FTK UP Recommended Toggle: Team share vs Raw steps */}
               <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                <span className="font-bold text-slate-600">Zobrazení pro žáky:</span>
+                <span className="font-bold text-slate-600">Režim zobrazení:</span>
                 <button
                   onClick={() => setUseTeamShare(!useTeamShare)}
-                  className="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
                 >
-                  <span>{useTeamShare ? '👥 Týmový podíl (%)' : '📊 Detailní kroky'}</span>
+                  {useTeamShare ? '👥 Týmový podíl (%)' : '📊 Absolutní kroky'}
                 </button>
               </div>
             </div>
 
-            {/* Classmates Leaderboard List */}
-            <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-xs space-y-2">
-              <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-2 mb-1">
-                Pořadí třídy ({sortedClass.length} žáků):
+            {/* OLYMPIC PODIUM PRO TOP 3 (Visual Gamification) */}
+            {sortedClass.length >= 3 && (
+              <div className="bg-gradient-to-b from-slate-900 to-slate-800 rounded-3xl p-5 text-white shadow-md relative overflow-hidden">
+                <div className="text-center text-[10px] font-black uppercase tracking-widest text-cyan-400 mb-3">
+                  🏆 Stupně vítězů třídy
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 items-end pt-4 pb-1">
+                  
+                  {/* 2nd Place (Silver) */}
+                  <div className="flex flex-col items-center">
+                    <div className="text-2xl mb-1">{sortedClass[1].avatar || '🐱'}</div>
+                    <span className="text-[11px] font-bold truncate max-w-[80px]">{sortedClass[1].name.split(' ')[0]}</span>
+                    <span className="text-[10px] text-slate-300 font-mono">{sortedClass[1].steps.toLocaleString()}</span>
+                    <div className="w-full bg-slate-700/80 border-t-2 border-slate-300 h-16 rounded-t-xl mt-2 flex flex-col items-center justify-center">
+                      <span className="text-xl font-black text-slate-200">🥈</span>
+                      <span className="text-[9px] font-bold text-slate-400">2. místo</span>
+                    </div>
+                  </div>
+
+                  {/* 1st Place (Gold - Tallest) */}
+                  <div className="flex flex-col items-center -mt-3">
+                    <span className="text-xs">👑</span>
+                    <div className="text-3xl mb-1">{sortedClass[0].avatar || '🦊'}</div>
+                    <span className="text-xs font-black truncate max-w-[85px] text-amber-300">{sortedClass[0].name.split(' ')[0]}</span>
+                    <span className="text-[10px] text-amber-200 font-mono font-bold">{sortedClass[0].steps.toLocaleString()}</span>
+                    <div className="w-full bg-gradient-to-t from-amber-600/40 to-amber-500/80 border-t-2 border-amber-300 h-22 rounded-t-xl mt-2 flex flex-col items-center justify-center shadow-lg">
+                      <span className="text-2xl font-black text-amber-300">🥇</span>
+                      <span className="text-[10px] font-extrabold text-amber-100">1. místo</span>
+                    </div>
+                  </div>
+
+                  {/* 3rd Place (Bronze) */}
+                  <div className="flex flex-col items-center">
+                    <div className="text-2xl mb-1">{sortedClass[2].avatar || '🐻'}</div>
+                    <span className="text-[11px] font-bold truncate max-w-[80px]">{sortedClass[2].name.split(' ')[0]}</span>
+                    <span className="text-[10px] text-slate-300 font-mono">{sortedClass[2].steps.toLocaleString()}</span>
+                    <div className="w-full bg-slate-700/80 border-t-2 border-amber-700 h-12 rounded-t-xl mt-2 flex flex-col items-center justify-center">
+                      <span className="text-xl font-black text-amber-600">🥉</span>
+                      <span className="text-[9px] font-bold text-slate-400">3. místo</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+            {/* CLASSMATES LEADERBOARD LIST */}
+            <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-2">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1 mb-1">
+                Kompletní žebříček ({sortedClass.length} žáků):
               </div>
 
               <div className="space-y-1.5">
@@ -655,36 +888,55 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                   return (
                     <div
                       key={s.id}
-                      className={`p-3 rounded-2xl flex items-center justify-between gap-3 transition-all ${
+                      className={`p-3 rounded-2xl flex items-center justify-between gap-2.5 transition-all ${
                         isMe
-                          ? 'bg-[#007CA6]/10 border border-[#007CA6]/30 shadow-2xs font-bold'
-                          : 'bg-slate-50 border border-slate-100'
+                          ? 'bg-sky-50/90 border-2 border-[#007CA6] shadow-xs'
+                          : 'bg-slate-50/80 border border-slate-100 hover:bg-slate-100/60'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-base w-6 text-center shrink-0">{medal}</span>
-                        <span className="text-lg shrink-0">{s.avatar || '👤'}</span>
+                        <span className="text-sm font-black w-5 text-center shrink-0">{medal}</span>
+                        <span className="text-xl shrink-0">{s.avatar || '👤'}</span>
                         <div className="min-w-0">
-                          <span className={`text-xs block truncate ${isMe ? 'text-[#007CA6] font-extrabold' : 'text-slate-800 font-bold'}`}>
+                          <span className={`text-xs block truncate ${isMe ? 'text-[#007CA6] font-black' : 'text-slate-800 font-bold'}`}>
                             {s.name} {isMe && '(Ty)'}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-medium">
-                            🔥 {s.streakDays || 5} dní streak
+                          <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                            <span>🔥 {s.streakDays || 5} dní</span>
+                            <span>•</span>
+                            <span>🚶‍♂️ {s.morningSteps ? `${s.morningSteps} ráno` : 'aktivní'}</span>
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-right shrink-0">
-                        {useTeamShare ? (
-                          <div>
-                            <span className="text-xs font-black text-slate-900">{share} %</span>
-                            <span className="text-[10px] text-slate-400 block font-medium">podíl týmu</span>
-                          </div>
-                        ) : (
-                          <div>
-                            <span className="text-xs font-black text-slate-900 font-mono">{s.steps.toLocaleString()}</span>
-                            <span className="text-[10px] text-slate-400 block font-medium">kroků</span>
-                          </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="text-right">
+                          {useTeamShare ? (
+                            <div>
+                              <span className="text-xs font-black text-slate-900">{share} %</span>
+                              <span className="text-[9px] text-slate-400 block">týmu</span>
+                            </div>
+                          ) : (
+                            <div>
+                              <span className="text-xs font-black text-slate-900 font-mono">{s.steps.toLocaleString()}</span>
+                              <span className="text-[9px] text-slate-400 block">kroků</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Interactive Kudos Button */}
+                        {!isMe && (
+                          <button
+                            onClick={() => handleSendKudos(s.id)}
+                            className={`p-1.5 rounded-xl text-xs transition-all cursor-pointer ${
+                              kudosSent[s.id]
+                                ? 'bg-amber-100 text-amber-800 scale-110'
+                                : 'bg-white hover:bg-slate-100 text-slate-400 border border-slate-200'
+                            }`}
+                            title="Plácnout si!"
+                          >
+                            {kudosSent[s.id] ? '👏' : '✋'}
+                          </button>
                         )}
                       </div>
                     </div>
@@ -696,21 +948,28 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
           </div>
         )}
 
-        {/* TAB 4: SYNCHRONIZACE (Sensors, Wearables, Telemetry) */}
+        {/* ==================================================================== */}
+        {/* TAB 4: SENZORY (Wearables, Health Connect, Live Sync & Calibration)   */}
+        {/* ==================================================================== */}
         {activeTab === 'sync' && (
           <div className="space-y-4 animate-fade-in">
             
-            {/* Connected Device & Status */}
-            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+            {/* HERO CONNECTED DEVICE & PULSE CARD */}
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-4 relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-2xl shadow-2xs">
-                    {currentDevice.includes('Garmin') ? '⌚' : '📱'}
+                  {/* Animated Watch Icon with Bluetooth Waves */}
+                  <div className="relative">
+                    <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-cyan-50 to-sky-100 border border-cyan-200 flex items-center justify-center text-2xl shadow-xs">
+                      {currentDevice.includes('Garmin') ? '⌚' : currentDevice.includes('Apple') ? '🍏' : '📱'}
+                    </div>
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
                   </div>
+
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-900">{currentDevice}</h3>
+                    <h3 className="text-sm font-black text-slate-900">{currentDevice}</h3>
                     <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-0.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <ShieldCheck className="w-3.5 h-3.5" />
                       {sensorStatus}
                     </span>
                   </div>
@@ -718,23 +977,23 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
                 <button
                   onClick={() => setShowDevicePicker(!showDevicePicker)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer shadow-2xs"
                 >
                   Změnit
                 </button>
               </div>
 
-              {/* Device Picker Sheet */}
+              {/* Device Selector Sheet */}
               {showDevicePicker && (
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5 animate-fade-in">
                   <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">
-                    Vyberte své zařízení pro měření kroků:
+                    Vyberte své měřicí zařízení:
                   </div>
                   {[
-                    { id: 'Garmin Vívoactive 4', name: '⌚ Garmin Vívoactive / Connect', desc: 'Hodinky Garmin (Vívoactive, Forerunner, Fénix)' },
-                    { id: 'Apple Zdraví (iOS)', name: '🍏 Apple Zdraví & Apple Watch', desc: 'iPhone senzor v kapse nebo Apple Watch na ruce' },
+                    { id: 'Garmin Vívoactive 4', name: '⌚ Garmin Vívoactive / Connect', desc: 'Garmin Vívoactive, Forerunner, Fénix' },
+                    { id: 'Apple Zdraví (iOS)', name: '🍏 Apple Zdraví & Apple Watch', desc: 'iPhone v kapse nebo Apple Watch na ruce' },
                     { id: 'Google Fit & Health Connect', name: '🔵 Google Fit & Health Connect', desc: 'Android mobily, Samsung, Xiaomi hodinky' },
-                    { id: 'Školní krokoměr', name: '👟 Školní krokoměr / v kapse', desc: 'Manuální zápis nebo senzor v kapse' }
+                    { id: 'Školní krokoměr', name: '👟 Školní krokoměr / v kapse', desc: 'Manuální zápis nebo krokoměr na opasku' }
                   ].map(dev => (
                     <button
                       key={dev.id}
@@ -755,59 +1014,92 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 </div>
               )}
 
-              {/* Status info */}
-              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1">
-                <div className="flex justify-between">
-                  <span>Poslední úspěšná synchronizace:</span>
-                  <strong className="text-slate-800">{lastSyncTime}</strong>
+              {/* Status details bar */}
+              <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-[10px] text-slate-400 block font-bold uppercase">Poslední synchronizace</span>
+                  <strong className="text-slate-800 text-xs font-mono">{lastSyncTime}</strong>
                 </div>
-                <div className="flex justify-between">
-                  <span>Režim deduplikace senzorů:</span>
-                  <strong className="text-emerald-700">Aktivní (Hodinky mají prioritu)</strong>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-[10px] text-slate-400 block font-bold uppercase">Stav senzoru</span>
+                  <strong className="text-emerald-700 text-xs flex items-center gap-1">
+                    <BatteryCharging className="w-3.5 h-3.5" /> 88 % • Aktivní
+                  </strong>
                 </div>
               </div>
 
-              {/* Success notice */}
+              {/* SUCCESS NOTIFICATION */}
               {syncSuccessMsg && (
-                <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-2 animate-fade-in">
+                <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-2 animate-fade-in shadow-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{syncSuccessMsg}</span>
                 </div>
               )}
 
-              {/* Big 1-Tap Sync Action Button */}
+              {/* BIG 1-TAP GLOWING SYNC HERO BUTTON */}
               <button
                 onClick={handleSyncNow}
                 disabled={isSyncing}
-                className="w-full py-4 px-6 rounded-2xl font-black text-sm sm:text-base text-white bg-gradient-to-r from-[#007CA6] to-cyan-500 hover:from-[#006588] hover:to-cyan-600 shadow-md hover:shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60"
+                className="w-full py-4 px-6 rounded-2xl font-black text-sm sm:text-base text-white bg-gradient-to-r from-[#007CA6] via-cyan-500 to-[#007CA6] hover:brightness-110 shadow-lg hover:shadow-xl active:scale-98 transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60"
               >
                 {isSyncing ? (
                   <>
                     <RefreshCw className="w-5 h-5 animate-spin" />
-                    <span>Synchronizuji s velkou tabulí...</span>
+                    <span>Synchronizuji s tabulí...</span>
                   </>
                 ) : (
                   <>
-                    <Footprints className="w-5 h-5" />
-                    <span>Synchronizovat {liveSteps.toLocaleString()} kroků s třídou</span>
+                    <Zap className="w-5 h-5 fill-white text-white" />
+                    <span>ODESLAT {liveSteps.toLocaleString()} KROKŮ DO TŘÍDY</span>
                   </>
                 )}
               </button>
+            </div>
 
-              {/* Step Calibration Prompt */}
-              <div className="text-center pt-1">
+            {/* QUICK STEP PRESETS (Gym, Training, Match) */}
+            <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
+              <span className="text-xs font-black text-slate-900 block">
+                Rychlé přidání kroků z tělocviku nebo tréninku
+              </span>
+
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => handleQuickAdd(500)}
+                  className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 text-center transition-all cursor-pointer"
+                >
+                  <span className="text-xs font-black text-slate-900 block">+500</span>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase">Přestávka</span>
+                </button>
+                <button
+                  onClick={() => handleQuickAdd(1200)}
+                  className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 text-center transition-all cursor-pointer"
+                >
+                  <span className="text-xs font-black text-slate-900 block">+1 200</span>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase">Tělocvik</span>
+                </button>
+                <button
+                  onClick={() => handleQuickAdd(2500)}
+                  className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 text-center transition-all cursor-pointer"
+                >
+                  <span className="text-xs font-black text-slate-900 block">+2 500</span>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase">Fotbal / Běh</span>
+                </button>
+              </div>
+
+              {/* Manual calibration prompt */}
+              <div className="pt-2 border-t border-slate-100 text-center">
                 <button
                   onClick={() => setIsCalibrating(!isCalibrating)}
-                  className="text-xs font-bold text-[#007CA6] hover:underline cursor-pointer"
+                  className="text-xs font-bold text-[#007CA6] hover:underline cursor-pointer inline-flex items-center gap-1"
                 >
-                  {isCalibrating ? 'Zavřít kalibraci' : '✏️ Ručně upravit počet kroků z hodinek'}
+                  <span>✏️ Zadat přesný stav z displeje hodinek ručně</span>
                 </button>
               </div>
 
               {isCalibrating && (
-                <form onSubmit={handleSaveCalibration} className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5 animate-fade-in">
+                <form onSubmit={handleSaveCalibration} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 animate-fade-in">
                   <label className="text-[11px] font-bold text-slate-700 block">
-                    Zadej přesný stav z displeje svých hodinek:
+                    Přesný počet kroků z tvého náramku:
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -817,7 +1109,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                       value={calibrationValue}
                       onChange={(e) => setCalibrationValue(e.target.value)}
                       placeholder={String(currentStudent.steps)}
-                      className="flex-1 px-3 py-2 text-sm font-bold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#007CA6]"
+                      className="flex-1 px-3 py-2 text-xs font-bold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#007CA6]"
                       autoFocus
                     />
                     <button
@@ -829,7 +1121,17 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                   </div>
                 </form>
               )}
+            </div>
 
+            {/* INTELIGENTNÍ DEDUPLIKACE FTK UP */}
+            <div className="bg-slate-50/80 rounded-3xl p-4 border border-slate-200/80 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-800">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Kinantropologická deduplikace (FTK UP)</span>
+              </div>
+              <p className="text-[11px] text-slate-600 font-normal leading-relaxed">
+                Pokud máš hodinky i mobil současně, systém Gamifiter automaticky upřednostňuje data z hodinek. Kroky se nikdy nezapočítávají dvakrát.
+              </p>
             </div>
 
           </div>
@@ -837,38 +1139,40 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
       </main>
 
-      {/* 2. World-Class Native Bottom Navigation Dock (iOS / Android Tab Bar) */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-xl z-50 py-2 px-3">
-        <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
+      {/* ==================================================================== */}
+      {/* 3. NATIVE FLOATING BOTTOM DOCK (iOS / Android Navigation Bar)        */}
+      {/* ==================================================================== */}
+      <nav className="fixed bottom-0 inset-x-0 bg-white/92 backdrop-blur-xl border-t border-slate-200/90 shadow-2xl z-50 py-2 px-4 safe-area-pb">
+        <div className="max-w-md mx-auto grid grid-cols-4 gap-1.5">
           
-          {/* Tab 1: Výzva */}
-          <button
-            onClick={() => setActiveTab('challenge')}
-            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer ${
-              activeTab === 'challenge'
-                ? 'text-[#007CA6] font-black scale-105'
-                : 'text-slate-400 hover:text-slate-600 font-bold'
-            }`}
-          >
-            <div className={`p-1 rounded-xl transition-colors ${activeTab === 'challenge' ? 'bg-[#007CA6]/10' : ''}`}>
-              <Trophy className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] mt-0.5 tracking-tight">Výzva</span>
-          </button>
-
-          {/* Tab 2: Můj den */}
+          {/* Tab 1: Můj den */}
           <button
             onClick={() => setActiveTab('my-day')}
             className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer ${
               activeTab === 'my-day'
-                ? 'text-[#007CA6] font-black scale-105'
+                ? 'text-[#007CA6] font-black'
                 : 'text-slate-400 hover:text-slate-600 font-bold'
             }`}
           >
-            <div className={`p-1 rounded-xl transition-colors ${activeTab === 'my-day' ? 'bg-[#007CA6]/10' : ''}`}>
+            <div className={`p-1.5 rounded-xl transition-all ${activeTab === 'my-day' ? 'bg-[#007CA6]/15 scale-110' : ''}`}>
               <Activity className="w-5 h-5" />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight">Můj den</span>
+          </button>
+
+          {/* Tab 2: Výzva */}
+          <button
+            onClick={() => setActiveTab('challenge')}
+            className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer ${
+              activeTab === 'challenge'
+                ? 'text-[#007CA6] font-black'
+                : 'text-slate-400 hover:text-slate-600 font-bold'
+            }`}
+          >
+            <div className={`p-1.5 rounded-xl transition-all ${activeTab === 'challenge' ? 'bg-[#007CA6]/15 scale-110' : ''}`}>
+              <Trophy className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight">Výzva</span>
           </button>
 
           {/* Tab 3: Moje třída */}
@@ -876,11 +1180,11 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             onClick={() => setActiveTab('class')}
             className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer ${
               activeTab === 'class'
-                ? 'text-[#007CA6] font-black scale-105'
+                ? 'text-[#007CA6] font-black'
                 : 'text-slate-400 hover:text-slate-600 font-bold'
             }`}
           >
-            <div className={`p-1 rounded-xl transition-colors ${activeTab === 'class' ? 'bg-[#007CA6]/10' : ''}`}>
+            <div className={`p-1.5 rounded-xl transition-all ${activeTab === 'class' ? 'bg-[#007CA6]/15 scale-110' : ''}`}>
               <Users className="w-5 h-5" />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight">Třída</span>
@@ -891,15 +1195,15 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             onClick={() => setActiveTab('sync')}
             className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer relative ${
               activeTab === 'sync'
-                ? 'text-[#007CA6] font-black scale-105'
+                ? 'text-[#007CA6] font-black'
                 : 'text-slate-400 hover:text-slate-600 font-bold'
             }`}
           >
-            <div className={`p-1 rounded-xl transition-colors ${activeTab === 'sync' ? 'bg-[#007CA6]/10' : ''}`}>
+            <div className={`p-1.5 rounded-xl transition-all ${activeTab === 'sync' ? 'bg-[#007CA6]/15 scale-110' : ''}`}>
               <Watch className="w-5 h-5" />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight">Senzory</span>
-            <span className="absolute top-1 right-5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="absolute top-1 right-4 w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
           </button>
 
         </div>
