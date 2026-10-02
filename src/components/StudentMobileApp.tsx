@@ -55,22 +55,20 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
     ? (groups.find(g => g.id === activeGroupId) || groups[0])
     : {
         id: 'group-1',
-        name: 'Třída 7. A',
-        adminName: 'Mgr. Michal Vorlíček'
+        name: 'Třída 8. A (FTK UP)',
+        adminName: 'David Prycl'
       };
 
   const classStudents = (students && students.length > 0)
     ? students.filter(s => s.groupId === currentGroup.id)
     : [
-        { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 180000 },
-        { id: 'student-2', name: 'Michal Vorlíček', groupId: 'group-1', steps: 145000 },
-        { id: 'student-3', name: 'Josef Heidler', groupId: 'group-1', steps: 95000 }
+        { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464 }
       ];
 
   const currentStudent = classStudents.find(s => s.id === selectedStudentId) || classStudents[0] || {
     id: 'student-1',
     name: 'David Prycl',
-    steps: 180000,
+    steps: 6464,
     groupId: currentGroup.id
   };
 
@@ -626,7 +624,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
           )}
 
           <div style={{ fontSize: '10px', color: '#475569', marginTop: '12px' }}>
-            Gamifiter v1.0.6 • Výzkumný projekt FTK Univerzity Palackého v Olomouci
+            Gamifiter v1.0.7 • Výzkumný projekt FTK Univerzity Palackého v Olomouci
           </div>
         </div>
 

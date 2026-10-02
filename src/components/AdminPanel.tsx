@@ -552,10 +552,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               Kód třídy pro žáky
             </span>
             <div className="text-2xl font-black text-gray-900 mb-1">
-              {groups.find(g => g.id === activeGroupId)?.name || 'Třída 7. A'}
+              {groups.find(g => g.id === activeGroupId)?.name || 'Třída 8. A (FTK UP)'}
             </div>
             <p className="text-xs text-gray-500 mb-4">
-              Učitel: {groups.find(g => g.id === activeGroupId)?.adminName || 'Mgr. Michal Vorlíček'}
+              Učitel: {groups.find(g => g.id === activeGroupId)?.adminName || 'David Prycl'}
             </p>
 
             <div className="p-3 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl mb-4">

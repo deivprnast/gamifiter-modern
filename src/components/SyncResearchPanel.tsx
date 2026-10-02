@@ -164,14 +164,14 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
     status: 'online'
   };
 
-  const michal = students.find((s) => s.id === 'student-2') || {
+  const secondStudent = students.find((s) => s.id !== 'student-1') || {
     id: 'student-2',
-    name: 'Michal Vorlíček',
-    steps: 145000,
+    name: 'Další žák výzvy',
+    steps: 0,
     device: 'Google Health Connect (Android)',
-    pairedToken: 'ftk-vorlicek-google',
-    lastSync: 'Před chvílí',
-    status: 'online'
+    pairedToken: 'ftk-student-2',
+    lastSync: 'Čeká na připojení',
+    status: 'waiting'
   };
 
   return (
@@ -241,7 +241,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
             }`}
           >
             <Watch className="h-4 w-4" />
-            <span>Testovací subjekty (David & Michal)</span>
+            <span>Telemetrie žáků (David & připojená zařízení)</span>
           </button>
 
           <button
@@ -426,7 +426,7 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-gray-900">{michal.name}</h3>
+                      <h3 className="text-base font-bold text-gray-900">{secondStudent.name}</h3>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
                         Subjekt #2
                       </span>
@@ -449,13 +449,13 @@ export const SyncResearchPanel: React.FC<SyncResearchPanelProps> = ({ onSyncRece
                 <div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Aktuální stav v databázi</div>
                   <div className="text-xl font-black text-purple-700 mt-0.5">
-                    {michal.steps.toLocaleString()} <span className="text-xs font-semibold text-gray-500">kroků</span>
+                    {secondStudent.steps.toLocaleString()} <span className="text-xs font-semibold text-gray-500">kroků</span>
                   </div>
                 </div>
                 <div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Naposledy synchronizováno</div>
                   <div className="text-xs font-bold text-slate-700 mt-1">
-                    {michal.lastSync ? new Date(michal.lastSync).toLocaleTimeString() : 'Nyní'}
+                    {secondStudent.lastSync ? new Date(secondStudent.lastSync).toLocaleTimeString() : 'Nyní'}
                   </div>
                 </div>
               </div>

@@ -3,9 +3,10 @@ import { Award, Users, Home, PlayCircle, Settings } from 'lucide-react';
 
 interface TopHeaderProps {
   activeItem: string;
+  onSelect?: (item: string) => void;
 }
 
-export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem }) => {
+export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) => {
   const getBreadcrumbs = () => {
     switch (activeItem) {
       case 'my-results':
@@ -47,7 +48,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem }) => {
         return (
           <>
             <Settings className="h-4 w-4 text-[#007CA6]" />
-            <span className="text-xs font-bold text-gray-500">/ Správa / Správa školy</span>
+            <span className="text-xs font-bold text-gray-500">/ Správa / Správa školy a tříd</span>
           </>
         );
       case 'admin-challenges':
@@ -77,10 +78,45 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem }) => {
   };
 
   return (
-    <div className="top-header-container">
-      {/* Left side: Navigation Breadcrumbs */}
-      <div className="top-header-left">
+    <div className="top-header-container flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
+      {/* Left side: Navigation Breadcrumbs & Quick Switches */}
+      <div className="top-header-left flex items-center gap-4">
         {getBreadcrumbs()}
+
+        {onSelect && (
+          <div className="hidden lg:flex items-center gap-2 ml-4 pl-4 border-l border-gray-200">
+            <button
+              onClick={() => onSelect('active-challenge')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                activeItem === 'active-challenge'
+                  ? 'bg-[#007CA6] text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🎮 Velká tabule
+            </button>
+            <button
+              onClick={() => onSelect('admin-challenges')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                activeItem.startsWith('admin')
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              ⚙️ Správa výzev
+            </button>
+            <button
+              onClick={() => onSelect('sync-research')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                activeItem === 'sync-research'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📱 QR kód třídy
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Right side: Language, settings, profile */}
@@ -101,11 +137,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem }) => {
         {/* User Profile info */}
         <div className="top-header-user">
           <div className="text-right">
-            <div className="top-header-user-name">Michal Vorlíček</div>
+            <div className="top-header-user-name">David Prycl</div>
             <div className="top-header-user-role">Superadmin</div>
           </div>
           <div className="w-8 h-8 rounded-full bg-[#007CA6] text-white flex items-center justify-center font-bold text-xs">
-            MV
+            DP
           </div>
         </div>
       </div>

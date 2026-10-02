@@ -4,41 +4,11 @@
       "id": "student-1",
       "name": "David Prycl",
       "groupId": "group-1",
-      "steps": 258885,
+      "steps": 6464,
       "device": "Garmin Vívoactive 4",
       "pairedToken": "ftk-prycl-garmin",
-      "lastSync": "2026-10-01T19:43:53.524Z",
+      "lastSync": "2026-10-02T12:00:00.000Z",
       "status": "synced"
-    },
-    {
-      "id": "student-2",
-      "name": "Michal Vorlíček",
-      "groupId": "group-1",
-      "steps": 151100,
-      "device": "Google Health Connect (Android)",
-      "pairedToken": "ftk-vorlicek-google",
-      "lastSync": "2026-10-01T17:31:33.914Z",
-      "status": "synced"
-    },
-    {
-      "id": "student-3",
-      "name": "Josef Heidler",
-      "groupId": "group-1",
-      "steps": 95000,
-      "device": "Apple Health (iPhone)",
-      "pairedToken": "ftk-heidler-apple",
-      "lastSync": "2026-10-01T15:31:18.893Z",
-      "status": "waiting"
-    },
-    {
-      "id": "student-4",
-      "name": "Anna Nováková",
-      "groupId": "group-1",
-      "steps": 60000,
-      "device": "Xiaomi Smart Band (Health Sync)",
-      "pairedToken": "ftk-novakova-xiaomi",
-      "lastSync": "2026-10-01T13:31:18.893Z",
-      "status": "waiting"
     }
   ],
   "logs": [

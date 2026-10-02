@@ -44,7 +44,7 @@ function App() {
   
   const [activeChallengeId, setActiveChallengeIdState] = useState(() => getActiveChallengeId());
   const [activeGroupId, setActiveGroupIdState] = useState(() => getActiveGroupId());
-  const [activeItem, setActiveItem] = useState('my-results'); // Sidebar active link
+  const [activeItem, setActiveItem] = useState('active-challenge'); // Default to main big screen challenge view
   const [gameTab, setGameTab] = useState<ModuleType>('map');
   
   // Collapsible Simulator Drawer state
@@ -581,7 +581,7 @@ function App() {
         {/* Right Content Area Container */}
         <div className="content-area-container">
           {/* Sticky Top Header bar */}
-          <TopHeader activeItem={activeItem} />
+          <TopHeader activeItem={activeItem} onSelect={handleSidebarSelect} />
 
           {/* Active View Wrapper */}
           <main className="view-content-wrapper pb-32">

@@ -45,36 +45,6 @@ const DEFAULT_DB: SyncDatabase = {
       pairedToken: 'ftk-prycl-garmin',
       lastSync: new Date().toISOString(),
       status: 'online'
-    },
-    {
-      id: 'student-2',
-      name: 'Michal Vorlíček',
-      groupId: 'group-1',
-      steps: 145000,
-      device: 'Google Health Connect (Android)',
-      pairedToken: 'ftk-vorlicek-google',
-      lastSync: new Date(Date.now() - 3600000).toISOString(),
-      status: 'online'
-    },
-    {
-      id: 'student-3',
-      name: 'Josef Heidler',
-      groupId: 'group-1',
-      steps: 95000,
-      device: 'Apple Health (iPhone)',
-      pairedToken: 'ftk-heidler-apple',
-      lastSync: new Date(Date.now() - 7200000).toISOString(),
-      status: 'waiting'
-    },
-    {
-      id: 'student-4',
-      name: 'Anna Nováková',
-      groupId: 'group-1',
-      steps: 60000,
-      device: 'Xiaomi Smart Band (Health Sync)',
-      pairedToken: 'ftk-novakova-xiaomi',
-      lastSync: new Date(Date.now() - 14400000).toISOString(),
-      status: 'waiting'
     }
   ],
   logs: [

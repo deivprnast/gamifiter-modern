@@ -26,13 +26,13 @@ export const MobileSyncPortal: React.FC<MobileSyncPortalProps> = ({ onBackToApp 
     const urlToken = params.get('token');
     if (urlToken) {
       setToken(urlToken);
-      if (urlToken.includes('vorlicek')) {
-        setStudentName('Michal Vorlíček');
-        setDevice('Google Health Connect (Android)');
-        setSteps(8420);
-      } else if (urlToken.includes('prycl')) {
+      if (urlToken.includes('prycl')) {
         setStudentName('David Prycl');
         setDevice('Garmin Vívoactive 4');
+        setSteps(0);
+      } else {
+        setStudentName('Žák FTK');
+        setDevice('Google Health Connect (Android)');
         setSteps(0);
       }
     }
@@ -192,17 +192,17 @@ export const MobileSyncPortal: React.FC<MobileSyncPortalProps> = ({ onBackToApp 
           <button
             type="button"
             onClick={() => {
-              setToken('ftk-vorlicek-google');
-              setStudentName('Michal Vorlíček');
+              setToken('ftk-student-new');
+              setStudentName('Nový žák');
               setDevice('Google Health Connect (Android)');
-              setSteps(8420);
+              setSteps(0);
               setResult(null);
             }}
-            className={`mobile-portal-user-btn ${token === 'ftk-vorlicek-google' ? 'active' : ''}`}
+            className={`mobile-portal-user-btn ${token === 'ftk-student-new' ? 'active' : ''}`}
           >
-            <Smartphone size={20} color={token === 'ftk-vorlicek-google' ? '#22d3ee' : '#64748b'} />
+            <Smartphone size={20} color={token === 'ftk-student-new' ? '#22d3ee' : '#64748b'} />
             <div>
-              <div className="mobile-portal-user-btn-name">Michal Vorlíček</div>
+              <div className="mobile-portal-user-btn-name">Nový žák</div>
               <div className="mobile-portal-user-btn-device">Google Health Connect</div>
             </div>
           </button>

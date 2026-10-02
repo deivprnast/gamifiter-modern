@@ -62,34 +62,60 @@ const DEFAULT_CHALLENGES: Challenge[] = [
 ];
 
 const DEFAULT_GROUPS: Group[] = [
-  { id: 'group-1', name: 'Třída 8.A', adminName: 'Mgr. Michal Vorlíček' },
-  { id: 'group-2', name: 'Třída 9.B', adminName: 'Mgr. Josef Heidler' }
+  { id: 'group-1', name: 'Třída 8.A (FTK UP)', adminName: 'David Prycl' }
 ];
 
 const DEFAULT_STUDENTS: Student[] = [
-  // Group 1
-  { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 180000 },
-  { id: 'student-2', name: 'Michal Vorlíček', groupId: 'group-1', steps: 145000 },
-  { id: 'student-3', name: 'Josef Heidler', groupId: 'group-1', steps: 95000 },
-  { id: 'student-4', name: 'Anna Nováková', groupId: 'group-1', steps: 60000 },
-  { id: 'student-5', name: 'Jan Horák', groupId: 'group-1', steps: 40000 },
-  // Group 2
-  { id: 'student-6', name: 'Eva Malá', groupId: 'group-2', steps: 110000 },
-  { id: 'student-7', name: 'Petr Velký', groupId: 'group-2', steps: 95000 },
-  { id: 'student-8', name: 'Klára Černá', groupId: 'group-2', steps: 72000 },
-  { id: 'student-9', name: 'Tomáš Bílý', groupId: 'group-2', steps: 30000 }
+  { id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464 }
 ];
 
 export const initializeStorage = (): void => {
   if (!localStorage.getItem(STORAGE_KEYS.CHALLENGES)) {
     localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(DEFAULT_CHALLENGES));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.GROUPS)) {
+
+  // Ensure clean groups without old demo teacher accounts
+  const existingGroupsRaw = localStorage.getItem(STORAGE_KEYS.GROUPS);
+  if (!existingGroupsRaw) {
     localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(DEFAULT_GROUPS));
+  } else {
+    try {
+      const groups: Group[] = JSON.parse(existingGroupsRaw);
+      const cleaned = groups
+        .filter(g => !g.adminName?.includes('Heidler') && g.id !== 'group-2')
+        .map(g => ({
+          ...g,
+          adminName: g.adminName?.includes('Vorlíček') ? 'David Prycl' : (g.adminName || 'David Prycl')
+        }));
+      if (cleaned.length === 0) {
+        cleaned.push(...DEFAULT_GROUPS);
+      }
+      localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(cleaned));
+    } catch {
+      localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(DEFAULT_GROUPS));
+    }
   }
-  if (!localStorage.getItem(STORAGE_KEYS.STUDENTS)) {
+
+  // Purge old mock students (Heidler, Vorlíček, Nováková, Horák, Malá, Velký, Černá, Bílý)
+  const existingStudentsRaw = localStorage.getItem(STORAGE_KEYS.STUDENTS);
+  if (!existingStudentsRaw) {
     localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(DEFAULT_STUDENTS));
+  } else {
+    try {
+      const students: Student[] = JSON.parse(existingStudentsRaw);
+      const mockNames = ['Heidler', 'Vorlíček', 'Nováková', 'Horák', 'Malá', 'Velký', 'Černá', 'Bílý'];
+      const cleaned = students.filter(s => !mockNames.some(m => s.name.includes(m)));
+      
+      const hasDavid = cleaned.some(s => s.name.includes('David Prycl'));
+      if (!hasDavid) {
+        cleaned.unshift({ id: 'student-1', name: 'David Prycl', groupId: 'group-1', steps: 6464 });
+      }
+      localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(cleaned));
+    } catch {
+      localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(DEFAULT_STUDENTS));
+    }
   }
+
   if (!localStorage.getItem(STORAGE_KEYS.ACTIVE_CHALLENGE_ID)) {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_CHALLENGE_ID, DEFAULT_CHALLENGES[0].id);
   }

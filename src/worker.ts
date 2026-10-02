@@ -33,9 +33,8 @@ export default {
         const device = payload.device || 'Garmin Vívoactive 4';
         const token = payload.token || payload.studentToken || 'ftk-prycl-garmin';
 
-        const isPrycl = token.includes('prycl') || device.toLowerCase().includes('garmin');
-        const studentName = isPrycl ? 'David Prycl' : 'Michal Vorlíček';
-        const studentId = isPrycl ? 'student-1' : 'student-2';
+        const studentName = payload.studentName || 'David Prycl';
+        const studentId = payload.studentId || 'student-1';
 
         const now = new Date().toISOString();
         const verificationCode = `FTK-UP-${studentId.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -56,6 +55,7 @@ export default {
             student: {
               id: studentId,
               name: studentName,
+              token,
               steps: inputSteps,
               device: device,
               lastSync: now,
@@ -98,19 +98,9 @@ export default {
               id: 'student-1',
               name: 'David Prycl',
               groupId: 'group-1',
-              steps: 258885,
+              steps: 6464,
               device: 'Garmin Vívoactive 4',
               pairedToken: 'ftk-prycl-garmin',
-              lastSync: new Date().toISOString(),
-              status: 'synced'
-            },
-            {
-              id: 'student-2',
-              name: 'Michal Vorlíček',
-              groupId: 'group-1',
-              steps: 151100,
-              device: 'Google Health Connect (Android)',
-              pairedToken: 'ftk-vorlicek-google',
               lastSync: new Date().toISOString(),
               status: 'synced'
             }
@@ -122,8 +112,8 @@ export default {
               studentName: 'David Prycl',
               timestamp: new Date().toISOString(),
               date: new Date().toISOString().split('T')[0],
-              steps: 258885,
-              stepDelta: 8450,
+              steps: 6464,
+              stepDelta: 6464,
               device: 'Garmin Vívoactive 4',
               source: 'garmin_vivoactive_4',
               integrityHash: 'ftk-sha256-5a309da8cdeaea83',
