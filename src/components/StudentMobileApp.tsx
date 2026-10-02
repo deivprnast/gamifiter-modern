@@ -116,7 +116,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
     setIsSyncing(true);
     setSyncSuccessMsg(null);
 
-    const stepsToSync = liveSteps > 0 ? liveSteps : 8450;
+    const stepsToSync = liveSteps;
 
     try {
       // Send to Edge API
