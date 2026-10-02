@@ -1,8 +1,10 @@
 /* Layout grid */
 .main-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 240px minmax(0, 1fr);
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
@@ -199,16 +201,25 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  min-width: 0;
+  width: 100%;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
 .view-content-wrapper {
-  padding: 32px 36px;
+  padding: 24px 32px;
   flex: 1;
-  max-width: 1320px;
+  max-width: 1240px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .view-content-wrapper {
+    padding: 20px 24px;
+  }
 }
 
 @media (max-width: 768px) {
