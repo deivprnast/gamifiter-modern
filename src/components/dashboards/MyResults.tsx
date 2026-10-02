@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { getStudents, updateStudentSteps, syncWithCloudD1 } from '../../services/storage';
-import { CheckCircle2, RefreshCw, Edit3, Save, X, Clock, Sun, Dumbbell, Moon, ShieldCheck, Compass } from 'lucide-react';
+import { CheckCircle2, RefreshCw, Edit3, Save, X, ShieldCheck, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { type Student } from '../../types';
 import { NativeHealthService, type DaySegmentBreakdown } from '../../services/nativeHealthService';
 
@@ -22,6 +22,10 @@ export const MyResults: React.FC<MyResultsProps> = ({
   const [editValue, setEditValue] = useState('');
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
 
+  // Kid-friendly day profile tester state
+  const [showTechDetails, setShowTechDetails] = useState(false);
+  const [simulatedStepCount, setSimulatedStepCount] = useState<number | null>(null);
+
   useEffect(() => {
     if (propStudents && propStudents.length > 0) {
       setLocalStudents(propStudents);
@@ -31,26 +35,27 @@ export const MyResults: React.FC<MyResultsProps> = ({
   const currentList = (propStudents && propStudents.length > 0) ? propStudents : localStudents;
   const david = currentList.find(s => s.id === 'student-1' || s.name.includes('David Prycl'));
   const realStepsToday = david ? david.steps : 6464;
+  const activeStepsForBreakdown = simulatedStepCount !== null ? simulatedStepCount : realStepsToday;
 
   const [breakdown, setBreakdown] = useState<DaySegmentBreakdown>(() => {
-    const morning = Math.round(realStepsToday * 0.28);
-    const school = Math.round(realStepsToday * 0.34);
-    const after = Math.round(realStepsToday * 0.29);
-    const evening = Math.max(0, realStepsToday - (morning + school + after));
+    const morning = Math.round(activeStepsForBreakdown * 0.28);
+    const school = Math.round(activeStepsForBreakdown * 0.34);
+    const after = Math.round(activeStepsForBreakdown * 0.29);
+    const evening = Math.max(0, activeStepsForBreakdown - (morning + school + after));
     return {
       morningCommute: morning,
       schoolHours: school,
       afterSchool: after,
       evening,
-      total: realStepsToday
+      total: activeStepsForBreakdown
     };
   });
 
   useEffect(() => {
-    NativeHealthService.getSegmentedStepBreakdown(realStepsToday).then(res => {
+    NativeHealthService.getSegmentedStepBreakdown(activeStepsForBreakdown).then(res => {
       setBreakdown(res);
     });
-  }, [realStepsToday]);
+  }, [activeStepsForBreakdown]);
 
   const handleRefreshFromCloud = async () => {
     setIsRefreshing(true);
@@ -384,181 +389,367 @@ export const MyResults: React.FC<MyResultsProps> = ({
         </div>
       </div>
 
-      {/* Time-Segmented Day Profile (Ve škole vs. Po škole vs. Ranní cesta) */}
-      <div className="replicated-card overflow-hidden">
-        <div className="replicated-card-header flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#007CA6]" />
-            <span className="font-bold text-slate-800 text-sm">Časový profil dne: Kroky ve škole vs. volný čas</span>
+      {/* Time-Segmented Day Profile (Ve škole vs. Po škole vs. Ranní cesta) - Kid-friendly Apple UX */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden transition-all duration-300">
+        
+        {/* Card Header with Playful Emoji & Real Data Badge */}
+        <div className="p-6 sm:p-8 bg-gradient-to-r from-slate-50 via-sky-50/40 to-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-2xl shadow-sm shrink-0">
+              🎒
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                  Můj den v krocích: Kde a kdy se hýbu?
+                </h3>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Živé rozložení dne
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Zde přesně vidíš, kolik kroků jsi dnes nasbíral/a cestou do školy, při vyučování v lavici a odpoledne venku.
+              </p>
+            </div>
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-            Časová razítka (Time-samples)
-          </span>
+
+          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200/80 shadow-xs">
+            <span className="text-xl">⌚</span>
+            <div className="text-right">
+              <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Dnešní součet kroků</span>
+              <span className="text-lg sm:text-xl font-black text-[#007CA6] font-mono leading-none">
+                {activeStepsForBreakdown.toLocaleString()} <span className="text-xs font-semibold text-slate-500">kroků</span>
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="p-5 sm:p-6 space-y-6">
-          <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
-            Díky minutovým časovým razítkům (timestamps) z hodinek Garmin a telefonů (Apple Health & Health Connect) 
-            umí Gamifiter přesně rozlišit, <strong>kolik kroků žák nachodí cestou do školy, při vyučování v lavici a o přestávkách, a kolik odpoledne na kroužcích</strong>.
-          </p>
+        <div className="p-6 sm:p-8 space-y-8">
 
-          {/* 4 Visual Time Segment Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Interactive Tester & Quick Step Presets for User */}
+          <div className="p-4 sm:p-5 bg-slate-50/90 border border-slate-200/80 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>Vyzkoušej rozpad dne pro různé dny:</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSimulatedStepCount(null)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  simulatedStepCount === null
+                    ? 'bg-[#007CA6] text-white shadow-sm'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                ⌚ Moje reálná data ({realStepsToday.toLocaleString()} kr.)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSimulatedStepCount(8200)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  simulatedStepCount === 8200
+                    ? 'bg-[#007CA6] text-white shadow-sm'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                🏫 Běžný školní den (8 200 kr.)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSimulatedStepCount(10000)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  simulatedStepCount === 10000
+                    ? 'bg-[#007CA6] text-white shadow-sm'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                🎯 Splněný cíl FTK (10 000 kr.)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSimulatedStepCount(13500)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  simulatedStepCount === 13500
+                    ? 'bg-[#007CA6] text-white shadow-sm'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                🏅 Sportovní rekord (13 500 kr.)
+              </button>
+            </div>
+          </div>
+
+          {/* 4 Large, Spacious, Kid-Friendly Segment Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-6">
             
             {/* 1. Morning Commute */}
-            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/90 flex flex-col justify-between space-y-3">
+            <div className="bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-amber-100/30 border-2 border-amber-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md hover:border-amber-300 transition-all duration-200">
               <div className="flex items-center justify-between">
-                <span className="p-2 rounded-xl bg-amber-100 text-amber-800">
-                  <Compass className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-bold text-amber-800 bg-amber-200/50 px-2 py-0.5 rounded-full">
+                <div className="w-14 h-14 rounded-2xl bg-amber-100/90 border border-amber-200 text-amber-800 flex items-center justify-center text-3xl shadow-xs">
+                  🎒
+                </div>
+                <span className="text-xs font-extrabold text-amber-800 bg-amber-200/70 px-3 py-1 rounded-full">
                   06:00 – 08:00
                 </span>
               </div>
-              <div>
-                <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider">Cesta do školy</span>
-                <p className="text-2xl font-black text-amber-950 font-mono mt-0.5">
-                  {breakdown.morningCommute.toLocaleString()} <span className="text-xs font-semibold text-amber-800">kroků</span>
-                </p>
-                <span className="text-[11px] text-amber-800 font-medium">
-                  {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} % denního pohybu (+38 % ranní chůze)
+              
+              <div className="space-y-1">
+                <span className="text-[11px] font-black text-amber-900 uppercase tracking-wider block">
+                  Cesta do školy
                 </span>
+                <p className="text-3xl sm:text-4xl font-black text-amber-950 font-mono tracking-tight">
+                  {breakdown.morningCommute.toLocaleString()} <span className="text-xs font-bold text-amber-800">kroků</span>
+                </p>
+                <div className="inline-block mt-1 px-2 py-0.5 rounded-lg bg-amber-200/60 text-[11px] font-bold text-amber-900">
+                  {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dnešního pohybu
+                </div>
+              </div>
+
+              <p className="text-xs text-amber-900/90 leading-relaxed font-medium">
+                Pěšky nebo na koloběžce do školy. Ranní probuzení těla i mozku před zvoněním!
+              </p>
+
+              <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-bold text-amber-800">
+                <span>🚀 +38 % ranní chůze</span>
+                <span>Mise splněna</span>
               </div>
             </div>
 
             {/* 2. School Hours */}
-            <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/90 flex flex-col justify-between space-y-3">
+            <div className="bg-gradient-to-br from-sky-50/90 via-blue-50/40 to-sky-100/30 border-2 border-sky-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md hover:border-sky-300 transition-all duration-200">
               <div className="flex items-center justify-between">
-                <span className="p-2 rounded-xl bg-blue-100 text-blue-800">
-                  <Sun className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-bold text-blue-800 bg-blue-200/50 px-2 py-0.5 rounded-full">
+                <div className="w-14 h-14 rounded-2xl bg-sky-100/90 border border-sky-200 text-sky-800 flex items-center justify-center text-3xl shadow-xs">
+                  🏫
+                </div>
+                <span className="text-xs font-extrabold text-blue-800 bg-blue-200/70 px-3 py-1 rounded-full">
                   08:00 – 14:00
                 </span>
               </div>
-              <div>
-                <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider">Dopoledne ve škole</span>
-                <p className="text-2xl font-black text-blue-950 font-mono mt-0.5">
-                  {breakdown.schoolHours.toLocaleString()} <span className="text-xs font-semibold text-blue-800">kroků</span>
-                </p>
-                <span className="text-[11px] text-blue-800 font-medium">
-                  {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} % (přestávky, sezení v lavici, hodina TV)
+              
+              <div className="space-y-1">
+                <span className="text-[11px] font-black text-blue-900 uppercase tracking-wider block">
+                  Dopoledne ve škole
                 </span>
+                <p className="text-3xl sm:text-4xl font-black text-blue-950 font-mono tracking-tight">
+                  {breakdown.schoolHours.toLocaleString()} <span className="text-xs font-bold text-blue-800">kroků</span>
+                </p>
+                <div className="inline-block mt-1 px-2 py-0.5 rounded-lg bg-blue-200/60 text-[11px] font-bold text-blue-900">
+                  {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dnešního pohybu
+                </div>
+              </div>
+
+              <p className="text-xs text-blue-900/90 leading-relaxed font-medium">
+                Schody, aktivní přestávky na chodbě a parádní hodina tělesné výchovy v tělocvičně!
+              </p>
+
+              <div className="pt-2 border-t border-blue-200/60 flex items-center justify-between text-[11px] font-bold text-blue-800">
+                <span>⚡ Přestávky & Tělocvik</span>
+                <span>Aktivní lavice</span>
               </div>
             </div>
 
             {/* 3. After School */}
-            <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/90 flex flex-col justify-between space-y-3">
+            <div className="bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-emerald-100/30 border-2 border-emerald-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md hover:border-emerald-300 transition-all duration-200">
               <div className="flex items-center justify-between">
-                <span className="p-2 rounded-xl bg-emerald-100 text-emerald-800">
-                  <Dumbbell className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-200/50 px-2 py-0.5 rounded-full">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-100/90 border border-emerald-200 text-emerald-800 flex items-center justify-center text-3xl shadow-xs">
+                  ⚽
+                </div>
+                <span className="text-xs font-extrabold text-emerald-800 bg-emerald-200/70 px-3 py-1 rounded-full">
                   14:00 – 19:00
                 </span>
               </div>
-              <div>
-                <span className="text-[11px] font-bold text-emerald-900 uppercase tracking-wider">Odpoledne po škole</span>
-                <p className="text-2xl font-black text-emerald-950 font-mono mt-0.5">
-                  {breakdown.afterSchool.toLocaleString()} <span className="text-xs font-semibold text-emerald-800">kroků</span>
-                </p>
-                <span className="text-[11px] text-emerald-800 font-medium">
-                  {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} % (sportovní kroužky, procházky, hřiště)
+              
+              <div className="space-y-1">
+                <span className="text-[11px] font-black text-emerald-900 uppercase tracking-wider block">
+                  Kroužky & Venku
                 </span>
+                <p className="text-3xl sm:text-4xl font-black text-emerald-950 font-mono tracking-tight">
+                  {breakdown.afterSchool.toLocaleString()} <span className="text-xs font-bold text-emerald-800">kroků</span>
+                </p>
+                <div className="inline-block mt-1 px-2 py-0.5 rounded-lg bg-emerald-200/60 text-[11px] font-bold text-emerald-900">
+                  {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dnešního pohybu
+                </div>
+              </div>
+
+              <p className="text-xs text-emerald-900/90 leading-relaxed font-medium">
+                Fotbal, hřiště, procházka se psem a dovádění s kamarády venku na čerstvém vzduchu!
+              </p>
+
+              <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-[11px] font-bold text-emerald-800">
+                <span>🏆 Hlavní sportovní zóna</span>
+                <span>Super výkon</span>
               </div>
             </div>
 
             {/* 4. Evening */}
-            <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200/90 flex flex-col justify-between space-y-3">
+            <div className="bg-gradient-to-br from-purple-50/90 via-indigo-50/40 to-purple-100/30 border-2 border-purple-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md hover:border-purple-300 transition-all duration-200">
               <div className="flex items-center justify-between">
-                <span className="p-2 rounded-xl bg-purple-100 text-purple-800">
-                  <Moon className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-bold text-purple-800 bg-purple-200/50 px-2 py-0.5 rounded-full">
+                <div className="w-14 h-14 rounded-2xl bg-purple-100/90 border border-purple-200 text-purple-800 flex items-center justify-center text-3xl shadow-xs">
+                  🏠
+                </div>
+                <span className="text-xs font-extrabold text-purple-800 bg-purple-200/70 px-3 py-1 rounded-full">
                   19:00 – 24:00
                 </span>
               </div>
-              <div>
-                <span className="text-[11px] font-bold text-purple-900 uppercase tracking-wider">Večer doma</span>
-                <p className="text-2xl font-black text-purple-950 font-mono mt-0.5">
-                  {breakdown.evening.toLocaleString()} <span className="text-xs font-semibold text-purple-800">kroků</span>
-                </p>
-                <span className="text-[11px] text-purple-800 font-medium">
-                  {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} % (domácí příprava a klidový režim)
+              
+              <div className="space-y-1">
+                <span className="text-[11px] font-black text-purple-900 uppercase tracking-wider block">
+                  Večer doma
                 </span>
+                <p className="text-3xl sm:text-4xl font-black text-purple-950 font-mono tracking-tight">
+                  {breakdown.evening.toLocaleString()} <span className="text-xs font-bold text-purple-800">kroků</span>
+                </p>
+                <div className="inline-block mt-1 px-2 py-0.5 rounded-lg bg-purple-200/60 text-[11px] font-bold text-purple-900">
+                  {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dnešního pohybu
+                </div>
+              </div>
+
+              <p className="text-xs text-purple-900/90 leading-relaxed font-medium">
+                Úkoly, večeře s rodinou, klídek v pokoji a zdravý spánek pro regeneraci na zítřek.
+              </p>
+
+              <div className="pt-2 border-t border-purple-200/60 flex items-center justify-between text-[11px] font-bold text-purple-800">
+                <span>🌙 Klidový režim</span>
+                <span>Spánek & síla</span>
               </div>
             </div>
 
           </div>
 
-          {/* Stacked Proportional Day Bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-              <span>Rozložení denní aktivity v čase (100 % = {breakdown.total.toLocaleString()} kroků)</span>
-              <span className="text-[#007CA6] font-mono">{breakdown.total.toLocaleString()} kroků</span>
+          {/* Stacked Proportional Day Bar with Generous Breathing Space */}
+          <div className="space-y-3 p-5 sm:p-6 bg-slate-50/70 rounded-2xl border border-slate-200/70">
+            <div className="flex flex-wrap items-center justify-between text-xs sm:text-sm font-extrabold text-slate-800">
+              <span className="flex items-center gap-2">
+                <span>Rozložení dne (100 % = {breakdown.total.toLocaleString()} kroků)</span>
+              </span>
+              <span className="text-[#007CA6] font-mono text-sm font-black">
+                {breakdown.total.toLocaleString()} kroků celkem
+              </span>
             </div>
-            <div className="h-3.5 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+            
+            <div className="h-5 w-full bg-white rounded-full overflow-hidden flex shadow-inner border border-slate-200/80 p-0.5">
               <div 
-                className="bg-amber-400 h-full transition-all" 
-                style={{ width: `${(breakdown.morningCommute / Math.max(1, breakdown.total)) * 100}%` }}
+                className="bg-amber-400 h-full rounded-l-full transition-all duration-500" 
+                style={{ width: `${Math.max(2, (breakdown.morningCommute / Math.max(1, breakdown.total)) * 100)}%` }}
                 title={`Cesta do školy: ${breakdown.morningCommute.toLocaleString()} kroků`}
               />
               <div 
-                className="bg-blue-500 h-full transition-all" 
-                style={{ width: `${(breakdown.schoolHours / Math.max(1, breakdown.total)) * 100}%` }}
+                className="bg-sky-500 h-full transition-all duration-500" 
+                style={{ width: `${Math.max(2, (breakdown.schoolHours / Math.max(1, breakdown.total)) * 100)}%` }}
                 title={`Ve škole: ${breakdown.schoolHours.toLocaleString()} kroků`}
               />
               <div 
-                className="bg-emerald-500 h-full transition-all" 
-                style={{ width: `${(breakdown.afterSchool / Math.max(1, breakdown.total)) * 100}%` }}
+                className="bg-emerald-500 h-full transition-all duration-500" 
+                style={{ width: `${Math.max(2, (breakdown.afterSchool / Math.max(1, breakdown.total)) * 100)}%` }}
                 title={`Po škole: ${breakdown.afterSchool.toLocaleString()} kroků`}
               />
               <div 
-                className="bg-purple-400 h-full transition-all" 
-                style={{ width: `${(breakdown.evening / Math.max(1, breakdown.total)) * 100}%` }}
+                className="bg-purple-400 h-full rounded-r-full transition-all duration-500" 
+                style={{ width: `${Math.max(2, (breakdown.evening / Math.max(1, breakdown.total)) * 100)}%` }}
                 title={`Večer: ${breakdown.evening.toLocaleString()} kroků`}
               />
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 pt-1">
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> 🌅 Cesta do školy (06-08)</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> 🏫 Ve škole & TV (08-14)</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> ⚽ Po škole & kroužky (14-19)</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-400" /> 🌙 Večer doma (19-24)</span>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600 pt-1 font-semibold">
+              <span className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-xl border border-amber-200">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                🎒 Ráno: {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} %
+              </span>
+              <span className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-xl border border-sky-200">
+                <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+                🏫 Ve škole: {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} %
+              </span>
+              <span className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-xl border border-emerald-200">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                ⚽ Po škole: {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} %
+              </span>
+              <span className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-xl border border-purple-200">
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
+                🏠 Večer doma: {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} %
+              </span>
             </div>
           </div>
 
-          {/* Technical and Health Metrics Insight Card */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 space-y-3">
-            <h4 className="font-bold text-slate-800 text-xs sm:text-sm flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              Co všechno umí systém Gamifiter z přístrojů přečíst a vyhodnotit:
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600">
-              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
-                <span className="font-bold text-slate-800 block">⏱️ Časová razítka (Minutové vzorky)</span>
-                <p className="text-[11px] leading-relaxed text-slate-500">
-                  Přesně víme, v kolik hodin krok proběhl. Učitel tak vidí, zda se třída hýbala o velké přestávce nebo seděla u telefonů.
-                </p>
-              </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
-                <span className="font-bold text-slate-800 block">🏃‍♂️ Intenzita pohybu (Kadence & MVPA)</span>
-                <p className="text-[11px] leading-relaxed text-slate-500">
-                  Rozlišení pomalého loudání (&lt;70 kroků/min) od svižné chůze (100–120 kroků/min) a běhu při tělesné výchově.
-                </p>
-              </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
-                <span className="font-bold text-slate-800 block">🪑 Detekce sedavého chování (Sedentary time)</span>
-                <p className="text-[11px] leading-relaxed text-slate-500">
-                  Identifikace nepřerušených bloků sezení nad 45 minut během vyučování pro doporučení aktivních chvilek.
-                </p>
-              </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
-                <span className="font-bold text-slate-800 block">⌚ Izolace hodinek od telefonu</span>
-                <p className="text-[11px] leading-relaxed text-slate-500">
-                  Pokud má žák hodinky Garmin a v kapse telefon, systém přednostně čte hodinky a eliminuje zdvojené kroky.
+          {/* Gamified Kids Badges (Dnešní mise) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-amber-50/60 border border-amber-200/70 rounded-2xl flex items-center gap-3">
+              <span className="text-2xl">🎒</span>
+              <div>
+                <h5 className="font-extrabold text-xs text-amber-950">Ranní probuzení mozku</h5>
+                <p className="text-[11px] text-amber-800/90 leading-tight mt-0.5">
+                  Chůze před 8:00 nastartuje soustředění a paměť na celé dopoledne.
                 </p>
               </div>
             </div>
+
+            <div className="p-4 bg-sky-50/60 border border-sky-200/70 rounded-2xl flex items-center gap-3">
+              <span className="text-2xl">🏃‍♂️</span>
+              <div>
+                <h5 className="font-extrabold text-xs text-blue-950">Královská přestávka</h5>
+                <p className="text-[11px] text-blue-800/90 leading-tight mt-0.5">
+                  Žádné sezení 45 minut v kuse, každé protáhnutí nohou se počítá!
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-emerald-50/60 border border-emerald-200/70 rounded-2xl flex items-center gap-3">
+              <span className="text-2xl">🌟</span>
+              <div>
+                <h5 className="font-extrabold text-xs text-emerald-950">Týmový hrdina třídy</h5>
+                <p className="text-[11px] text-emerald-800/90 leading-tight mt-0.5">
+                  Všechny tvé kroky společně odemykají tajenku a mapu pro celou třídu.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Collapsible Accordion for Teachers & Parents */}
+          <div className="border border-slate-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
+            <button
+              type="button"
+              onClick={() => setShowTechDetails(!showTechDetails)}
+              className="w-full p-4 text-left flex items-center justify-between text-xs font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                Jak Gamifiter měří minutová časová razítka a hodinky? (Podrobnosti pro učitele a rodiče)
+              </span>
+              <span className="flex items-center gap-1 text-[11px] text-slate-500">
+                {showTechDetails ? 'Skrýt detaily' : 'Zobrazit technické detaily'}
+                {showTechDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </span>
+            </button>
+
+            {showTechDetails && (
+              <div className="p-5 border-t border-slate-200/80 bg-white grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600 animate-fade-in">
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
+                  <span className="font-bold text-slate-800 block">⏱️ Časová razítka (Minutové vzorky)</span>
+                  <p className="text-[11px] leading-relaxed text-slate-500">
+                    Aplikace ukládá časová razítka s přesností na minuty. Učitel tak vidí, zda se třída hýbala o velké přestávce nebo seděla u telefonů.
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
+                  <span className="font-bold text-slate-800 block">🏃‍♂️ Intenzita pohybu (Kadence & MVPA)</span>
+                  <p className="text-[11px] leading-relaxed text-slate-500">
+                    Rozlišení pomalého loudání (&lt;70 kroků/min) od svižné chůze (100–120 kroků/min) a běhu při tělesné výchově.
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
+                  <span className="font-bold text-slate-800 block">🪑 Detekce sedavého chování (Sedentary time)</span>
+                  <p className="text-[11px] leading-relaxed text-slate-500">
+                    Identifikace nepřerušených bloků sezení nad 45 minut během vyučování pro doporučení aktivních chvilek.
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
+                  <span className="font-bold text-slate-800 block">⌚ Izolace hodinek od telefonu</span>
+                  <p className="text-[11px] leading-relaxed text-slate-500">
+                    Pokud má žák hodinky Garmin a v kapse telefon, systém přednostně čte hodinky a eliminuje zdvojené kroky.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
         </div>

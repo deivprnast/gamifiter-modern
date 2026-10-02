@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Award, BookOpen, Brain, CheckCircle2, Compass, Heart, Sparkles, TrendingUp, X } from 'lucide-react';
+import { BookOpen, Brain, CheckCircle2, Compass, Heart, Sparkles, TrendingUp, X } from 'lucide-react';
 
 interface PhysicalLiteracyModalProps {
   isOpen: boolean;
@@ -72,54 +72,54 @@ export const PhysicalLiteracyModal: React.FC<PhysicalLiteracyModalProps> = ({
   const score = calculateScore();
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-6 sm:p-8 text-white relative">
+        <div className="bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 p-5 sm:p-6 text-white relative shrink-0">
           <button 
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:rotate-90 duration-200"
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:rotate-90 duration-200 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
           
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-emerald-50">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white">
               <Brain className="w-3.5 h-3.5" />
               Pohybová gramotnost (Physical Literacy)
             </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-400/30 text-white">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-400/30 text-white">
               <BookOpen className="w-3.5 h-3.5" />
-              RVP ZV & FTK UP Olomouc
+              FTK Univerzita Palackého Olomouc
             </span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Vědecká pohybová gramotnost
+          <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+            Vědecká pohybová gramotnost pro školáky
           </h2>
-          <p className="text-emerald-100 text-sm sm:text-base mt-1 max-w-2xl">
-            Využití poznatků z publikace <span className="font-semibold text-white">Smart Learning Environments (Springer, 2024)</span> a Národní zprávy FTK UP pro třídu <span className="font-semibold text-white">{classNameTitle}</span>.
+          <p className="text-emerald-100 text-xs sm:text-sm mt-1 max-w-2xl">
+            Poznatky ze studie <span className="font-semibold text-white">Smart Learning Environments (Springer, 2024)</span> přizpůsobené pro třídu <span className="font-semibold text-white">{classNameTitle}</span>.
           </p>
 
           {/* Navigation Tabs */}
-          <div className="flex flex-wrap gap-2 mt-6">
+          <div className="flex flex-wrap gap-2 mt-4 pt-1">
             <button
               onClick={() => setActiveTab('quiz')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'quiz'
-                  ? 'bg-white text-emerald-800 shadow-md scale-105'
+                  ? 'bg-white text-emerald-800 shadow-md scale-102'
                   : 'bg-white/15 text-white hover:bg-white/25'
               }`}
             >
               <Sparkles className="w-4 h-4" />
-              🧠 Vědomostní minikvíz ({Object.keys(selectedAnswers).length}/3)
+              🧠 Minikvíz ({Object.keys(selectedAnswers).length}/3)
             </button>
             <button
               onClick={() => setActiveTab('commute')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'commute'
-                  ? 'bg-white text-emerald-800 shadow-md scale-105'
+                  ? 'bg-white text-emerald-800 shadow-md scale-102'
                   : 'bg-white/15 text-white hover:bg-white/25'
               }`}
             >
@@ -128,60 +128,69 @@ export const PhysicalLiteracyModal: React.FC<PhysicalLiteracyModalProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('sdt')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'sdt'
-                  ? 'bg-white text-emerald-800 shadow-md scale-105'
+                  ? 'bg-white text-emerald-800 shadow-md scale-102'
                   : 'bg-white/15 text-white hover:bg-white/25'
               }`}
             >
               <Heart className="w-4 h-4" />
-              🏛️ Teorie sebedeterminace (SDT) pro TV
+              🏛️ Motivace pro TV (SDT)
             </button>
           </div>
         </div>
 
-        {/* Tab Content */}
-        <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+        {/* Tab Content with generous breathing room */}
+        <div className="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1">
 
           {/* TAB 1: QUIZ */}
           {activeTab === 'quiz' && (
             <div className="space-y-6">
-              <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
-                <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl flex-shrink-0">
-                  <Brain className="w-6 h-6" />
+              <div className="bg-emerald-50/80 border border-emerald-200/90 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
+                <div className="w-11 h-11 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center shrink-0 text-xl font-bold">
+                  🧠
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800 text-base">Proč kvíz pohybové gramotnosti?</h3>
-                  <p className="text-slate-600 text-sm mt-1 leading-relaxed">
-                    Ve studii Gamifiteru potvrdilo <strong>88 % žáků</strong>, že se díky aplikaci poprvé dozvěděli, jaká jsou zdravotní doporučení a jak náročné je splnit 10 000 kroků. Otestujte si své znalosti!
+                  <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">Proč kvíz pohybové gramotnosti?</h3>
+                  <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                    Ve studii Gamifiteru potvrdilo <strong>88 % žáků</strong>, že se díky aplikaci poprvé dozvěděli, jaká jsou zdravá doporučení a jak snadno lze kroků dosáhnout ranní chůzí do školy. Otestuj své znalosti!
                   </p>
                 </div>
               </div>
 
               {/* Questions */}
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {quizQuestions.map((q, qIdx) => (
-                  <div key={q.id} className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 space-y-3">
-                    <div className="flex items-center gap-2 font-bold text-slate-800 text-sm sm:text-base">
-                      <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
+                  <div key={q.id} className="bg-slate-50/80 border border-slate-200/90 rounded-3xl p-5 sm:p-6 space-y-4 shadow-2xs">
+                    <div className="flex items-center gap-3 font-extrabold text-slate-800 text-sm sm:text-base">
+                      <span className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-xs shrink-0">
                         {qIdx + 1}
                       </span>
                       <h4>{q.question}</h4>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-3">
                       {q.options.map((opt, optIdx) => {
                         const isSelected = selectedAnswers[q.id] === optIdx;
-                        let optionStyle = 'bg-white border-slate-200 hover:border-emerald-300 text-slate-700';
+                        const optionLetters = ['A', 'B', 'C'];
+                        const letter = optionLetters[optIdx] || '•';
+
+                        let optionStyle = 'bg-white border-slate-200/90 hover:border-emerald-300 hover:bg-emerald-50/20 text-slate-800 shadow-2xs';
+                        let badgeStyle = 'bg-slate-100 text-slate-600 group-hover:bg-emerald-100 group-hover:text-emerald-800';
 
                         if (quizSubmitted) {
                           if (opt.correct) {
-                            optionStyle = 'bg-emerald-50 border-emerald-400 text-emerald-900 font-semibold ring-2 ring-emerald-400/50';
+                            optionStyle = 'bg-emerald-50 border-emerald-400 text-emerald-950 font-bold ring-2 ring-emerald-400/40';
+                            badgeStyle = 'bg-emerald-600 text-white';
                           } else if (isSelected && !opt.correct) {
-                            optionStyle = 'bg-rose-50 border-rose-300 text-rose-900';
+                            optionStyle = 'bg-rose-50 border-rose-300 text-rose-950 font-medium';
+                            badgeStyle = 'bg-rose-500 text-white';
+                          } else {
+                            optionStyle = 'bg-white/60 border-slate-200 text-slate-400 opacity-70';
                           }
                         } else if (isSelected) {
-                          optionStyle = 'bg-emerald-50/80 border-emerald-500 text-emerald-900 ring-2 ring-emerald-500/30 font-semibold';
+                          optionStyle = 'bg-emerald-50/90 border-emerald-500 text-emerald-950 ring-2 ring-emerald-500/30 font-bold shadow-sm';
+                          badgeStyle = 'bg-emerald-600 text-white';
                         }
 
                         return (
@@ -190,11 +199,17 @@ export const PhysicalLiteracyModal: React.FC<PhysicalLiteracyModalProps> = ({
                             type="button"
                             onClick={() => handleSelectOption(q.id, optIdx)}
                             disabled={quizSubmitted}
-                            className={`w-full text-left p-3.5 rounded-xl border text-sm transition-all flex items-start justify-between gap-3 ${optionStyle}`}
+                            className={`group w-full text-left p-4 sm:p-4.5 rounded-2xl border-2 text-sm sm:text-base transition-all flex items-center justify-between gap-4 cursor-pointer ${optionStyle}`}
                           >
-                            <span>{opt.text}</span>
+                            <div className="flex items-center gap-3.5">
+                              <span className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-colors ${badgeStyle}`}>
+                                {letter}
+                              </span>
+                              <span className="leading-snug">{opt.text}</span>
+                            </div>
+                            
                             {quizSubmitted && opt.correct && (
-                              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                             )}
                           </button>
                         );
@@ -202,8 +217,8 @@ export const PhysicalLiteracyModal: React.FC<PhysicalLiteracyModalProps> = ({
                     </div>
 
                     {quizSubmitted && (
-                      <div className="mt-2 p-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed">
-                        💡 <strong>Vysvětlení:</strong> {q.options[selectedAnswers[q.id] || 0]?.explanation || q.options.find(o => o.correct)?.explanation}
+                      <div className="mt-3 p-3.5 bg-white rounded-2xl border border-emerald-200 text-xs sm:text-sm text-slate-700 leading-relaxed shadow-2xs">
+                        💡 <strong>Vysvětlení z výzkumu:</strong> {q.options[selectedAnswers[q.id] || 0]?.explanation || q.options.find(o => o.correct)?.explanation}
                       </div>
                     )}
                   </div>
@@ -216,9 +231,9 @@ export const PhysicalLiteracyModal: React.FC<PhysicalLiteracyModalProps> = ({
                   <button
                     onClick={() => setQuizSubmitted(true)}
                     disabled={!isAllAnswered}
-                    className={`px-6 py-3 rounded-2xl font-bold text-sm shadow-lg transition-all flex items-center gap-2 ${
+                    className={`px-7 py-3.5 rounded-2xl font-black text-sm shadow-md transition-all flex items-center gap-2 ${
                       isAllAnswered
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer hover:shadow-emerald-200'
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer hover:shadow-emerald-200 active:scale-98'
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
@@ -227,26 +242,26 @@ export const PhysicalLiteracyModal: React.FC<PhysicalLiteracyModalProps> = ({
                   </button>
                 </div>
               ) : (
-                <div className="p-6 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-2 border-emerald-400/60 rounded-3xl text-center space-y-3">
-                  <div className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto shadow-md">
-                    <Award className="w-8 h-8" />
+                <div className="p-6 sm:p-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-2 border-emerald-400/60 rounded-3xl text-center space-y-4 shadow-sm">
+                  <div className="w-16 h-16 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md text-3xl">
+                    🏆
                   </div>
-                  <h3 className="text-xl font-extrabold text-slate-800">
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-900">
                     Výsledek: {score} ze 3 správně!
                   </h3>
-                  <p className="text-slate-600 text-sm max-w-lg mx-auto">
+                  <p className="text-slate-600 text-sm max-w-lg mx-auto leading-relaxed">
                     {score === 3
-                      ? '🌟 Skvělé! Získáváte odznak Mistra pohybové gramotnosti pro třídu!'
-                      : 'Dobrá práce! Pohybová gramotnost je klíčem ke zdravým celoživotním návykům.'}
+                      ? '🌟 Fantastické! Získáváš odznak Mistra pohybové gramotnosti pro třídu!'
+                      : 'Dobrá práce! Pohybová gramotnost je klíčem ke zdravému a plnohodnotnému životu.'}
                   </p>
                   <button
                     onClick={() => {
                       setQuizSubmitted(false);
                       setSelectedAnswers({});
                     }}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-100 transition-colors"
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer"
                   >
-                    Zkusit znovu
+                    Vyzkoušet kvíz znovu
                   </button>
                 </div>
               )}
@@ -378,14 +393,18 @@ export const PhysicalLiteracyModal: React.FC<PhysicalLiteracyModalProps> = ({
 
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-          <div className="text-xs text-slate-500">
-            Aktuální průměr třídy: <strong className="text-slate-800">{classAvgSteps.toLocaleString('cs-CZ')} kroků/den</strong> (Národní cíl: 10 000)
+        {/* Modal Footer with generous breathing space */}
+        <div className="p-4 sm:p-6 bg-white border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div className="text-xs sm:text-sm text-slate-500 flex items-center gap-2">
+            <span>Aktuální průměr třídy:</span>
+            <span className="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-800 font-extrabold font-mono text-xs sm:text-sm">
+              {classAvgSteps.toLocaleString('cs-CZ')} kroků / den
+            </span>
+            <span className="text-[11px] text-slate-400 hidden sm:inline">(Národní cíl: 10 000)</span>
           </div>
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-900 text-white transition-colors"
+            className="px-6 py-2.5 rounded-2xl font-bold text-sm bg-slate-900 hover:bg-slate-800 text-white transition-all shadow-xs hover:shadow-md cursor-pointer active:scale-98"
           >
             Zavřít
           </button>
