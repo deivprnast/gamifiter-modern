@@ -194,13 +194,26 @@ export const updateStudentSteps = (studentId: string, steps: number): Student[] 
   return students;
 };
 
-export const addStudent = (name: string, groupId: string, initialSteps: number): Student => {
+export const updateStudentDevice = (studentId: string, device: string): Student[] => {
+  const students = getStudents();
+  const index = students.findIndex(s => s.id === studentId);
+  if (index !== -1) {
+    students[index].device = device;
+    localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(students));
+  }
+  return students;
+};
+
+export const addStudent = (name: string, groupId: string, initialSteps: number = 0, device: string = 'Google Fit (Android)'): Student => {
   const students = getStudents();
   const newStudent: Student = {
     id: `student-${Date.now()}`,
     name,
     groupId,
-    steps: Math.max(0, initialSteps)
+    steps: Math.max(0, initialSteps),
+    device,
+    lastSync: 'Čeká na připojení',
+    isReal: false
   };
   students.push(newStudent);
   localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(students));

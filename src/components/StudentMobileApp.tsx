@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Watch, Trophy, RefreshCw, Settings, 
-  Footprints, CheckCircle2, ChevronDown, Award 
+  Footprints, CheckCircle2, ChevronDown, Award,
+  Smartphone
 } from 'lucide-react';
 import { NativeHealthService } from '../services/nativeHealthService';
 import { type Challenge, type Group, type Student } from '../types';
@@ -31,12 +32,14 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   
   // Live steps telemetry from Garmin / Health Connect
   const [liveSteps, setLiveSteps] = useState<number>(0);
-  const [sensorStatus, setSensorStatus] = useState<string>('Hledám hodinky Garmin...');
+  const [sensorStatus, setSensorStatus] = useState<string>('Hledám senzory...');
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncSuccessMsg, setSyncSuccessMsg] = useState<string | null>(null);
   const [lastSyncTime, setLastSyncTime] = useState<string>('Zatím neproběhlo');
   const [showIdentityPicker, setShowIdentityPicker] = useState<boolean>(false);
   const [phoneStepsExtra, setPhoneStepsExtra] = useState<number>(0);
+  const [showDevicePicker, setShowDevicePicker] = useState<boolean>(false);
+  const [currentDevice, setCurrentDevice] = useState<string>('Google Fit (Android)');
 
   const currentChallenge = (challenges && challenges.length > 0)
     ? (challenges.find(c => c.id === activeChallengeId) || challenges[0])
@@ -110,6 +113,39 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (currentStudent?.device) {
+      setCurrentDevice(currentStudent.device);
+    } else if (currentStudent?.id === 'student-1') {
+      setCurrentDevice('Garmin Vívoactive 4');
+    }
+  }, [currentStudent]);
+
+  const handleSelectDevice = async (device: string) => {
+    setCurrentDevice(device);
+    setShowDevicePicker(false);
+    setSensorStatus(`Přepnuto na ${device}. Ověřuji senzory...`);
+
+    await NativeHealthService.requestHealthPermissions();
+    readGarminSteps();
+
+    try {
+      await fetch(NativeHealthService.getServerUrl('/api/sync'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: currentStudent.id,
+          studentName: currentStudent.name,
+          device: device,
+          steps: liveSteps,
+          isDelta: false
+        })
+      });
+    } catch (e) {
+      console.warn('Device update sync failed:', e);
+    }
+  };
+
   const handleSyncNow = async () => {
     setIsSyncing(true);
     setSyncSuccessMsg(null);
@@ -124,7 +160,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         body: JSON.stringify({
           studentToken: `ftk-${currentStudent.id}`,
           steps: stepsToSync,
-          device: 'Garmin Vívoactive 4',
+          device: currentDevice,
           timestamp: new Date().toISOString()
         })
       });
@@ -251,7 +287,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
           </div>
         )}
 
-        {/* Stav propojení s hodinkami Garmin */}
+        {/* Stav propojení se zařízením / senzorem */}
         <div style={{
           background: 'rgba(15, 23, 42, 0.6)',
           border: '1px solid rgba(56, 189, 248, 0.25)',
@@ -263,42 +299,100 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
-              width: '28px',
-              height: '28px',
+              width: '30px',
+              height: '30px',
               borderRadius: '8px',
-              background: '#0284c7',
+              background: currentDevice.includes('Garmin') ? '#0284c7' : currentDevice.includes('Apple') ? '#9333ea' : '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff'
             }}>
-              <Watch size={16} />
+              {currentDevice.includes('Garmin') ? <Watch size={16} /> : <Smartphone size={16} />}
             </div>
             <div>
               <div style={{ fontSize: '12px', fontWeight: 800, color: '#fff' }}>
-                Garmin Vívoactive 4
+                {currentDevice}
               </div>
               <div style={{ fontSize: '10px', color: '#22c55e', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
-                Google Health Connect aktivní
+                {currentDevice.includes('Google') ? 'Google Health Connect aktivní' : currentDevice.includes('Garmin') ? 'Garmin Connect spárován' : 'Pohybový senzor aktivní'}
               </div>
             </div>
           </div>
-          <button
-            onClick={readGarminSteps}
-            title="Znovu načíst z hodinek"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#38bdf8',
-              padding: '6px',
-              cursor: 'pointer',
-              display: 'flex'
-            }}
-          >
-            <RefreshCw size={16} />
-          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button
+              onClick={() => setShowDevicePicker(!showDevicePicker)}
+              style={{
+                background: 'rgba(56, 189, 248, 0.15)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                borderRadius: '8px',
+                padding: '5px 10px',
+                color: '#38bdf8',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              Změnit
+            </button>
+            <button
+              onClick={readGarminSteps}
+              title="Znovu načíst data"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#38bdf8',
+                padding: '6px',
+                cursor: 'pointer',
+                display: 'flex'
+              }}
+            >
+              <RefreshCw size={15} />
+            </button>
+          </div>
         </div>
+
+        {/* Modal / Sheet pro výběr zařízení */}
+        {showDevicePicker && (
+          <div style={{
+            background: '#1e293b',
+            border: '1px solid #334155',
+            borderRadius: '14px',
+            padding: '12px',
+            marginTop: '8px'
+          }}>
+            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, marginBottom: '8px' }}>
+              Jak měříte svůj pohyb?
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {[
+                { id: 'Google Fit (Android)', name: '🔵 Google Fit & Health Connect', desc: 'Telefon Android, hodinky Xiaomi, TicWatch, Samsung' },
+                { id: 'Garmin Vívoactive 4', name: '⌚ Garmin Vívoactive / Connect', desc: 'Chytré hodinky Garmin (Vívoactive, Forerunner, Fenix)' },
+                { id: 'Apple Zdraví (iOS)', name: '🍏 Apple Zdraví & Apple Watch', desc: 'Pro uživatele iPhonů a hodinek Apple Watch' },
+                { id: 'Telefon v kapse', name: '📱 Pouze telefon v kapse', desc: 'Krokoměr z interního pohybového senzoru mobilu' }
+              ].map(dev => (
+                <button
+                  key={dev.id}
+                  onClick={() => handleSelectDevice(dev.id)}
+                  style={{
+                    background: currentDevice === dev.id ? 'rgba(2, 132, 199, 0.3)' : 'rgba(255, 255, 255, 0.04)',
+                    border: currentDevice === dev.id ? '1px solid #0284c7' : '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '10px',
+                    padding: '8px 10px',
+                    textAlign: 'left',
+                    color: '#fff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ fontSize: '12px', fontWeight: 800 }}>{dev.name}</div>
+                  <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>{dev.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{ padding: '16px', maxWidth: '480px', margin: '0 auto' }}>

@@ -22,6 +22,9 @@ export interface Student {
   name: string;
   groupId: string;
   steps: number; // accumulated steps for current challenge
+  device?: string; // 'Garmin Vívoactive 4' | 'Google Fit (Android)' | 'Apple Zdraví' | 'Telefon v kapse'
+  lastSync?: string;
+  isReal?: boolean;
 }
 
 export interface GroupProgress {

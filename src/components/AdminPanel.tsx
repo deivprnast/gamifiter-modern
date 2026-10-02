@@ -3,7 +3,7 @@ import { type Challenge, type Group, type Student, type ModuleType } from '../ty
 import { 
   addChallenge, removeChallenge, 
   addGroup, removeGroup, 
-  addStudent, removeStudent, updateStudentSteps, 
+  addStudent, removeStudent, updateStudentSteps, updateStudentDevice,
   resetStorage, getChallenges, getGroups, getStudents
 } from '../services/storage';
 import { Plus, Trash2, RotateCcw, AlertTriangle, QrCode, Smartphone, Download } from 'lucide-react';
@@ -67,9 +67,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   // Student Form States
   const [sName, setSName] = useState('');
   const [sSteps, setSSteps] = useState(0);
+  const [sDevice, setSDevice] = useState('Google Fit (Android)');
 
   // Direct edit step states
   const [editingSteps, setEditingSteps] = useState<{ [id: string]: number }>({});
+
+  const handleDeviceChange = (studentId: string, device: string) => {
+    const updated = updateStudentDevice(studentId, device);
+    onStudentsUpdate(updated);
+  };
 
   const handleAddChallenge = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +129,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     e.preventDefault();
     if (!sName || !activeGroupId) return;
 
-    addStudent(sName, activeGroupId, sSteps);
+    addStudent(sName, activeGroupId, sSteps, sDevice);
     onStudentsUpdate(getStudents());
     
     setSName('');
@@ -474,6 +480,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       className="replicated-input"
                     />
                   </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold text-gray-500">Měřicí zařízení žáka</label>
+                    <select 
+                      value={sDevice} 
+                      onChange={e => setSDevice(e.target.value)}
+                      className="replicated-input"
+                    >
+                      <option value="Google Fit (Android)">🔵 Google Fit / Health Connect (Android)</option>
+                      <option value="Garmin Vívoactive 4">⌚ Garmin Vívoactive / Connect</option>
+                      <option value="Apple Zdraví (iOS)">🍏 Apple Zdraví / Watch (iOS)</option>
+                      <option value="Telefon v kapse">📱 Pouze telefon v kapse (Krokoměr)</option>
+                    </select>
+                  </div>
                   <button type="submit" className="replicated-button w-full justify-center">
                     <Plus className="h-4 w-4" />
                     <span>Uložit žáka</span>
@@ -500,8 +519,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <thead>
                   <tr>
                     <th className="py-2 px-4">Žák</th>
+                    <th className="py-2 px-4">Hardware / Propojení</th>
                     <th className="py-2 px-4 text-right">Zaznamenané kroky</th>
-                    <th className="py-2 px-4 w-32 text-center">Akce</th>
+                    <th className="py-2 px-4 w-28 text-center">Akce</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -513,6 +533,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       <tr key={student.id}>
                         <td className="py-3.5 px-4 font-semibold text-gray-900">
                           {student.name}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <select
+                            value={student.device || 'Google Fit (Android)'}
+                            onChange={(e) => handleDeviceChange(student.id, e.target.value)}
+                            className="text-[11px] font-semibold px-2 py-1 rounded-lg border border-gray-200 bg-white text-gray-800 outline-none focus:border-[#007CA6] cursor-pointer"
+                          >
+                            <option value="Google Fit (Android)">🔵 Google Fit (Android)</option>
+                            <option value="Garmin Vívoactive 4">⌚ Garmin Vívoactive</option>
+                            <option value="Apple Zdraví (iOS)">🍏 Apple Zdraví</option>
+                            <option value="Telefon v kapse">📱 Telefon v kapse</option>
+                          </select>
                         </td>
                         <td className="py-3.5 px-4 text-right">
                           <input 
