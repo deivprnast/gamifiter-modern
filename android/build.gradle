@@ -26,7 +26,7 @@ allprojects {
         resolutionStrategy {
             eachDependency { DependencyResolveDetails details ->
                 if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-stdlib')) {
-                    details.useVersion '1.9.24'
+                    details.useVersion '2.1.0'
                 }
             }
         }
