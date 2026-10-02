@@ -6,6 +6,8 @@ export interface HealthStepReading {
   date: string;
   source: string;
   isNative: boolean;
+  garminSteps?: number;
+  phoneSteps?: number;
 }
 
 export class NativeHealthService {
@@ -49,6 +51,7 @@ export class NativeHealthService {
 
   /**
    * Read actual live steps for today from native sensors / Health Connect (Garmin)
+   * Specifically separates Garmin watch records from phone accelerometer records.
    */
   static async getTodaySteps(): Promise<HealthStepReading> {
     const todayStr = new Date().toISOString().split('T')[0];
@@ -60,6 +63,73 @@ export class NativeHealthService {
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
+        let garminSteps = 0;
+        let watchSteps = 0;
+        let totalRawSteps = 0;
+        let hasGarmin = false;
+        let hasWatch = false;
+
+        // Try reading granular records to isolate Garmin Vívoactive 4 from phone's internal pocket tracker
+        try {
+          const sampleResult = await Health.readSamples({
+            dataType: 'steps',
+            startDate: startOfDay.toISOString(),
+            endDate: new Date().toISOString(),
+            limit: 2000
+          });
+
+          if (sampleResult?.samples && sampleResult.samples.length > 0) {
+            for (const sample of sampleResult.samples) {
+              const val = Math.round(sample.value || 0);
+              totalRawSteps += val;
+
+              const srcId = (sample.sourceId || '').toLowerCase();
+              const srcName = (sample.sourceName || '').toLowerCase();
+              const devType = (sample.deviceType || '').toLowerCase();
+
+              const isGarmin = srcId.includes('garmin') || srcName.includes('garmin');
+              const isWatch = isGarmin || devType === 'watch' || devType === 'fitnessband';
+
+              if (isGarmin) {
+                garminSteps += val;
+                hasGarmin = true;
+              }
+              if (isWatch) {
+                watchSteps += val;
+                hasWatch = true;
+              }
+            }
+          }
+        } catch (sampleErr) {
+          console.warn('[HealthService] readSamples failed, falling back to queryAggregated:', sampleErr);
+        }
+
+        // 1. If explicit Garmin records exist, return exact watch count!
+        if (hasGarmin && garminSteps > 0) {
+          console.log(`[HealthService] Isolated Garmin watch steps: ${garminSteps} (total with phone: ${totalRawSteps})`);
+          return {
+            steps: garminSteps,
+            date: todayStr,
+            source: `Garmin Vívoactive 4 (${garminSteps.toLocaleString()} kroků z hodinek)`,
+            isNative: true,
+            garminSteps,
+            phoneSteps: Math.max(0, totalRawSteps - garminSteps)
+          };
+        }
+
+        // 2. If watch records exist
+        if (hasWatch && watchSteps > 0) {
+          return {
+            steps: watchSteps,
+            date: todayStr,
+            source: `Chytré hodinky (${watchSteps.toLocaleString()} kroků z hodinek)`,
+            isNative: true,
+            garminSteps: watchSteps,
+            phoneSteps: Math.max(0, totalRawSteps - watchSteps)
+          };
+        }
+
+        // 3. Fallback to queryAggregated if no granular source separation available
         const result = await Health.queryAggregated({
           dataType: 'steps',
           startDate: startOfDay.toISOString(),

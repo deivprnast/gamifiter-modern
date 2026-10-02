@@ -36,6 +36,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   const [syncSuccessMsg, setSyncSuccessMsg] = useState<string | null>(null);
   const [lastSyncTime, setLastSyncTime] = useState<string>('Zatím neproběhlo');
   const [showIdentityPicker, setShowIdentityPicker] = useState<boolean>(false);
+  const [phoneStepsExtra, setPhoneStepsExtra] = useState<number>(0);
 
   const currentChallenge = (challenges && challenges.length > 0)
     ? (challenges.find(c => c.id === activeChallengeId) || challenges[0])
@@ -95,19 +96,19 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         const reading = await NativeHealthService.getTodaySteps();
         if (reading.steps > 0) {
           setLiveSteps(reading.steps);
-          setSensorStatus(`Živě z Garmin Vívoactive 4 (${reading.steps.toLocaleString()} kroků)`);
+          setSensorStatus(reading.source);
+          if (reading.phoneSteps) {
+            setPhoneStepsExtra(reading.phoneSteps);
+          }
         } else {
-          setLiveSteps(8450); // Fallback to current daytime sample if zero
-          setSensorStatus('Propojeno s Garmin Connect přes Health Connect');
+          setSensorStatus('Čekám na synchronizaci hodinek do Health Connect...');
         }
       } else {
-        setLiveSteps(8450);
-        setSensorStatus('Režim chytrých hodinek (Garmin Vívoactive 4)');
+        setSensorStatus('Vyžadováno oprávnění Google Health Connect');
       }
     } catch (e: any) {
       console.warn('Sensor reading error:', e);
-      setLiveSteps(8450);
-      setSensorStatus('Garmin Vívoactive 4 (připraveno k odeslání)');
+      setSensorStatus('Chyba při čtení senzorů');
     }
   };
 
@@ -376,7 +377,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             margin: '8px 0'
           }}>
             {(selectedPeriod === 'today' 
-              ? (liveSteps > 0 ? liveSteps : 8450)
+              ? liveSteps
               : selectedPeriod === 'week' 
               ? (liveSteps + 34200) 
               : currentStudent.steps).toLocaleString()}
@@ -386,9 +387,28 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
           <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '6px' }}>
             Poslední synchronizace: <strong style={{ color: '#cbd5e1' }}>{lastSyncTime}</strong>
           </div>
-          <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '14px' }}>
+          <div style={{ fontSize: '10px', color: '#38bdf8', fontWeight: 700, marginBottom: '10px' }}>
             {sensorStatus}
           </div>
+
+          {phoneStepsExtra > 0 && selectedPeriod === 'today' && (
+            <div style={{
+              background: 'rgba(56, 189, 248, 0.08)',
+              border: '1px solid rgba(56, 189, 248, 0.2)',
+              borderRadius: '10px',
+              padding: '6px 12px',
+              fontSize: '11px',
+              color: '#38bdf8',
+              margin: '0 auto 14px auto',
+              maxWidth: '360px',
+              lineHeight: '1.4'
+            }}>
+              ⌚ Z hodinek Garmin: <strong>{liveSteps.toLocaleString()} kroků</strong>
+              <span style={{ display: 'block', fontSize: '10px', color: '#94a3b8' }}>
+                (Mobil v kapse zaznamenal navíc +{phoneStepsExtra.toLocaleString()} kroků)
+              </span>
+            </div>
+          )}
 
           {/* Úspěch notifikace */}
           {syncSuccessMsg && (
