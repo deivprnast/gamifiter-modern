@@ -6,14 +6,15 @@ import {
   addStudent, removeStudent, updateStudentSteps, 
   resetStorage, getChallenges, getGroups, getStudents
 } from '../services/storage';
-import { Plus, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, RotateCcw, AlertTriangle, QrCode, Smartphone, Download } from 'lucide-react';
+import QRCode from 'qrcode';
 
 interface AdminPanelProps {
   challenges: Challenge[];
   groups: Group[];
   students: Student[];
   activeGroupId: string;
-  initialTab?: 'challenges' | 'groups' | 'reset';
+  initialTab?: 'challenges' | 'groups' | 'reset' | 'invitations';
   
   onChallengesUpdate: (challenges: Challenge[]) => void;
   onGroupsUpdate: (groups: Group[]) => void;
@@ -34,7 +35,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onGroupChange,
   onReset
 }) => {
-  const [activeTab, setActiveTab] = useState<'challenges' | 'groups' | 'reset'>('challenges');
+  const [activeTab, setActiveTab] = useState<'challenges' | 'groups' | 'reset' | 'invitations'>('challenges');
+  const [classQrUrl, setClassQrUrl] = useState<string>('');
 
   // Sync tab with initialTab prop from sidebar clicks
   useEffect(() => {
@@ -42,6 +44,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setActiveTab(initialTab);
     }
   }, [initialTab]);
+
+  useEffect(() => {
+    QRCode.toDataURL(window.location.origin + '/Gamifiter.apk', { width: 220, margin: 1 })
+      .then(url => setClassQrUrl(url))
+      .catch(console.error);
+  }, []);
 
   // Challenge Form States
   const [cName, setCName] = useState('');
@@ -169,7 +177,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     <div className="flex flex-col gap-6 animate-fade-in">
       <div className="view-title-container flex justify-between items-center border-b border-gray-200 pb-3">
         <h2 className="view-title">
-          {activeTab === 'challenges' ? 'Správa výzev' : activeTab === 'groups' ? 'Správa školy' : 'Nastavení systému'}
+          {activeTab === 'challenges' ? 'Správa výzev' : activeTab === 'groups' ? 'Správa školy' : activeTab === 'invitations' ? 'Pozvánka pro žáky & QR kód třídy' : 'Nastavení systému'}
         </h2>
         
         {/* Internal Tabs for navigation */}
@@ -183,6 +191,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             }`}
           >
             Seznam a tvorba výzev
+          </button>
+          <button
+            onClick={() => setActiveTab('invitations')}
+            className={`px-3 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'invitations' 
+                ? 'bg-emerald-600 text-white' 
+                : 'text-gray-500 bg-white border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            <QrCode className="h-3.5 w-3.5" />
+            <span>Pozvánka pro žáky (QR)</span>
           </button>
           <button
             onClick={() => setActiveTab('groups')}
@@ -519,6 +538,108 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invitations & QR Tab */}
+      {activeTab === 'invitations' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+          {/* Card: Třídní QR kód a odkaz */}
+          <div className="replicated-card lg:col-span-1 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col items-center p-6 text-center">
+            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-3">
+              Kód třídy pro žáky
+            </span>
+            <div className="text-2xl font-black text-gray-900 mb-1">
+              {groups.find(g => g.id === activeGroupId)?.name || 'Třída 7. A'}
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              Učitel: {groups.find(g => g.id === activeGroupId)?.adminName || 'Mgr. Michal Vorlíček'}
+            </p>
+
+            <div className="p-3 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl mb-4">
+              {classQrUrl ? (
+                <img src={classQrUrl} alt="QR kód třídy" className="w-48 h-48 rounded-xl shadow-sm" />
+              ) : (
+                <div className="w-48 h-48 flex items-center justify-center text-gray-400 text-xs">
+                  Generuji QR kód...
+                </div>
+              )}
+            </div>
+
+            <div className="bg-slate-900 text-cyan-400 font-mono text-sm px-4 py-2 rounded-xl font-bold mb-4 w-full">
+              PIN TŘÍDY: 7A-FTK
+            </div>
+
+            <a
+              href="/Gamifiter.apk"
+              download="Gamifiter.apk"
+              className="replicated-button bg-[#007CA6] hover:bg-[#006588] text-white w-full justify-center text-xs py-2.5 font-bold"
+            >
+              <Download className="h-4 w-4" />
+              <span>Stáhnout instalační APK pro žáky</span>
+            </a>
+          </div>
+
+          {/* Card: Jak to funguje pro učitele a žáky */}
+          <div className="replicated-card lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 flex flex-col justify-between">
+            <div>
+              <h3 className="text-base font-extrabold text-gray-900 mb-2 flex items-center gap-2">
+                <Smartphone className="h-5 w-5 text-emerald-600" />
+                <span>Jak zapojit žáky a spustit výzvu krok za krokem</span>
+              </h3>
+              <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                Aplikace je navržena tak, aby učitel na velké obrazovce řídil výzvu a žáci na mobilech přispívali svými reálnými kroky.
+              </p>
+
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-3 p-3.5 bg-blue-50/70 border border-blue-100 rounded-xl">
+                  <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                    1
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-blue-900">Učitel založí výzvu (záložka „Seznam a tvorba výzev“)</h4>
+                    <p className="text-[11px] text-blue-700 mt-0.5 leading-relaxed">
+                      Zadáte název (např. <em>Krkonošská stezka 7.A</em>), cíl v krocích (např. 500 000 kroků), termín od–do a vyberete herní modul (Mapa, Puzzle, Okresy).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-xl">
+                  <div className="w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                    2
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-emerald-900">Promítnete QR kód ve třídě na interaktivní tabuli</h4>
+                    <p className="text-[11px] text-emerald-700 mt-0.5 leading-relaxed">
+                      Žáci si namíří fotoaparát mobilu na QR kód, stáhnou aplikaci Gamifiter a povolí přístup k počtu kroků (Google Health Connect / Garmin).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3.5 bg-purple-50/70 border border-purple-100 rounded-xl">
+                  <div className="w-7 h-7 rounded-full bg-purple-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-purple-900">Žáci klepnou na „Synchronizovat s velkou tabulí“</h4>
+                    <p className="text-[11px] text-purple-700 mt-0.5 leading-relaxed">
+                      Žák vidí čistou mobilní aplikaci jen se svými kroky a pořadím v 7. A. Každé odeslání okamžitě posouvá celou třídu po mapě dopředu na velké tabuli ve třídě!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+              <span>Aktuálně zapsáno v třídě: <strong>{activeGroupStudents.length} žáků</strong></span>
+              <button
+                onClick={() => setActiveTab('challenges')}
+                className="text-emerald-700 font-bold hover:underline"
+              >
+                Přejít na tvorbu výzev →
+              </button>
             </div>
           </div>
         </div>

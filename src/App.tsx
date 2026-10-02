@@ -28,7 +28,7 @@ import { ModuleNetwork } from './components/games/ModuleNetwork';
 
 // Telemetry & Device Sync Views (FTK UP Research)
 import { SyncResearchPanel } from './components/SyncResearchPanel';
-import { MobileSyncPortal } from './components/MobileSyncPortal';
+import { StudentMobileApp } from './components/StudentMobileApp';
 import { NativeHealthService } from './services/nativeHealthService';
 
 // Icons
@@ -52,7 +52,7 @@ function App() {
     window.location.pathname === '/sync' || 
     window.location.search.includes('token=') ||
     NativeHealthService.isNative() ||
-    window.innerWidth <= 600
+    window.innerWidth <= 768
   );
 
   // Sync toast notifications
@@ -267,8 +267,17 @@ function App() {
       case 'sync-research':
         if (NativeHealthService.isNative() || window.innerWidth <= 768) {
           return (
-            <MobileSyncPortal 
-              onBackToApp={() => setActiveItem('my-results')} 
+            <StudentMobileApp 
+              challenges={challenges}
+              groups={groups}
+              students={students}
+              activeChallengeId={activeChallengeId}
+              activeGroupId={activeGroupId}
+              onSyncComplete={(studentId, newSteps) => {
+                updateStudentSteps(studentId, newSteps);
+                setStudents(getStudents());
+              }}
+              onSwitchToTeacherMode={() => setActiveItem('active-challenge')}
             />
           );
         }
@@ -537,11 +546,25 @@ function App() {
 
   if (showMobilePortal) {
     return (
-      <MobileSyncPortal 
-        onBackToApp={() => {
+      <StudentMobileApp 
+        challenges={challenges}
+        groups={groups}
+        students={students}
+        activeChallengeId={activeChallengeId}
+        activeGroupId={activeGroupId}
+        onSyncComplete={(studentId, newSteps) => {
+          updateStudentSteps(studentId, newSteps);
+          setStudents(getStudents());
+          setSyncToast({
+            message: `⚡ TELEMETRIE FTK: Kroky úspěšně propsány do výzvy!`,
+            visible: true
+          });
+        }}
+        onSwitchToTeacherMode={() => {
           window.history.pushState({}, '', '/');
           setShowMobilePortal(false);
-        }} 
+          setActiveItem('active-challenge');
+        }}
       />
     );
   }
