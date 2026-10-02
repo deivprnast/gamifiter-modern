@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Award, Users, Home, PlayCircle, Settings, Building2, BookOpen, Smartphone } from 'lucide-react';
+import { Award, Users, Home, PlayCircle, Settings, Building2, BookOpen, Smartphone, Menu } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { ResearchModal } from './ResearchModal';
 
 interface TopHeaderProps {
   activeItem: string;
   onSelect?: (item: string) => void;
+  onOpenMobileMenu?: () => void;
 }
 
-export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) => {
+export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect, onOpenMobileMenu }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isResearchOpen, setIsResearchOpen] = useState(false);
   const [adminName, setAdminName] = useState(() => localStorage.getItem('gamifiter_admin_name') || 'David Prycl');
@@ -115,8 +116,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeItem, onSelect }) =>
   return (
     <>
       <div className="top-header-container flex flex-wrap items-center justify-between px-6 py-2.5 bg-white border-b border-gray-200/80 shadow-xs gap-3">
-        {/* Left side: Navigation Breadcrumbs */}
+        {/* Left side: Navigation Breadcrumbs & Mobile Menu Button */}
         <div className="top-header-left flex items-center gap-2 text-xs font-medium text-gray-500 shrink-0">
+          {onOpenMobileMenu && (
+            <button
+              onClick={onOpenMobileMenu}
+              className="md:hidden p-1.5 -ml-1.5 rounded-xl text-gray-700 hover:text-[#007CA6] hover:bg-gray-100 transition-all cursor-pointer flex items-center justify-center border border-gray-200/80 shadow-2xs bg-gray-50"
+              title="Otevřít postranní menu"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+          )}
           {getBreadcrumbs()}
         </div>
 

@@ -39,7 +39,7 @@ import { StudentMobileApp } from './components/StudentMobileApp';
 import { NativeHealthService } from './services/nativeHealthService';
 
 // Icons
-import { Map, MapPin, Grid, Sparkles, Network, Activity, Watch, RefreshCw, Award } from 'lucide-react';
+import { Map, MapPin, Grid, Sparkles, Network, Activity, Watch, RefreshCw, Award, Menu, PlayCircle, Users, Home } from 'lucide-react';
 
 const VALID_ROUTES = [
   'active-challenge',
@@ -86,14 +86,15 @@ function App() {
   const [riddleGuess, setRiddleGuess] = useState('');
   const [riddleSolved, setRiddleSolved] = useState(false);
 
-  // Mobile sync portal route check (auto-open on native mobile, student-mobile route, or small screens)
+  // Mobile sync portal route check (auto-open ONLY on explicit sync URL or explicit student-mobile hash)
   const [showMobilePortal, setShowMobilePortal] = useState(() => 
     window.location.pathname === '/sync' || 
     window.location.search.includes('token=') ||
-    window.location.hash.includes('student-mobile') ||
-    NativeHealthService.isNative() ||
-    window.innerWidth <= 768
+    window.location.hash.includes('student-mobile')
   );
+
+  // Mobile sliding sidebar drawer state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Sync toast notifications
   const [syncToast, setSyncToast] = useState<{ message: string; visible: boolean }>({
@@ -248,13 +249,14 @@ function App() {
   const currentProgressPercent = progressInfo ? progressInfo.progressPercent : 0;
 
   const handleSidebarSelect = (item: string) => {
+    setIsMobileMenuOpen(false);
     if (item === 'student-mobile') {
       setShowMobilePortal(true);
       setActiveItem('student-mobile');
       window.location.hash = '#/student-mobile';
       return;
     }
-    if (item === 'sync-research' && (NativeHealthService.isNative() || window.innerWidth <= 768)) {
+    if (item === 'sync-research' && NativeHealthService.isNative()) {
       setShowMobilePortal(true);
       setActiveItem('student-mobile');
       window.location.hash = '#/student-mobile';
@@ -951,20 +953,105 @@ function App() {
   return (
     <div className="min-h-screen bg-[#F3F4F6] text-gray-800">
       <div className="main-layout">
-        {/* Left Sidebar */}
-        <Sidebar activeItem={activeItem} onSelect={handleSidebarSelect} />
+        {/* Left Sidebar (Desktop permanent, Mobile sliding drawer) */}
+        <Sidebar 
+          activeItem={activeItem} 
+          onSelect={handleSidebarSelect} 
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
 
         {/* Right Content Area Container */}
         <div className="content-area-container">
           {/* Sticky Top Header bar */}
-          <TopHeader activeItem={activeItem} onSelect={handleSidebarSelect} />
+          <TopHeader 
+            activeItem={activeItem} 
+            onSelect={handleSidebarSelect} 
+            onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+          />
 
           {/* Active View Wrapper */}
-          <main className="view-content-wrapper pb-32">
+          <main className="view-content-wrapper pb-28 md:pb-12">
             {renderActiveView()}
           </main>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation Dock (Nativní spodní navigace pro mobil) */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-xl border-t border-gray-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-30 py-1.5 px-2 safe-area-pb">
+        <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
+          {/* 1: Výzva */}
+          <button
+            onClick={() => handleSidebarSelect('active-challenge')}
+            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+              activeItem === 'active-challenge'
+                ? 'text-[#007CA6] font-black'
+                : 'text-gray-500 hover:text-gray-800 font-semibold'
+            }`}
+          >
+            <div className={`p-1 rounded-lg ${activeItem === 'active-challenge' ? 'bg-[#007CA6]/15' : ''}`}>
+              <PlayCircle className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Výzva</span>
+          </button>
+
+          {/* 2: Výsledky */}
+          <button
+            onClick={() => handleSidebarSelect('my-results')}
+            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+              activeItem === 'my-results'
+                ? 'text-[#007CA6] font-black'
+                : 'text-gray-500 hover:text-gray-800 font-semibold'
+            }`}
+          >
+            <div className={`p-1 rounded-lg ${activeItem === 'my-results' ? 'bg-[#007CA6]/15' : ''}`}>
+              <Award className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Výsledky</span>
+          </button>
+
+          {/* 3: Třída */}
+          <button
+            onClick={() => handleSidebarSelect('my-class')}
+            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+              activeItem === 'my-class'
+                ? 'text-[#007CA6] font-black'
+                : 'text-gray-500 hover:text-gray-800 font-semibold'
+            }`}
+          >
+            <div className={`p-1 rounded-lg ${activeItem === 'my-class' ? 'bg-[#007CA6]/15' : ''}`}>
+              <Users className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Třída</span>
+          </button>
+
+          {/* 4: Škola */}
+          <button
+            onClick={() => handleSidebarSelect('my-school')}
+            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
+              activeItem === 'my-school'
+                ? 'text-[#007CA6] font-black'
+                : 'text-gray-500 hover:text-gray-800 font-semibold'
+            }`}
+          >
+            <div className={`p-1 rounded-lg ${activeItem === 'my-school' ? 'bg-[#007CA6]/15' : ''}`}>
+              <Home className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Škola</span>
+          </button>
+
+          {/* 5: Menu / Více */}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-gray-500 hover:text-gray-800 font-semibold transition-all cursor-pointer"
+          >
+            <div className="p-1 rounded-lg hover:bg-gray-100">
+              <Menu className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Menu</span>
+          </button>
+        </div>
+      </nav>
 
       {/* Sync Toast Notification */}
       {syncToast.visible && (
