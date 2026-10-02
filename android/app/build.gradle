@@ -16,6 +16,10 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
     signingConfigs {
         release {
             storeFile file('gamifiter-release.keystore')
@@ -42,12 +46,12 @@ repositories {
 }
 
 dependencies {
-    implementation platform('org.jetbrains.kotlin:kotlin-bom:2.1.0')
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:2.4.20')
     constraints {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0") {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.4.20") {
             because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
         }
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0") {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.20") {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
