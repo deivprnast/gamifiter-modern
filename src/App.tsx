@@ -4,7 +4,7 @@ import {
   getChallenges, getGroups, getStudents, 
   getActiveChallengeId, setActiveChallengeId, 
   getActiveGroupId, setActiveGroupId, 
-  getGroupProgress, updateStudentSteps, 
+  getGroupProgress, updateStudentSteps, updateChallenge,
   initializeStorage, syncWithCloudD1
 } from './services/storage';
 import { type Challenge, type Group, type Student, type ModuleType } from './types';
@@ -32,7 +32,7 @@ import { StudentMobileApp } from './components/StudentMobileApp';
 import { NativeHealthService } from './services/nativeHealthService';
 
 // Icons
-import { Map, MapPin, Grid, Sparkles, Network, Activity } from 'lucide-react';
+import { Map, MapPin, Grid, Sparkles, Network, Activity, Watch, RefreshCw } from 'lucide-react';
 
 const VALID_ROUTES = [
   'active-challenge',
@@ -220,6 +220,16 @@ function App() {
     }
     setActiveItem(item);
     window.location.hash = `#/${item}`;
+  };
+
+  const handleSetChallengeTarget = (newTarget: number) => {
+    if (!currentChallenge) return;
+    const updated = updateChallenge(currentChallenge.id, { targetSteps: newTarget });
+    setChallenges(updated);
+    setSyncToast({
+      message: `🎯 Cíl výzvy upraven na ${newTarget.toLocaleString()} kroků! Postup zreálněn.`,
+      visible: true
+    });
   };
 
   // Render the selected view
@@ -447,6 +457,74 @@ function App() {
               className="text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <span>📱 Pozvánka pro žáky</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Real Fitness Bracelet Live Telemetry Banner (Garmin / Health Connect) */}
+        <div className="bg-gradient-to-r from-sky-50/90 via-cyan-50/70 to-emerald-50/80 border border-sky-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-[#007CA6] text-white flex items-center justify-center shadow-md shrink-0">
+              <Watch className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-black uppercase tracking-wider text-[#007CA6]">Reálná telemetrie z náramku</span>
+                <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  LIVE Z HODINEK
+                </span>
+                <span className="text-[11px] text-gray-500 font-medium">
+                  {students.find(s => s.id === 'student-1')?.device || 'Garmin Vívoactive 4'}
+                </span>
+              </div>
+              <div className="text-sm font-black text-gray-900 mt-0.5">
+                David Prycl:{' '}
+                <span className="text-[#007CA6]">
+                  {(students.find(s => s.id === 'student-1')?.steps || 6464).toLocaleString()} kroků
+                </span>{' '}
+                <span className="text-gray-400 font-normal">|</span>{' '}
+                <span className="text-emerald-700">
+                  {(((students.find(s => s.id === 'student-1')?.steps || 6464) * 0.00075)).toFixed(2)} km ušlápnuto
+                </span>{' '}
+                <span className="text-gray-400 font-normal">|</span>{' '}
+                <span className="text-gray-600 font-semibold">
+                  Splněno {Math.min(100, Math.round(((students.find(s => s.id === 'student-1')?.steps || 6464) / currentChallenge.targetSteps) * 1000) / 10)} % výzvy
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="text-xs text-gray-500 font-bold mr-1">Měřítko cíle výzvy:</div>
+            <button
+              onClick={() => handleSetChallengeTarget(10000)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                currentChallenge.targetSteps <= 20000
+                  ? 'bg-[#007CA6] text-white border-[#007CA6] shadow-xs'
+                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+              }`}
+              title="Přepnout cíl na denní etapu 10 000 kroků (pro zreálnění postupu jednotlivce)"
+            >
+              🏃 Denní etapa (10 000 kroků)
+            </button>
+            <button
+              onClick={() => handleSetChallengeTarget(500000)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                currentChallenge.targetSteps > 20000
+                  ? 'bg-[#007CA6] text-white border-[#007CA6] shadow-xs'
+                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+              }`}
+              title="Přepnout na celotřídní cíl 500 000 kroků (pro 30 žáků)"
+            >
+              👥 Celá třída (500 000 kroků)
+            </button>
+            <button
+              onClick={syncFromCloud}
+              className="p-2 rounded-xl text-gray-600 hover:text-[#007CA6] hover:bg-white border border-transparent hover:border-gray-200 transition-all cursor-pointer"
+              title="Aktualizovat data z cloudu"
+            >
+              <RefreshCw className="h-4 w-4" />
             </button>
           </div>
         </div>

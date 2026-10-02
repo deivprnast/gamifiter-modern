@@ -92,71 +92,106 @@ export const ModuleMap: React.FC<ModuleMapProps> = ({ progress, filePath, studen
   const bounds = L.latLngBounds(coordinates);
 
   // Custom DivIcon creator for premium look
+  // Custom DivIcon creator for premium look
   const createCityIcon = (city: any) => {
     const cityRoadIndex = city.properties.road; // e.g. 0, 1, 2...
-    // Total cities count in data is 10 (indices 0 to 9)
-    const isUnlocked = progress * 9.0 >= cityRoadIndex;
+    const isStart = city.properties.start || cityRoadIndex === 0;
+    const isUnlocked = isStart || (progress * 9.0 >= cityRoadIndex);
     const flagCode = city.properties.code?.toLowerCase();
     
-    const html = isUnlocked
-      ? `<div class="city-marker unlocked" style="
+    let html = '';
+    if (isStart) {
+      html = `<div class="city-marker start" style="
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          border: 2.5px solid #007CA6;
+          box-shadow: 0 0 12px rgba(0, 124, 166, 0.6), 0 2px 6px rgba(0,0,0,0.2);
+          overflow: hidden;
+          background: #FFFFFF;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        ">
+          <img src="https://flagcdn.com/w40/${flagCode}.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Start" />
+        </div>`;
+    } else if (isUnlocked) {
+      html = `<div class="city-marker unlocked" style="
           width: 28px;
           height: 28px;
           border-radius: 50%;
-          border: 2px solid #10B981;
-          box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+          border: 2.5px solid #10B981;
+          box-shadow: 0 0 10px rgba(16, 185, 129, 0.5), 0 2px 6px rgba(0,0,0,0.15);
           overflow: hidden;
-          background: #1E293B;
+          background: #FFFFFF;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.2s;
+          cursor: pointer;
         ">
-          <img src="https://flagcdn.com/w40/${flagCode}.png" style="width: 130%; height: 130%; object-fit: cover;" />
-        </div>`
-      : `<div class="city-marker locked" style="
+          <img src="https://flagcdn.com/w40/${flagCode}.png" style="width: 100%; height: 100%; object-fit: cover;" alt="${city.properties.city}" />
+        </div>`;
+    } else {
+      html = `<div class="city-marker locked" style="
           width: 24px;
           height: 24px;
           border-radius: 50%;
-          border: 2px solid #F43F5E;
-          background: #1E293B;
+          border: 2px solid #94A3B8;
+          background: #F8FAFC;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F43F5E;
-          font-size: 10px;
-          box-shadow: 0 0 5px rgba(244, 63, 94, 0.4);
+          color: #64748B;
+          font-size: 11px;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+          cursor: pointer;
         ">🔒</div>`;
+    }
 
     return L.divIcon({
       html,
       className: 'custom-leaflet-icon',
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
+      iconSize: isStart ? [32, 32] : [28, 28],
+      iconAnchor: isStart ? [16, 16] : [14, 14],
     });
   };
 
-  const createStudentIcon = (initials: string) => {
+  const createStudentIcon = (initials: string, name: string) => {
     return L.divIcon({
-      html: `<div class="student-marker" style="
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #06B6D4, #8B5CF6);
-        border: 2px solid #FFFFFF;
-        box-shadow: 0 0 8px rgba(6, 182, 212, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        font-size: 11px;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        animation: pulse 1.5s infinite alternate;
-      ">${initials}</div>`,
+      html: `<div style="position: relative; display: flex; flex-direction: column; align-items: center;">
+        <div class="student-marker" style="
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          background: #007CA6;
+          border: 2.5px solid #FFFFFF;
+          box-shadow: 0 4px 12px rgba(0, 124, 166, 0.4), 0 0 0 3px rgba(0, 124, 166, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: 800;
+          font-size: 11px;
+          letter-spacing: -0.5px;
+          cursor: pointer;
+        ">${initials}</div>
+        <div style="
+          margin-top: 2px;
+          white-space: nowrap;
+          background: rgba(15, 23, 42, 0.85);
+          backdrop-filter: blur(4px);
+          color: white;
+          font-size: 9px;
+          font-weight: 700;
+          padding: 1px 6px;
+          border-radius: 6px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        ">${name.split(' ')[0]}</div>
+      </div>`,
       className: 'custom-leaflet-student',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
+      iconSize: [34, 50],
+      iconAnchor: [17, 17],
     });
   };
 
@@ -170,12 +205,12 @@ export const ModuleMap: React.FC<ModuleMapProps> = ({ progress, filePath, studen
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '500px' }}>
+    <div style={{ position: 'relative', width: '100%', height: '520px' }}>
       <MapContainer
         key={filePath}
         center={[50.075, 14.437]}
         zoom={4}
-        style={{ width: '100%', height: '100%', borderRadius: '12px' }}
+        style={{ width: '100%', height: '100%', borderRadius: '16px' }}
         zoomControl={true}
       >
         <TileLayer
@@ -204,7 +239,9 @@ export const ModuleMap: React.FC<ModuleMapProps> = ({ progress, filePath, studen
           const lat = city.geometry.coordinates[1];
           const lng = city.geometry.coordinates[0];
           const cityRoadIndex = city.properties.road;
-          const isUnlocked = progress * 9.0 >= cityRoadIndex;
+          const isStart = city.properties.start || cityRoadIndex === 0;
+          const isUnlocked = isStart || (progress * 9.0 >= cityRoadIndex);
+          const flagCode = city.properties.code?.toLowerCase();
           
           return (
             <Marker
@@ -213,24 +250,66 @@ export const ModuleMap: React.FC<ModuleMapProps> = ({ progress, filePath, studen
               icon={createCityIcon(city)}
             >
               <Popup>
-                <div style={{ fontFamily: 'var(--font-sans)', minWidth: '220px' }}>
-                  <h4 style={{ margin: '0 0 8px 0', color: isUnlocked ? '#10B981' : '#F43F5E', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {isUnlocked ? '🔓' : '🔒'} {city.properties.city_cs || city.properties.city}, {city.properties.country_cs || city.properties.country}
-                  </h4>
+                <div style={{ minWidth: '240px', maxWidth: '320px', color: '#0F172A' }}>
+                  {/* Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px', borderBottom: '1px solid #F1F5F9', paddingBottom: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <img 
+                        src={`https://flagcdn.com/w20/${flagCode}.png`} 
+                        alt={city.properties.country_cs || ''} 
+                        style={{ width: '18px', height: 'auto', borderRadius: '2px', border: '1px solid rgba(0,0,0,0.1)' }} 
+                      />
+                      <h4 style={{ margin: 0, color: '#0F172A', fontWeight: 800, fontSize: '14px' }}>
+                        {city.properties.city_cs || city.properties.city}
+                      </h4>
+                    </div>
+                    {isStart ? (
+                      <span style={{ fontSize: '10px', fontWeight: 700, background: '#EFF6FF', color: '#1D4ED8', padding: '2px 8px', borderRadius: '9999px', border: '1px solid #BFDBFE' }}>
+                        🏁 Start
+                      </span>
+                    ) : isUnlocked ? (
+                      <span style={{ fontSize: '10px', fontWeight: 700, background: '#ECFDF5', color: '#047857', padding: '2px 8px', borderRadius: '9999px', border: '1px solid #A7F3D0' }}>
+                        ✓ Odemčeno
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '10px', fontWeight: 700, background: '#FFF1F2', color: '#BE123C', padding: '2px 8px', borderRadius: '9999px', border: '1px solid #FECDD3' }}>
+                        🔒 Zamčeno
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Body Content */}
                   {isUnlocked ? (
                     <div>
-                      <p style={{ fontSize: '13px', lineHeight: '1.4', margin: '0 0 10px 0', color: '#E2E8F0' }}>
-                        {city.properties.content}
+                      <p style={{ fontSize: '12.5px', lineHeight: '1.55', margin: '0 0 10px 0', color: '#334155' }}>
+                        {city.properties.content ? city.properties.content.replace(/^["']|["']$/g, '') : 'Zajímavost o tomto evropském městě.'}
                       </p>
-                      <div style={{ fontSize: '11px', textAlign: 'right', fontStyle: 'italic', color: '#94A3B8' }}>
-                        Zdroj: <a href={city.properties.link} target="_blank" rel="noreferrer" style={{ color: '#06B6D4', textDecoration: 'none' }}>{city.properties.reference}</a>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748B', paddingTop: '6px', borderTop: '1px solid #F8FAFC' }}>
+                        <span>{city.properties.country_cs || city.properties.country}</span>
+                        {city.properties.link ? (
+                          <a 
+                            href={city.properties.link} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            style={{ color: '#007CA6', fontWeight: 600, textDecoration: 'none' }}
+                          >
+                            {city.properties.reference || 'Wikipedie'} →
+                          </a>
+                        ) : null}
                       </div>
                     </div>
                   ) : (
-                    <p style={{ fontSize: '13px', margin: '0', color: '#94A3B8' }}>
-                      Toto město je uzamčeno. Zvyšte krok v týmu, abyste jej odemkli! Odemkne se při splnění{' '}
-                      <strong>{Math.round((cityRoadIndex / 9) * 100)} %</strong> výzvy.
-                    </p>
+                    <div style={{ fontSize: '12px', lineHeight: '1.5', color: '#475569' }}>
+                      <p style={{ margin: '0 0 8px 0' }}>
+                        Město <strong>{city.properties.city_cs || city.properties.city}</strong> leží na trase výzvy.
+                      </p>
+                      <div style={{ background: '#F8FAFC', padding: '8px 10px', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                        <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '2px' }}>Odemkne se při splnění:</div>
+                        <div style={{ fontWeight: 700, color: '#0F172A' }}>
+                          {Math.round((cityRoadIndex / 9) * targetSteps).toLocaleString()} kroků ({Math.round((cityRoadIndex / 9) * 100)} % trasy)
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </Popup>
@@ -243,14 +322,24 @@ export const ModuleMap: React.FC<ModuleMapProps> = ({ progress, filePath, studen
           <Marker
             key={`student-map-${idx}`}
             position={student.pos}
-            icon={createStudentIcon(getInitials(student.name))}
+            icon={createStudentIcon(getInitials(student.name), student.name)}
           >
             <Popup>
-              <div style={{ fontFamily: 'var(--font-sans)' }}>
-                <h4 style={{ margin: '0 0 4px 0', color: '#06B6D4', fontWeight: 700 }}>{student.name}</h4>
-                <p style={{ margin: '0', fontSize: '13px', color: '#E2E8F0' }}>
-                  Kroky: <strong>{student.steps.toLocaleString()}</strong> ({student.progressPercent} % výzvy)
-                </p>
+              <div style={{ minWidth: '200px', color: '#0F172A' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', borderBottom: '1px solid #F1F5F9', paddingBottom: '6px' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#007CA6', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '11px' }}>
+                    {getInitials(student.name)}
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, color: '#0F172A', fontWeight: 800, fontSize: '13px' }}>{student.name}</h4>
+                    <span style={{ fontSize: '10px', color: '#059669', fontWeight: 600 }}>🟢 Reálná telemetrie FTK UP</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: '12px', color: '#334155', background: '#F8FAFC', padding: '8px 10px', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ marginBottom: '3px' }}>Kroky celkem: <strong style={{ color: '#007CA6' }}>{student.steps.toLocaleString()} kroků</strong></div>
+                  <div style={{ marginBottom: '3px' }}>Ušlá vzdálenost: <strong>{(student.steps * 0.00075).toFixed(2)} km</strong></div>
+                  <div>Postup ve výzvě: <strong>{student.progressPercent} %</strong></div>
+                </div>
               </div>
             </Popup>
           </Marker>
