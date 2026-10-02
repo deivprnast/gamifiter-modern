@@ -44,7 +44,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   const [sensorStatus, setSensorStatus] = useState<string>('Garmin Vívoactive 4 připojen');
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncSuccessMsg, setSyncSuccessMsg] = useState<string | null>(null);
-  const [lastSyncTime, setLastSyncTime] = useState<string>('Dnes ve 20:17');
+  const [lastSyncTime, setLastSyncTime] = useState<string>('Dnes ve 20:31');
   const [showDevicePicker, setShowDevicePicker] = useState<boolean>(false);
   const [currentDevice, setCurrentDevice] = useState<string>('Garmin Vívoactive 4');
   const [useTeamShare, setUseTeamShare] = useState<boolean>(true);
@@ -260,7 +260,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
   ];
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#F1F5F9] text-slate-800 font-sans pb-28 flex flex-col selection:bg-[#007CA6] selection:text-white">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#EEF2F6] text-slate-800 font-sans pb-28 flex flex-col selection:bg-[#007CA6] selection:text-white">
       
       {/* 1. TOP NATIVE STATUS HEADER (Apple / Android Grade Bar) */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 px-4 py-2.5 shadow-2xs w-full max-w-full overflow-hidden">
@@ -337,36 +337,36 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         )}
       </header>
 
-      {/* 2. MAIN ACTIVE VIEW CONTAINER (With safe padding and zero horizontal overflow) */}
-      <main className="flex-1 max-w-md w-full mx-auto px-4 py-3.5 space-y-3.5 overflow-hidden">
+      {/* 2. MAIN ACTIVE VIEW CONTAINER (With generous padding and distinct floating Apple cards) */}
+      <main className="flex-1 max-w-md w-full mx-auto px-4 py-4 space-y-4 overflow-hidden">
 
         {/* ==================================================================== */}
         {/* TAB 1: MŮJ DEN (Apple Fitness & Strava Grade Circadian Experience)     */}
         {/* ==================================================================== */}
         {activeTab === 'my-day' && (
-          <div className="space-y-3.5 animate-fade-in w-full min-w-0">
+          <div className="space-y-4 animate-fade-in w-full min-w-0">
             
-            {/* HERO ACTIVITY RING CARD */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] relative overflow-hidden w-full min-w-0">
+            {/* CARD 1: HERO ACTIVITY RING & METRICS */}
+            <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100/80 relative overflow-hidden w-full min-w-0 space-y-3">
               {/* Badges row: Streak on left, Rank on right */}
-              <div className="flex items-center justify-between gap-1.5 mb-2 min-w-0">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200/80 shrink-0">
+              <div className="flex items-center justify-between gap-1.5 min-w-0">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200/80 shrink-0">
                   <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
                   <span>{currentStudent.streakDays || 8} dní série</span>
                 </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 text-[#007CA6] border border-sky-200/80 shrink-0">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-[#007CA6] border border-sky-200/80 shrink-0">
                   <Trophy className="w-3.5 h-3.5 shrink-0" />
                   <span>{myRank}. ve třídě</span>
                 </span>
               </div>
 
               {/* Circular Activity Ring + Steps Center */}
-              <div className="flex items-center justify-center py-1 relative">
-                <svg className="w-36 h-36 transform -rotate-90">
+              <div className="flex items-center justify-center py-2 relative">
+                <svg className="w-38 h-38 transform -rotate-90">
                   {/* Background Track */}
                   <circle
-                    cx="72"
-                    cy="72"
+                    cx="76"
+                    cy="76"
                     r={ringRadius}
                     className="stroke-slate-100"
                     strokeWidth="11"
@@ -374,8 +374,8 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                   />
                   {/* Glowing Animated Progress Ring */}
                   <circle
-                    cx="72"
-                    cy="72"
+                    cx="76"
+                    cy="76"
                     r={ringRadius}
                     className="stroke-[#007CA6] transition-all duration-1000 ease-out"
                     strokeWidth="11"
@@ -391,7 +391,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
                     Dnes nasbíráno
                   </span>
-                  <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-mono my-1 leading-none">
+                  <span className="text-3xl font-black text-slate-900 tracking-tight font-mono my-1 leading-none">
                     {currentSteps.toLocaleString()}
                   </span>
                   <span className="text-xs font-bold text-[#007CA6] leading-none">
@@ -401,30 +401,30 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               </div>
 
               {/* Sub-device pill */}
-              <div className="text-center text-[11px] font-medium text-slate-400 mt-1">
+              <div className="text-center text-[11px] font-medium text-slate-400">
                 Kroky z přístroje <strong className="text-slate-700">{currentDevice}</strong>
               </div>
 
               {/* 3 Metric Pills (Distance, Calories, Time) */}
-              <div className="grid grid-cols-3 gap-2 pt-3 mt-3 border-t border-slate-100">
-                <div className="bg-slate-50/80 rounded-xl p-2 text-center border border-slate-100">
-                  <span className="text-sm block mb-0.5">👟</span>
+              <div className="grid grid-cols-3 gap-2.5 pt-3 border-t border-slate-100">
+                <div className="bg-sky-50/70 rounded-2xl p-2.5 text-center border border-sky-100">
+                  <span className="text-base block mb-0.5">👟</span>
                   <span className="text-xs sm:text-sm font-black text-slate-900 font-mono block leading-tight">
                     {distanceKm}
                   </span>
                   <span className="text-[9px] font-semibold text-slate-400 uppercase">Kilometrů</span>
                 </div>
 
-                <div className="bg-slate-50/80 rounded-xl p-2 text-center border border-slate-100">
-                  <span className="text-sm block mb-0.5">🔥</span>
+                <div className="bg-amber-50/70 rounded-2xl p-2.5 text-center border border-amber-100">
+                  <span className="text-base block mb-0.5">🔥</span>
                   <span className="text-xs sm:text-sm font-black text-slate-900 font-mono block leading-tight">
                     {activeCalories}
                   </span>
                   <span className="text-[9px] font-semibold text-slate-400 uppercase">Aktivních kcal</span>
                 </div>
 
-                <div className="bg-slate-50/80 rounded-xl p-2 text-center border border-slate-100">
-                  <span className="text-sm block mb-0.5">⏱️</span>
+                <div className="bg-emerald-50/70 rounded-2xl p-2.5 text-center border border-emerald-100">
+                  <span className="text-base block mb-0.5">⏱️</span>
                   <span className="text-xs sm:text-sm font-black text-slate-900 font-mono block leading-tight">
                     {activeMinutes} min
                   </span>
@@ -433,165 +433,116 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               </div>
             </div>
 
-            {/* CIRKADIÁNNÍ ROZPAD DNE (4 KARTY FTK UP S PROSTOREM A HLOUBKOU) */}
-            <div className="space-y-2.5 w-full min-w-0">
-              <div className="flex items-center justify-between px-0.5 min-w-0">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 truncate">
-                  Rozpad dne podle biorytmu
-                </h3>
-                <span className="text-[11px] font-bold text-[#007CA6] shrink-0">FTK UP model</span>
+            {/* CARD 2: UNIFIED CIRKADIÁNNÍ RYTMUS (Jednotná Apple karta s hloubkou a insets) */}
+            <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100/80 space-y-4 w-full min-w-0">
+              <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🎒</span>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    Cirkadiánní den
+                  </h3>
+                </div>
+                <span className="text-[11px] font-bold text-[#007CA6] bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">
+                  4 etapy • FTK UP
+                </span>
               </div>
 
               {/* 1. Ranní cesta */}
-              <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2 min-w-0">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-lg shrink-0">
-                      🎒
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-black text-slate-900 block truncate">Cesta do školy</span>
-                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.2 rounded">06:00 – 08:00</span>
-                    </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm">🎒</span>
+                    <span className="text-xs font-extrabold text-slate-900 truncate">Cesta do školy</span>
+                    <span className="text-[9px] font-bold text-amber-800 bg-amber-100/80 px-1.5 py-0.2 rounded shrink-0">06:00 – 08:00</span>
                   </div>
-
                   <div className="text-right shrink-0">
-                    <span className="text-sm font-black text-slate-900 font-mono block leading-tight">
-                      {breakdown.morningCommute.toLocaleString()}
-                    </span>
-                    <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
-                      {((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                    </span>
+                    <span className="text-xs font-black text-slate-900 font-mono">{breakdown.morningCommute.toLocaleString()}</span>
+                    <span className="text-[10px] font-bold text-amber-700 ml-1.5">{((breakdown.morningCommute / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
                   </div>
                 </div>
-
-                <div className="pt-1.5 border-t border-slate-50 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400 font-medium">Aktivní chodec do školy 🚶‍♂️</span>
-                  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-amber-400 rounded-full" 
-                      style={{ width: `${Math.min(100, (breakdown.morningCommute / 2000) * 100)}%` }} 
-                    />
-                  </div>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-400 rounded-full" style={{ width: `${Math.min(100, (breakdown.morningCommute / 2000) * 100)}%` }} />
                 </div>
+                <div className="text-[10px] text-slate-400 font-medium">Aktivní chodec do školy 🚶‍♂️</div>
               </div>
+
+              <div className="border-t border-slate-100" />
 
               {/* 2. Škola */}
-              <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2 min-w-0">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200/80 flex items-center justify-center text-lg shrink-0">
-                      🏫
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-black text-slate-900 block truncate">Dopoledne ve škole</span>
-                      <span className="text-[9px] font-bold text-sky-800 bg-sky-100/70 px-1.5 py-0.2 rounded">08:00 – 14:00</span>
-                    </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm">🏫</span>
+                    <span className="text-xs font-extrabold text-slate-900 truncate">Dopoledne ve škole</span>
+                    <span className="text-[9px] font-bold text-sky-800 bg-sky-100/80 px-1.5 py-0.2 rounded shrink-0">08:00 – 14:00</span>
                   </div>
-
                   <div className="text-right shrink-0">
-                    <span className="text-sm font-black text-slate-900 font-mono block leading-tight">
-                      {breakdown.schoolHours.toLocaleString()}
-                    </span>
-                    <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">
-                      {((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                    </span>
+                    <span className="text-xs font-black text-slate-900 font-mono">{breakdown.schoolHours.toLocaleString()}</span>
+                    <span className="text-[10px] font-bold text-sky-700 ml-1.5">{((breakdown.schoolHours / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
                   </div>
                 </div>
-
-                <div className="pt-1.5 border-t border-slate-50 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400 font-medium">Přestávky & tělocvik 🏃</span>
-                  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-sky-400 rounded-full" 
-                      style={{ width: `${Math.min(100, (breakdown.schoolHours / 3000) * 100)}%` }} 
-                    />
-                  </div>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-sky-400 rounded-full" style={{ width: `${Math.min(100, (breakdown.schoolHours / 3000) * 100)}%` }} />
                 </div>
+                <div className="text-[10px] text-slate-400 font-medium">Přestávky & tělocvik 🏃</div>
               </div>
+
+              <div className="border-t border-slate-100" />
 
               {/* 3. Kroužky a hřiště */}
-              <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2 min-w-0">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-lg shrink-0">
-                      ⚽
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-black text-slate-900 block truncate">Kroužky & Venku</span>
-                      <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100/70 px-1.5 py-0.2 rounded">14:00 – 19:00</span>
-                    </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm">⚽</span>
+                    <span className="text-xs font-extrabold text-slate-900 truncate">Kroužky & Venku</span>
+                    <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.2 rounded shrink-0">14:00 – 19:00</span>
                   </div>
-
                   <div className="text-right shrink-0">
-                    <span className="text-sm font-black text-slate-900 font-mono block leading-tight">
-                      {breakdown.afterSchool.toLocaleString()}
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                      {((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                    </span>
+                    <span className="text-xs font-black text-slate-900 font-mono">{breakdown.afterSchool.toLocaleString()}</span>
+                    <span className="text-[10px] font-bold text-emerald-700 ml-1.5">{((breakdown.afterSchool / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
                   </div>
                 </div>
-
-                <div className="pt-1.5 border-t border-slate-50 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400 font-medium">Sport & volný pohyb ⚡</span>
-                  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-emerald-400 rounded-full" 
-                      style={{ width: `${Math.min(100, (breakdown.afterSchool / 3000) * 100)}%` }} 
-                    />
-                  </div>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${Math.min(100, (breakdown.afterSchool / 3000) * 100)}%` }} />
                 </div>
+                <div className="text-[10px] text-slate-400 font-medium">Sport & volný pohyb ⚡</div>
               </div>
 
+              <div className="border-t border-slate-100" />
+
               {/* 4. Večer doma */}
-              <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2 min-w-0">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200/80 flex items-center justify-center text-lg shrink-0">
-                      🏠
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-black text-slate-900 block truncate">Večer doma</span>
-                      <span className="text-[9px] font-bold text-purple-800 bg-purple-100/70 px-1.5 py-0.2 rounded">19:00 – 24:00</span>
-                    </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm">🏠</span>
+                    <span className="text-xs font-extrabold text-slate-900 truncate">Večer doma</span>
+                    <span className="text-[9px] font-bold text-purple-800 bg-purple-100/80 px-1.5 py-0.2 rounded shrink-0">19:00 – 24:00</span>
                   </div>
-
                   <div className="text-right shrink-0">
-                    <span className="text-sm font-black text-slate-900 font-mono block leading-tight">
-                      {breakdown.evening.toLocaleString()}
-                    </span>
-                    <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">
-                      {((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} % dne
-                    </span>
+                    <span className="text-xs font-black text-slate-900 font-mono">{breakdown.evening.toLocaleString()}</span>
+                    <span className="text-[10px] font-bold text-purple-700 ml-1.5">{((breakdown.evening / Math.max(1, breakdown.total)) * 100).toFixed(0)} %</span>
                   </div>
                 </div>
-
-                <div className="pt-1.5 border-t border-slate-50 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400 font-medium">Klidový režim před spánkem 🌙</span>
-                  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-purple-400 rounded-full" 
-                      style={{ width: `${Math.min(100, (breakdown.evening / 1000) * 100)}%` }} 
-                    />
-                  </div>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-purple-400 rounded-full" style={{ width: `${Math.min(100, (breakdown.evening / 1000) * 100)}%` }} />
                 </div>
+                <div className="text-[10px] text-slate-400 font-medium">Klidový režim před spánkem 🌙</div>
               </div>
             </div>
 
-            {/* TÝDENNÍ HISTORIE (Mini Bar Chart) */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2.5">
+            {/* CARD 3: TÝDENNÍ HISTORIE */}
+            <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100/80 space-y-3 w-full min-w-0">
               <div className="flex items-center justify-between gap-1">
                 <span className="text-xs font-black text-slate-900">Aktivita v týdnu</span>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                   Průměr 8 970 / den
                 </span>
               </div>
 
-              <div className="grid grid-cols-7 gap-1.5 items-end h-20 pt-1">
+              <div className="grid grid-cols-7 gap-1.5 items-end h-22 pt-1">
                 {weekDays.map((wd, i) => (
                   <div key={i} className="flex flex-col items-center gap-1 h-full justify-end">
-                    <div className="w-full max-w-[24px] bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end h-14 p-0.5">
+                    <div className="w-full max-w-[24px] bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end h-16 p-0.5">
                       <div 
                         className={`w-full rounded-full transition-all ${
                           wd.isToday 
@@ -611,9 +562,9 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               </div>
             </div>
 
-            {/* VĚDECKÉ DOPORUČENÍ FTK UP */}
-            <div className="bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200/80 rounded-2xl p-3.5 shadow-2xs flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-white border border-sky-200 flex items-center justify-center text-lg shrink-0 shadow-2xs">
+            {/* CARD 4: VĚDECKÉ DOPORUČENÍ FTK UP */}
+            <div className="bg-gradient-to-r from-sky-50 to-indigo-50/70 border border-sky-200/80 rounded-3xl p-4 shadow-2xs flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-sky-200 flex items-center justify-center text-xl shrink-0 shadow-2xs">
                 🎓
               </div>
               <div className="min-w-0">
@@ -633,13 +584,13 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         {/* TAB 2: VÝZVA (Interactive Game, Map, Teacher Quest & Milestones)      */}
         {/* ==================================================================== */}
         {activeTab === 'challenge' && (
-          <div className="space-y-3.5 animate-fade-in w-full min-w-0">
+          <div className="space-y-4 animate-fade-in w-full min-w-0">
             
             {/* CLASS GOAL & CONTRIBUTION CARD */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-3">
+            <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100/80 space-y-3">
               <div className="flex items-center justify-between gap-2 min-w-0">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 shadow-2xs">
                     <Trophy className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
@@ -652,7 +603,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                   </div>
                 </div>
 
-                <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                <span className="px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
                   {progressPercent} %
                 </span>
               </div>
@@ -666,7 +617,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               </div>
 
               {/* Next Milestone Banner */}
-              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs min-w-0">
+              <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between text-xs min-w-0">
                 <div className="flex items-center gap-1.5 text-slate-600 font-medium truncate">
                   <Compass className="w-3.5 h-3.5 text-[#007CA6] shrink-0" />
                   <span className="truncate">Další milník: <strong>Vídeň</strong></span>
@@ -678,8 +629,8 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             </div>
 
             {/* INTERACTIVE GAME VIEWPORT */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden">
-              <div className="p-2 border-b border-slate-100 flex items-center justify-between gap-1 bg-slate-50/50">
+            <div className="bg-white rounded-3xl border border-slate-100/80 shadow-[0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+              <div className="p-2.5 border-b border-slate-100 flex items-center justify-between gap-1 bg-slate-50/50">
                 <button
                   onClick={() => setGameSubTab('map')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -710,7 +661,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               </div>
 
               {/* Game Viewport */}
-              <div className="w-full relative h-[320px] bg-slate-100">
+              <div className="w-full relative h-[340px] bg-slate-100">
                 {gameSubTab === 'map' && (
                   <ModuleMap 
                     progress={progressPercent / 100}
@@ -734,7 +685,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 )}
 
                 {/* Floating Map HUD pill */}
-                <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-white/90 backdrop-blur-md p-2 rounded-xl border border-white/80 shadow-md flex items-center justify-between pointer-events-none">
+                <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl border border-white/80 shadow-md flex items-center justify-between pointer-events-none">
                   <div className="flex items-center gap-1.5 truncate">
                     <span className="text-sm">📍</span>
                     <span className="text-[11px] font-bold text-slate-800 truncate">
@@ -750,12 +701,12 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
             {/* EDUCATIONAL RIDDLE QUEST FROM TEACHER */}
             {currentChallenge.customTaskPrompt && (
-              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200/90 rounded-2xl p-4 shadow-2xs space-y-2.5">
+              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200/90 rounded-3xl p-5 shadow-xs space-y-3">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-indigo-900 bg-white px-2 py-0.5 rounded-full border border-indigo-200">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-900 bg-white px-2.5 py-0.5 rounded-full border border-indigo-200">
                     💡 Úkol z výuky • {currentChallenge.subjectCategory || 'Zeměpis'}
                   </span>
-                  <HelpCircle className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                  <HelpCircle className="w-4 h-4 text-indigo-500 shrink-0" />
                 </div>
 
                 <h4 className="font-extrabold text-xs text-indigo-950 leading-snug">
@@ -763,22 +714,22 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 </h4>
 
                 {currentChallenge.customClue && (
-                  <div className="p-2 bg-white/95 rounded-xl border border-indigo-100 text-[11px] text-indigo-900 leading-relaxed">
+                  <div className="p-2.5 bg-white/95 rounded-2xl border border-indigo-100 text-[11px] text-indigo-900 leading-relaxed shadow-2xs">
                     🔍 <strong>Nápověda:</strong> {currentChallenge.customClue}
                   </div>
                 )}
 
-                <form onSubmit={handleVerifyRiddle} className="flex gap-1.5 pt-0.5">
+                <form onSubmit={handleVerifyRiddle} className="flex gap-2 pt-0.5">
                   <input
                     type="text"
                     placeholder="Sem napiš odpověď..."
                     value={riddleGuess}
                     onChange={(e) => setRiddleGuess(e.target.value)}
-                    className="flex-1 min-w-0 px-3 py-2 text-xs font-bold bg-white border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="flex-1 min-w-0 px-3.5 py-2 text-xs font-bold bg-white border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                   <button
                     type="submit"
-                    className="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
                   >
                     <span>Ověřit</span>
                     <Send className="w-3 h-3" />
@@ -786,14 +737,14 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                 </form>
 
                 {riddleFeedback === 'success' && (
-                  <div className="text-[11px] font-bold text-emerald-800 bg-emerald-100 p-2 rounded-xl border border-emerald-300 flex items-center gap-1.5 animate-fade-in">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <div className="text-[11px] font-bold text-emerald-800 bg-emerald-100 p-2.5 rounded-xl border border-emerald-300 flex items-center gap-1.5 animate-fade-in">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>🎉 Správně! Získáváš bonus pro třídu!</span>
                   </div>
                 )}
                 {riddleFeedback === 'wrong' && (
-                  <div className="text-[11px] font-bold text-rose-800 bg-rose-100 p-2 rounded-xl border border-rose-300 flex items-center gap-1.5 animate-fade-in">
-                    <X className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  <div className="text-[11px] font-bold text-rose-800 bg-rose-100 p-2.5 rounded-xl border border-rose-300 flex items-center gap-1.5 animate-fade-in">
+                    <X className="w-4 h-4 text-rose-600 shrink-0" />
                     <span>Zkus to ještě jednou podle nápovědy!</span>
                   </div>
                 )}
@@ -801,14 +752,14 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             )}
 
             {/* CLASS TEAM ACTIVITY STREAM (Live Ticker) */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2">
+            <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.05)] space-y-2.5">
               <span className="text-xs font-black text-slate-900 block">
                 Poslední aktivita spolužáků
               </span>
 
               <div className="space-y-1.5">
                 {classStudents.slice(0, 3).map((st, i) => (
-                  <div key={i} className="p-2 bg-slate-50 rounded-xl flex items-center justify-between text-xs border border-slate-100">
+                  <div key={i} className="p-2.5 bg-slate-50 rounded-2xl flex items-center justify-between text-xs border border-slate-100">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-base shrink-0">{st.avatar || '👤'}</span>
                       <span className="font-bold text-slate-800 truncate">{st.name}</span>
@@ -828,10 +779,10 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         {/* TAB 3: TŘÍDA (Leaderboard, Olympic Podium & Community Kudos)          */}
         {/* ==================================================================== */}
         {activeTab === 'class' && (
-          <div className="space-y-3.5 animate-fade-in w-full min-w-0">
+          <div className="space-y-4 animate-fade-in w-full min-w-0">
             
             {/* CLASS COMMUNITY HEADER */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2.5">
+            <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100/80 space-y-3">
               <div className="flex items-center justify-between gap-1 min-w-0">
                 <div className="min-w-0">
                   <h3 className="text-sm font-black text-slate-900 truncate">{currentGroup.name}</h3>
@@ -839,17 +790,17 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                     Průměr: <strong className="text-slate-800 font-mono">{classAvgSteps.toLocaleString()}</strong> kroků/žák
                   </span>
                 </div>
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0">
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full shrink-0">
                   🚶‍♂️ {activeCommutePercent} % pěšky
                 </span>
               </div>
 
               {/* FTK UP Recommended Toggle: Team share vs Raw steps */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+              <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 text-xs">
                 <span className="font-bold text-slate-600">Režim zobrazení:</span>
                 <button
                   onClick={() => setUseTeamShare(!useTeamShare)}
-                  className="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
+                  className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
                 >
                   {useTeamShare ? '👥 Týmový podíl (%)' : '📊 Absolutní kroky'}
                 </button>
@@ -858,12 +809,12 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
             {/* OLYMPIC PODIUM PRO TOP 3 (Visual Gamification) */}
             {sortedClass.length >= 3 && (
-              <div className="bg-gradient-to-b from-slate-900 to-slate-800 rounded-2xl p-4 text-white shadow-md relative overflow-hidden">
+              <div className="bg-gradient-to-b from-slate-900 to-slate-800 rounded-3xl p-5 text-white shadow-md relative overflow-hidden">
                 <div className="text-center text-[10px] font-black uppercase tracking-widest text-cyan-400 mb-2">
                   🏆 Stupně vítězů třídy
                 </div>
 
-                <div className="grid grid-cols-3 gap-1.5 items-end pt-3 pb-1">
+                <div className="grid grid-cols-3 gap-2 items-end pt-3 pb-1">
                   
                   {/* 2nd Place (Silver) */}
                   <div className="flex flex-col items-center min-w-0">
@@ -904,8 +855,8 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             )}
 
             {/* CLASSMATES LEADERBOARD LIST */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1 mb-0.5">
+            <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.05)] space-y-2">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1 mb-1">
                 Kompletní žebříček ({sortedClass.length} žáků):
               </div>
 
@@ -918,13 +869,13 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                   return (
                     <div
                       key={s.id}
-                      className={`p-2.5 rounded-xl flex items-center justify-between gap-2 transition-all ${
+                      className={`p-3 rounded-2xl flex items-center justify-between gap-2 transition-all ${
                         isMe
                           ? 'bg-sky-50/90 border-2 border-[#007CA6] shadow-2xs'
                           : 'bg-slate-50/80 border border-slate-100'
                       }`}
                     >
-                      <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <span className="text-xs font-black w-4 text-center shrink-0">{medal}</span>
                         <span className="text-lg shrink-0">{s.avatar || '👤'}</span>
                         <div className="min-w-0">
@@ -958,7 +909,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                         {!isMe && (
                           <button
                             onClick={() => handleSendKudos(s.id)}
-                            className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${
+                            className={`p-1.5 rounded-xl text-xs transition-all cursor-pointer ${
                               kudosSent[s.id]
                                 ? 'bg-amber-100 text-amber-800 scale-110'
                                 : 'bg-white hover:bg-slate-100 text-slate-400 border border-slate-200'
@@ -982,23 +933,23 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
         {/* TAB 4: SENZORY (Wearables, Health Connect, Live Sync & Calibration)   */}
         {/* ==================================================================== */}
         {activeTab === 'sync' && (
-          <div className="space-y-3.5 animate-fade-in w-full min-w-0">
+          <div className="space-y-4 animate-fade-in w-full min-w-0">
             
             {/* HERO CONNECTED DEVICE CARD */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-3 relative overflow-hidden">
+            <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100/80 space-y-3.5 relative overflow-hidden">
               <div className="flex items-center justify-between gap-2 min-w-0">
-                <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className="relative shrink-0">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-50 to-sky-100 border border-cyan-200 flex items-center justify-center text-xl shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-50 to-sky-100 border border-cyan-200 flex items-center justify-center text-2xl shadow-xs">
                       {currentDevice.includes('Garmin') ? '⌚' : currentDevice.includes('Apple') ? '🍏' : '📱'}
                     </div>
-                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
                   </div>
 
                   <div className="min-w-0">
-                    <h3 className="text-xs font-black text-slate-900 truncate">{currentDevice}</h3>
+                    <h3 className="text-xs sm:text-sm font-black text-slate-900 truncate">{currentDevice}</h3>
                     <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1 mt-0.5 truncate">
-                      <ShieldCheck className="w-3 h-3 shrink-0" />
+                      <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{sensorStatus}</span>
                     </span>
                   </div>
@@ -1006,7 +957,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
                 <button
                   onClick={() => setShowDevicePicker(!showDevicePicker)}
-                  className="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0"
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer shadow-2xs shrink-0"
                 >
                   Změnit
                 </button>
@@ -1014,7 +965,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
               {/* Device Selector Sheet */}
               {showDevicePicker && (
-                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 animate-fade-in">
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5 animate-fade-in">
                   <div className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">
                     Vyberte své měřicí zařízení:
                   </div>
@@ -1030,7 +981,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                         setCurrentDevice(dev.id);
                         setShowDevicePicker(false);
                       }}
-                      className={`w-full p-2 rounded-lg text-left transition-all ${
+                      className={`w-full p-2.5 rounded-xl text-left transition-all ${
                         currentDevice === dev.id
                           ? 'bg-[#007CA6] text-white shadow-2xs font-bold'
                           : 'bg-white hover:bg-slate-100 text-slate-800 border border-slate-200/70'
@@ -1045,22 +996,22 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
 
               {/* Status details bar */}
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
                   <span className="text-[9px] text-slate-400 block font-bold uppercase truncate">Poslední sync</span>
-                  <strong className="text-slate-800 text-[11px] font-mono block truncate">{lastSyncTime}</strong>
+                  <strong className="text-slate-800 text-xs font-mono block truncate">{lastSyncTime}</strong>
                 </div>
-                <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-100">
                   <span className="text-[9px] text-slate-400 block font-bold uppercase truncate">Stav baterie</span>
-                  <strong className="text-emerald-700 text-[11px] flex items-center gap-1 truncate">
-                    <BatteryCharging className="w-3 h-3 shrink-0" /> 88 % • Aktivní
+                  <strong className="text-emerald-700 text-xs flex items-center gap-1 truncate">
+                    <BatteryCharging className="w-3.5 h-3.5 shrink-0" /> 88 % • Aktivní
                   </strong>
                 </div>
               </div>
 
               {/* SUCCESS NOTIFICATION */}
               {syncSuccessMsg && (
-                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-1.5 animate-fade-in shadow-2xs">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-2 animate-fade-in shadow-2xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span className="truncate">{syncSuccessMsg}</span>
                 </div>
               )}
@@ -1069,7 +1020,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               <button
                 onClick={handleSyncNow}
                 disabled={isSyncing}
-                className="w-full py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm text-white bg-gradient-to-r from-[#007CA6] via-cyan-500 to-[#007CA6] hover:brightness-110 shadow-md active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                className="w-full py-4 px-5 rounded-2xl font-black text-xs sm:text-sm text-white bg-gradient-to-r from-[#007CA6] via-cyan-500 to-[#007CA6] hover:brightness-110 shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
               >
                 {isSyncing ? (
                   <>
@@ -1086,7 +1037,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             </div>
 
             {/* QUICK STEP PRESETS */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-2.5">
+            <div className="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100/80 space-y-3">
               <span className="text-xs font-black text-slate-900 block">
                 Rychlé přidání kroků
               </span>
@@ -1094,21 +1045,21 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => handleQuickAdd(500)}
-                  className="p-2 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 text-center transition-all cursor-pointer"
+                  className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 text-center transition-all cursor-pointer"
                 >
                   <span className="text-xs font-black text-slate-900 block">+500</span>
                   <span className="text-[8px] text-slate-400 font-bold uppercase block truncate">Přestávka</span>
                 </button>
                 <button
                   onClick={() => handleQuickAdd(1200)}
-                  className="p-2 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 text-center transition-all cursor-pointer"
+                  className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 text-center transition-all cursor-pointer"
                 >
                   <span className="text-xs font-black text-slate-900 block">+1 200</span>
                   <span className="text-[8px] text-slate-400 font-bold uppercase block truncate">Tělocvik</span>
                 </button>
                 <button
                   onClick={() => handleQuickAdd(2500)}
-                  className="p-2 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 text-center transition-all cursor-pointer"
+                  className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 text-center transition-all cursor-pointer"
                 >
                   <span className="text-xs font-black text-slate-900 block">+2 500</span>
                   <span className="text-[8px] text-slate-400 font-bold uppercase block truncate">Trénink</span>
@@ -1126,11 +1077,11 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
               </div>
 
               {isCalibrating && (
-                <form onSubmit={handleSaveCalibration} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 animate-fade-in">
+                <form onSubmit={handleSaveCalibration} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 animate-fade-in">
                   <label className="text-[10px] font-bold text-slate-700 block">
                     Přesný počet kroků z náramku:
                   </label>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-2">
                     <input
                       type="number"
                       min="0"
@@ -1138,12 +1089,12 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
                       value={calibrationValue}
                       onChange={(e) => setCalibrationValue(e.target.value)}
                       placeholder={String(currentStudent.steps)}
-                      className="flex-1 min-w-0 px-3 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007CA6]"
+                      className="flex-1 min-w-0 px-3 py-2 text-xs font-bold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#007CA6]"
                       autoFocus
                     />
                     <button
                       type="submit"
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#007CA6] text-white hover:bg-[#006588] transition-all cursor-pointer shadow-xs shrink-0"
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-[#007CA6] text-white hover:bg-[#006588] transition-all cursor-pointer shadow-xs shrink-0"
                     >
                       Uložit
                     </button>
@@ -1153,7 +1104,7 @@ export const StudentMobileApp: React.FC<StudentMobileAppProps> = ({
             </div>
 
             {/* DEDUPLIKACE FTK UP */}
-            <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-200/80 space-y-1">
+            <div className="bg-slate-50/80 rounded-2xl p-3.5 border border-slate-200/80 space-y-1">
               <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Kinantropologická deduplikace (FTK UP)</span>
